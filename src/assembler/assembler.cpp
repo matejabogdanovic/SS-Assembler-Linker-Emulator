@@ -1,6 +1,7 @@
 #include <iostream>
-#include <fstream>
+
 #include <string.h>
+
 
 static int parseArguments(int argc, char* argv[], char** input, char** output){
   if(argc < 2)return -1; 
@@ -21,27 +22,24 @@ static int parseArguments(int argc, char* argv[], char** input, char** output){
   return -1;
 }
 
+extern void yyerror(const char*); // error function
+extern int yyparse(); // parsing function
+extern FILE* yyin; // input file
+
 static int processing(const char* input, const char* output){
-  std::ifstream inputFile(input);
-  if(!inputFile.is_open()){
-    std::cerr << "asembler: error: input file doesn't exist.\n";
-    return -1;
-  }
-  std::cout << "Start processing.\n";
-  std::string line;
-  while (getline(inputFile, line)) {
-    std::cout << line << std::endl;
-  }
 
-  inputFile.close();
 
-  std::ofstream outputFile(output, std::ofstream::out | std::ofstream::binary ); 
-  if(!outputFile.is_open()){
-    std::cerr << "asembler: error: output file can't be open.\n";
-    return -1;
-  }
-  outputFile << "Output file working.";
-  outputFile.close();
+    FILE* inputFile = fopen(input, "r");
+		if(!inputFile){
+      std::cerr << "asembler: error: input file doesn't exist.\n";
+			return -1;
+		}
+
+		yyin = inputFile;
+		yyparse();
+    fclose(inputFile);
+
+      
   return 0;
 }
 
