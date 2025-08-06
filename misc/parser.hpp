@@ -58,8 +58,39 @@ extern int yydebug;
     ENDL = 258,
     COLON = 259,
     SYMBOL = 260,
-    SECTION = 261,
-    END = 262
+    GLOBAl = 261,
+    EXTERN = 262,
+    SECTION = 263,
+    WORD = 264,
+    SKIP = 265,
+    END = 266,
+    SECTION_NAME = 267,
+    HALT = 268,
+    INT = 269,
+    IRET = 270,
+    RET = 271,
+    CALL = 272,
+    JMP = 273,
+    BEQ = 274,
+    BNE = 275,
+    BGT = 276,
+    PUSH = 277,
+    POP = 278,
+    XCHG = 279,
+    ADD = 280,
+    SUB = 281,
+    MUL = 282,
+    DIV = 283,
+    NOT = 284,
+    AND = 285,
+    OR = 286,
+    XOR = 287,
+    SHL = 288,
+    SHR = 289,
+    LD = 290,
+    ST = 291,
+    CSRRD = 292,
+    CSRWR = 293
   };
 #endif
 
@@ -71,7 +102,7 @@ union YYSTYPE
 
   std::string* str;
 
-#line 75 "misc/parser.hpp"
+#line 106 "misc/parser.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -131,8 +131,39 @@ extern int yydebug;
     ENDL = 258,
     COLON = 259,
     SYMBOL = 260,
-    SECTION = 261,
-    END = 262
+    GLOBAl = 261,
+    EXTERN = 262,
+    SECTION = 263,
+    WORD = 264,
+    SKIP = 265,
+    END = 266,
+    SECTION_NAME = 267,
+    HALT = 268,
+    INT = 269,
+    IRET = 270,
+    RET = 271,
+    CALL = 272,
+    JMP = 273,
+    BEQ = 274,
+    BNE = 275,
+    BGT = 276,
+    PUSH = 277,
+    POP = 278,
+    XCHG = 279,
+    ADD = 280,
+    SUB = 281,
+    MUL = 282,
+    DIV = 283,
+    NOT = 284,
+    AND = 285,
+    OR = 286,
+    XOR = 287,
+    SHL = 288,
+    SHR = 289,
+    LD = 290,
+    ST = 291,
+    CSRRD = 292,
+    CSRWR = 293
   };
 #endif
 
@@ -144,7 +175,7 @@ union YYSTYPE
 
   std::string* str;
 
-#line 148 "misc/parser.cpp"
+#line 179 "misc/parser.cpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -461,21 +492,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  12
+#define YYFINAL  25
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   14
+#define YYLAST   33
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  8
+#define YYNTOKENS  39
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  7
+#define YYNNTS  10
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  11
+#define YYNRULES  25
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  18
+#define YYNSTATES  32
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   262
+#define YYMAXUTOK   293
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -513,15 +544,19 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    31,    31,    34,    35,    39,    40,    41,    43,    44,
-      46,    47
+       0,    61,    61,    64,    65,    67,    68,    69,    70,    72,
+      72,    74,    76,    76,    78,    79,    80,    81,    82,    83,
+      86,    87,    90,    91,    92,    93
 };
 #endif
 
@@ -530,9 +565,13 @@ static const yytype_int8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "ENDL", "COLON", "SYMBOL", "SECTION",
-  "END", "$accept", "program", "lines", "line", "label", "notlabel",
-  "directive", YY_NULLPTR
+  "$end", "error", "$undefined", "ENDL", "COLON", "SYMBOL", "GLOBAl",
+  "EXTERN", "SECTION", "WORD", "SKIP", "END", "SECTION_NAME", "HALT",
+  "INT", "IRET", "RET", "CALL", "JMP", "BEQ", "BNE", "BGT", "PUSH", "POP",
+  "XCHG", "ADD", "SUB", "MUL", "DIV", "NOT", "AND", "OR", "XOR", "SHL",
+  "SHR", "LD", "ST", "CSRRD", "CSRWR", "$accept", "program", "lines",
+  "line", "labels", "label", "notlabel", "directive", "section_name_t",
+  "instruction", YY_NULLPTR
 };
 #endif
 
@@ -541,11 +580,14 @@ static const char *const yytname[] =
    (internal) symbol number NUM (which must be that of a token).  */
 static const yytype_int16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,   261,   262
+       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
+     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
+     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
+     285,   286,   287,   288,   289,   290,   291,   292,   293
 };
 # endif
 
-#define YYPACT_NINF (-5)
+#define YYPACT_NINF (-4)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -559,8 +601,10 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       0,    -2,    -4,    -5,     8,     0,    -5,    -3,     6,    -5,
-      -5,    -5,    -5,    -5,    -5,     7,    -5,    -5
+      -3,    -4,     5,    -4,    -4,    18,    -4,    -4,    -4,    -4,
+      -4,    -4,    -4,     1,    -3,    -4,    11,    -4,    12,    -4,
+      -4,    -4,    -4,    -4,    -4,    -4,    -4,    -4,    -4,    25,
+      -4,    -4
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -568,20 +612,22 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     0,     0,    11,     0,     2,     3,     0,     0,     9,
-       8,    10,     1,     4,     6,     0,     5,     7
+       0,     8,     0,    14,    15,     0,    17,    18,    19,    22,
+      23,    24,    25,     0,     2,     3,     0,     9,     0,    12,
+      13,    11,    20,    21,    16,     1,     4,     7,    10,     0,
+       5,     6
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -5,    -5,    -5,     9,    -5,     4,    -5
+      -4,    -4,    -4,    15,    -4,    16,    17,    -4,    -4,    -4
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5,     6,     7,     8,     9
+      -1,    13,    14,    15,    16,    17,    18,    19,    24,    20
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -589,36 +635,44 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      14,    11,    10,     2,     3,     1,     2,     3,    12,    16,
-      17,    15,     0,     0,    13
+       1,    25,     2,     3,     4,     5,     6,     7,     8,    21,
+       9,    10,    11,    12,    27,    30,     2,     3,     4,     5,
+       6,     7,     8,    22,     9,    10,    11,    12,    31,    26,
+      23,     0,    28,    29
 };
 
 static const yytype_int8 yycheck[] =
 {
-       3,     5,     4,     6,     7,     5,     6,     7,     0,     3,
-       3,     7,    -1,    -1,     5
+       3,     0,     5,     6,     7,     8,     9,    10,    11,     4,
+      13,    14,    15,    16,     3,     3,     5,     6,     7,     8,
+       9,    10,    11,     5,    13,    14,    15,    16,     3,    14,
+      12,    -1,    16,    16
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     5,     6,     7,     9,    10,    11,    12,    13,    14,
-       4,     5,     0,    11,     3,    13,     3,     3
+       0,     3,     5,     6,     7,     8,     9,    10,    11,    13,
+      14,    15,    16,    40,    41,    42,    43,    44,    45,    46,
+      48,     4,     5,    12,    47,     0,    42,     3,    44,    45,
+       3,     3
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,     8,     9,    10,    10,    11,    11,    11,    12,    13,
-      14,    14
+       0,    39,    40,    41,    41,    42,    42,    42,    42,    43,
+      43,    44,    45,    45,    46,    46,    46,    46,    46,    46,
+      47,    47,    48,    48,    48,    48
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     2,     2,     3,     2,     1,
-       2,     1
+       0,     2,     1,     1,     2,     2,     3,     2,     1,     1,
+       2,     2,     1,     1,     1,     1,     2,     1,     1,     1,
+       1,     1,     1,     1,     1,     1
 };
 
 
@@ -1313,26 +1367,86 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 8:
-#line 43 "misc/parser.y"
-                 { std::cout << *(yyvsp[-1].str) << ":" << std::endl; delete (yyvsp[-1].str);}
-#line 1320 "misc/parser.cpp"
-    break;
-
-  case 10:
-#line 46 "misc/parser.y"
-                   { std::cout << ".section " << *(yyvsp[0].str) << std::endl; delete (yyvsp[0].str); }
-#line 1326 "misc/parser.cpp"
-    break;
-
   case 11:
-#line 47 "misc/parser.y"
+#line 74 "misc/parser.y"
+                 { std::cout << *(yyvsp[-1].str) << ":" << std::endl; delete (yyvsp[-1].str);}
+#line 1374 "misc/parser.cpp"
+    break;
+
+  case 14:
+#line 78 "misc/parser.y"
+           { std::cout << ".global " << std::endl; }
+#line 1380 "misc/parser.cpp"
+    break;
+
+  case 15:
+#line 79 "misc/parser.y"
+            { std::cout << ".extern " << std::endl; }
+#line 1386 "misc/parser.cpp"
+    break;
+
+  case 16:
+#line 80 "misc/parser.y"
+                           { std::cout << ".section " << *(yyvsp[0].str) << std::endl; delete (yyvsp[0].str); }
+#line 1392 "misc/parser.cpp"
+    break;
+
+  case 17:
+#line 81 "misc/parser.y"
+         { std::cout << ".word " << std::endl; }
+#line 1398 "misc/parser.cpp"
+    break;
+
+  case 18:
+#line 82 "misc/parser.y"
+         { std::cout << ".skip "  << std::endl;  }
+#line 1404 "misc/parser.cpp"
+    break;
+
+  case 19:
+#line 83 "misc/parser.y"
         { std::cout << ".end" << std::endl; }
-#line 1332 "misc/parser.cpp"
+#line 1410 "misc/parser.cpp"
+    break;
+
+  case 20:
+#line 86 "misc/parser.y"
+                { (yyval.str) = (yyvsp[0].str); }
+#line 1416 "misc/parser.cpp"
+    break;
+
+  case 21:
+#line 87 "misc/parser.y"
+                { (yyval.str) = (yyvsp[0].str); }
+#line 1422 "misc/parser.cpp"
+    break;
+
+  case 22:
+#line 90 "misc/parser.y"
+         {std::cout<<"halt"<< std::endl;}
+#line 1428 "misc/parser.cpp"
+    break;
+
+  case 23:
+#line 91 "misc/parser.y"
+        {std::cout<<"int"<< std::endl;}
+#line 1434 "misc/parser.cpp"
+    break;
+
+  case 24:
+#line 92 "misc/parser.y"
+         {std::cout<<"iret"<< std::endl;}
+#line 1440 "misc/parser.cpp"
+    break;
+
+  case 25:
+#line 93 "misc/parser.y"
+        {std::cout<<"ret"<< std::endl;}
+#line 1446 "misc/parser.cpp"
     break;
 
 
-#line 1336 "misc/parser.cpp"
+#line 1450 "misc/parser.cpp"
 
       default: break;
     }
@@ -1564,7 +1678,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 55 "misc/parser.y"
+#line 97 "misc/parser.y"
 
 void yyerror(const char* s) {
   std::cerr << "Greška: " << s << std::endl;

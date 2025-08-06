@@ -27,17 +27,30 @@ extern int yyparse(); // parsing function
 extern FILE* yyin; // input file
 
 static int processing(const char* input, const char* output){
+  FILE* inputFile = fopen(input, "rw+");
+  if(!inputFile){
+    std::cerr << "asembler: error: input file doesn't exist.\n";
+  	return -1;
+  }
+  // check if file ends with \n
+  if (fseek(inputFile, -1, SEEK_END) != 0) {
+      std::cerr <<"asembler: error: fseek";
+      fclose(inputFile);
+      return -1;
+  }
+  // if file doesn't end with \n then append \n 
+  if(((char)fgetc(inputFile))!='\n'){
+    std::cout << "asembler: warning: input file doesn't end with \\n. Inserting new line.\n";
+    fseek(inputFile, 0, SEEK_END);
+    fputc('\n', inputFile);
+  }
+  fseek(inputFile, 0, SEEK_SET);
 
-
-    FILE* inputFile = fopen(input, "r");
-		if(!inputFile){
-      std::cerr << "asembler: error: input file doesn't exist.\n";
-			return -1;
-		}
-
-		yyin = inputFile;
-		yyparse();
-    fclose(inputFile);
+  // parsing
+  yyin = inputFile;
+  yyparse();
+    
+  fclose(inputFile);
 
       
   return 0;

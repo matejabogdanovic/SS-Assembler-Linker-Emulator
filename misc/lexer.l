@@ -9,22 +9,55 @@ extern int yyerror(const char*);
 %option noyywrap
 
 
-whitespace [ \t]+ 
+whitespace [ \t]+
+comment "#".* 
 endl [\n]+
 colon ":"
-
 symbol [a-zA-Z_][a-zA-Z0-9_]*
-
-
-/* directives */
-end ".end"
-section ".section"
-
+section_name [\.a-zA-Z0-9_]+
 
 %%
 
+".global" {return GLOBAl;}
+".extern" {return EXTERN;}
+".section" {return SECTION;}
+".word" {return WORD;}
+".skip" {return SKIP;}
+".end" { return END;}
 
-{whitespace} { };
+
+"halt" {return HALT;}
+"int" {return INT;}
+"iret" {return IRET;}
+"ret" {return RET;}
+
+"call" {return CALL;}
+"jmp" {return JMP;}
+"beq" {return BEQ;}
+"bne" {return BNE;}
+"bgt" {return BGT;}
+"push" {return PUSH;}
+"pop" {return POP;}
+"xchg" {return XCHG;}
+"add" {return ADD;}
+"sub" {return SUB;}
+"mul" {return MUL;}
+"div" {return DIV;}
+"not" {return NOT;}
+"and" {return AND;}
+"or" {return OR;}
+"xor" {return XOR;}
+"shl" {return SHL;}
+"shr" {return SHR;}
+"ld" {return LD;}
+"st" {return ST;}
+"csrrd" {return CSRRD;}
+"csrwr" {return CSRWR;}
+
+
+{comment} { std::cout<<"(komentar)"; }
+
+{whitespace} {  }
 
 {endl} { return ENDL;}
 
@@ -32,10 +65,7 @@ section ".section"
 
 {symbol} { yylval.str = new std::string(yytext); return SYMBOL;}
 
-{end} { return END; }
-
-{section} return SECTION;
-
+{section_name} {yylval.str = new std::string(yytext); return SECTION_NAME;}
 
 . {yyerror("Unknown symbol.");} 
 %%
