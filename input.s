@@ -1,6 +1,6 @@
 .section my_section_1
-.global
-.extern 
+.global a, b
+.extern  a, b, c, d, sym1, sym_vb1
 
 
 label1: .section .gas 

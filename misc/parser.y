@@ -18,11 +18,11 @@ void yyerror(const char *s);
 }
 
 /*  */
-%token ENDL COLON 
+%token ENDL COLON COMMA
 %token <str> SYMBOL 
 
 /* directives */
-%token GLOBAl EXTERN SECTION WORD SKIP END
+%token GLOBAL EXTERN SECTION WORD SKIP END
 %token <str> SECTION_NAME 
 
 %type <str> section_name_t 
@@ -75,12 +75,20 @@ label:
 ;  
 notlabel: directive | instruction; 
 directive:
-    GLOBAl { std::cout << ".global " << std::endl; } |
-    EXTERN  { std::cout << ".extern " << std::endl; } |
+    GLOBAL sym_list_global { std::cout << std::endl; } |
+    EXTERN  sym_list_extern { std::cout << std::endl; } |
     SECTION section_name_t { std::cout << ".section " << *$2 << std::endl; delete $2; } |
     WORD { std::cout << ".word " << std::endl; } |
     SKIP { std::cout << ".skip "  << std::endl;  } |
     END { std::cout << ".end" << std::endl; }
+;
+sym_list_global:
+    SYMBOL {std::cout << ".global "<< *$1; delete $1;}|
+    sym_list_global COMMA SYMBOL { std::cout << ", " << *$3; delete $3;}
+;
+sym_list_extern:
+    SYMBOL {std::cout << ".extern "<< *$1; delete $1;}|
+    sym_list_extern COMMA SYMBOL { std::cout << ", " << *$3; delete $3;}
 ;
 section_name_t:
   SYMBOL        { $$ = $1; } |  

@@ -13,12 +13,13 @@ whitespace [ \t]+
 comment "#".* 
 endl [\n]+
 colon ":"
+comma ","
 symbol [a-zA-Z_][a-zA-Z0-9_]*
 section_name [\.a-zA-Z0-9_]+
 
 %%
 
-".global" {return GLOBAl;}
+".global" {return GLOBAL;}
 ".extern" {return EXTERN;}
 ".section" {return SECTION;}
 ".word" {return WORD;}
@@ -62,6 +63,8 @@ section_name [\.a-zA-Z0-9_]+
 {endl} { return ENDL;}
 
 {colon} { return COLON;}
+
+{comma} { return COMMA;}
 
 {symbol} { yylval.str = new std::string(yytext); return SYMBOL;}
 
