@@ -2,6 +2,8 @@
 #include "parser.hpp"  
 #include <iostream>
 #include <string>
+#include <stdlib.h>
+#include <stdint.h>
 extern int yyerror(const char*);
 %}
 
@@ -14,8 +16,13 @@ comment "#".*
 endl [\n]+
 colon ":"
 comma ","
+dollar "$"
+
+literal [\-\+]?(([0-9]+|(0[Xx])[0-9A-Fa-f]+))
 symbol [a-zA-Z_][a-zA-Z0-9_]*
 section_name [\.a-zA-Z0-9_]+
+
+gprx ("%sp"|"%pc"|("%r"[0|1|2|3|4|5|6|7|8|9])|("%r1"[0|1|2|3|4|5]))
 
 %%
 
@@ -56,7 +63,7 @@ section_name [\.a-zA-Z0-9_]+
 "csrwr" {return CSRWR;}
 
 
-{comment} { std::cout<<"(komentar)"; }
+{comment} { std::cout<<"(komentar)\n"; }
 
 {whitespace} {  }
 
@@ -65,6 +72,20 @@ section_name [\.a-zA-Z0-9_]+
 {colon} { return COLON;}
 
 {comma} { return COMMA;}
+
+{dollar} { return DOLLAR;}
+
+{literal} { yylval.num = (uint32_t) strtoul(yytext, NULL, 0); return LITERAL; }
+
+{gprx} { 
+  std::string r = yytext;
+ 
+  if(r=="%sp")yylval.reg = 14;
+  else if (r=="%pc")yylval.reg = 15;
+  else yylval.reg =  (uint8_t)strtoul((yytext+2), NULL, 10);
+
+  return GPRX; 
+}
 
 {symbol} { yylval.str = new std::string(yytext); return SYMBOL;}
 

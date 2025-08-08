@@ -46,9 +46,10 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 12 "misc/parser.y"
 
+    #include <cstdint>
     #include <string>
 
-#line 52 "misc/parser.hpp"
+#line 53 "misc/parser.hpp"
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -58,40 +59,43 @@ extern int yydebug;
     ENDL = 258,
     COLON = 259,
     COMMA = 260,
-    SYMBOL = 261,
-    GLOBAL = 262,
-    EXTERN = 263,
-    SECTION = 264,
-    WORD = 265,
-    SKIP = 266,
-    END = 267,
-    SECTION_NAME = 268,
-    HALT = 269,
-    INT = 270,
-    IRET = 271,
-    RET = 272,
-    CALL = 273,
-    JMP = 274,
-    BEQ = 275,
-    BNE = 276,
-    BGT = 277,
-    PUSH = 278,
-    POP = 279,
-    XCHG = 280,
-    ADD = 281,
-    SUB = 282,
-    MUL = 283,
-    DIV = 284,
-    NOT = 285,
-    AND = 286,
-    OR = 287,
-    XOR = 288,
-    SHL = 289,
-    SHR = 290,
-    LD = 291,
-    ST = 292,
-    CSRRD = 293,
-    CSRWR = 294
+    DOLLAR = 261,
+    LITERAL = 262,
+    SYMBOL = 263,
+    GLOBAL = 264,
+    EXTERN = 265,
+    SECTION = 266,
+    WORD = 267,
+    SKIP = 268,
+    END = 269,
+    SECTION_NAME = 270,
+    GPRX = 271,
+    HALT = 272,
+    INT = 273,
+    IRET = 274,
+    RET = 275,
+    CALL = 276,
+    JMP = 277,
+    BEQ = 278,
+    BNE = 279,
+    BGT = 280,
+    PUSH = 281,
+    POP = 282,
+    XCHG = 283,
+    ADD = 284,
+    SUB = 285,
+    MUL = 286,
+    DIV = 287,
+    NOT = 288,
+    AND = 289,
+    OR = 290,
+    XOR = 291,
+    SHL = 292,
+    SHR = 293,
+    LD = 294,
+    ST = 295,
+    CSRRD = 296,
+    CSRWR = 297
   };
 #endif
 
@@ -99,11 +103,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 16 "misc/parser.y"
+#line 17 "misc/parser.y"
 
   std::string* str;
+  std::uint32_t num;
+  int reg;
 
-#line 107 "misc/parser.hpp"
+#line 113 "misc/parser.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
