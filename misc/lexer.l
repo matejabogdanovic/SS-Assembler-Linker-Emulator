@@ -66,7 +66,7 @@ csr ("%status"|"%handler"|"%cause")
 "csrwr" {return CSRWR;}
 
 
-{comment} { std::cout<<"(komentar)\n"; }
+{comment} { }
 
 {whitespace} {  }
 

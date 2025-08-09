@@ -1004,7 +1004,7 @@ YY_RULE_SETUP
 case 33:
 YY_RULE_SETUP
 #line 69 "misc/lexer.l"
-{ std::cout<<"(komentar)\n"; }
+{ }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP

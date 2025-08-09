@@ -21,6 +21,7 @@ int
 halt
 iret
 ret
+
 ld $0x1, %r15
 ld $konstant4, %r0
 st %sp, $15
