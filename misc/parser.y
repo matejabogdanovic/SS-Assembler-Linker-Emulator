@@ -21,7 +21,7 @@ void yyerror(const char *s);
 }
 
 /*  */
-%token ENDL COLON COMMA DOLLAR
+%token ENDL COLON COMMA DOLLAR LBRACKET RBRACKET PLUS
 %token <num> LITERAL 
 %token <str> SYMBOL 
 
@@ -33,6 +33,7 @@ void yyerror(const char *s);
 
 /* registers */
 %token <reg> GPRX
+%token <reg> CSR
 
 /* instrucions 0 args */
 %token HALT
@@ -119,9 +120,32 @@ instruction:
     HALT {std::cout<<"halt"<< std::endl;}|
     INT {std::cout<<"int"<< std::endl;}|
     IRET {std::cout<<"iret"<< std::endl;}|
-    RET {std::cout<<"ret"<< std::endl;} |
-    
-
+    RET {std::cout<<"ret"<< std::endl;} 
+    |
+    alu_instructions
+    |
+    XCHG GPRX COMMA GPRX { std::cout << "xchg %r" << $2 << ", %r" << $4 << std::endl; }|
+    CSRRD CSR COMMA GPRX { std::cout << "csrrd %csr" << $2 << ", %r" << $4 << std::endl; }|
+    CSRWR GPRX COMMA CSR { std::cout << "csrwr %r" << $2 << ", %csr" << $4 << std::endl; }
+    |
+    jump_instructions
+    |
+    memory_instructions
+   
+;
+alu_instructions:
+    ADD GPRX COMMA GPRX { std::cout << "add %r" << $2 << ", %r" << $4 << std::endl; }|
+    SUB GPRX COMMA GPRX { std::cout << "sub %r" << $2 << ", %r" << $4 << std::endl; }|
+    MUL GPRX COMMA GPRX { std::cout << "mul %r" << $2 << ", %r" << $4 << std::endl; }|
+    DIV GPRX COMMA GPRX { std::cout << "div %r" << $2 << ", %r" << $4 << std::endl; }|
+    NOT GPRX {std::cout << "not %r" << $2 << std::endl; }| 
+    AND GPRX COMMA GPRX { std::cout << "and %r" << $2 << ", %r" << $4 << std::endl; }|
+    OR GPRX COMMA GPRX { std::cout << "or %r" << $2 << ", %r" << $4 << std::endl; }|
+    XOR GPRX COMMA GPRX { std::cout << "xor %r" << $2 << ", %r" << $4 << std::endl; }|
+    SHL GPRX COMMA GPRX { std::cout << "shl %r" << $2 << ", %r" << $4 << std::endl; }|
+    SHR GPRX COMMA GPRX { std::cout << "shr %r" << $2 << ", %r" << $4 << std::endl; }
+;
+jump_instructions:
     /* <literal> or <symbol> => value of (<literal> or <symbol>) = address */
     CALL LITERAL { std::cout << std::hex <<"call 0x" << $2 << std::dec << std::endl; }|
     CALL SYMBOL { std::cout << "call " << *$2<< std::endl; delete $2; }|
@@ -149,7 +173,12 @@ instruction:
     BGT GPRX COMMA GPRX COMMA SYMBOL { 
         std::cout << "bgt %r"<< $2 << ", %r" << $4 <<", " <<  *$6 << std::endl;
         delete $6;
-    }|
+    }
+;
+
+memory_instructions:
+    PUSH GPRX {std::cout<<"push %r" << $2 << std::endl;}|
+    POP GPRX {std::cout<<"pop %r" << $2 << std::endl;}|
 
     /* $<literal> or $<symbol> => value of (<literal> or <symbol>) = data */
     LD DOLLAR LITERAL COMMA GPRX {std::cout << "ld $0x" << std::hex << $3 << std::dec << ", %r" << $5 << std::endl; }|
@@ -165,10 +194,25 @@ instruction:
   
     /* %<reg> => value in (<reg>) = data */
     LD GPRX COMMA GPRX {std::cout << "ld %r" <<  $2 <<  ", %r" << $4 << std::endl; }|
-    ST GPRX COMMA GPRX {std::cout << "st %r"<< $2  << ", %r" << $4 << std::endl; }
+    ST GPRX COMMA GPRX {std::cout << "st %r"<< $2  << ", %r" << $4 << std::endl; }|
+
+    /* [%<reg>] => mem[value in (<reg>)] = data */
+    LD LBRACKET GPRX RBRACKET COMMA GPRX {std::cout << "ld [%r"<< $3  << "], %r" << $6 << std::endl; }|
+    ST GPRX COMMA LBRACKET GPRX RBRACKET {std::cout << "st %r" <<  $2 <<  ", [%r" << $5 <<"]" << std::endl; }|
+
+    /* [%<reg> + <literal>] => mem[value in (<reg>) + value of(<literal>)] = data */
+    LD LBRACKET GPRX PLUS LITERAL RBRACKET COMMA GPRX 
+    {std::cout << "ld [%r"<< $3  <<" + 0x" << std::hex << $5 << std::dec <<"], %r" << $8 << std::endl; }|
+    ST GPRX COMMA LBRACKET GPRX PLUS LITERAL RBRACKET 
+    {std::cout << "st %r" <<  $2 <<  ", [%r" << $5 <<" + 0x" << std::hex << $7 << std::dec << "]" << std::endl; }|
+
+    /* [%<reg> + <symbol>] => mem[value in (<reg>) + value of(<symbol>)] = data */
+    LD LBRACKET GPRX PLUS SYMBOL RBRACKET COMMA GPRX 
+    {std::cout << "ld [%r"<< $3  <<" + " << *$5 << "], %r" << $8 << std::endl; delete $5; }|
+    ST GPRX COMMA LBRACKET GPRX PLUS SYMBOL RBRACKET 
+    {std::cout << "st %r" <<  $2 <<  ", [%r" << $5 <<" + " <<  *$7 <<  "]" << std::endl; delete $7; }
+
 ;
-
-
 
 %%
 void yyerror(const char* s) {

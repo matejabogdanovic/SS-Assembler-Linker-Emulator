@@ -17,13 +17,16 @@ endl [\n]+
 colon ":"
 comma ","
 dollar "$"
+lbracket "["
+rbracket "]"
+plus "+"
 
-literal [\-\+]?(([0-9]+|(0[Xx])[0-9A-Fa-f]+))
+literal (([0-9]+|(0[Xx])[0-9A-Fa-f]+))
 symbol [a-zA-Z_][a-zA-Z0-9_]*
 section_name [\.a-zA-Z0-9_]+
 
 gprx ("%sp"|"%pc"|("%r"[0|1|2|3|4|5|6|7|8|9])|("%r1"[0|1|2|3|4|5]))
-
+csr ("%status"|"%handler"|"%cause")
 %%
 
 ".global" {return GLOBAL;}
@@ -75,6 +78,12 @@ gprx ("%sp"|"%pc"|("%r"[0|1|2|3|4|5|6|7|8|9])|("%r1"[0|1|2|3|4|5]))
 
 {dollar} { return DOLLAR;}
 
+{plus} {return PLUS;}
+
+{lbracket} { return LBRACKET; }
+
+{rbracket} { return RBRACKET; }
+
 {literal} { yylval.num = (uint32_t) strtoul(yytext, NULL, 0); return LITERAL; }
 
 {gprx} { 
@@ -85,6 +94,16 @@ gprx ("%sp"|"%pc"|("%r"[0|1|2|3|4|5|6|7|8|9])|("%r1"[0|1|2|3|4|5]))
   else yylval.reg =  (uint8_t)strtoul((yytext+2), NULL, 10);
 
   return GPRX; 
+}
+
+{csr} {
+  std::string r = yytext;
+ 
+  if(r=="%status")yylval.reg = 1;
+  else if (r=="%handler")yylval.reg = 2;
+  else yylval.reg = 3; // cause
+
+  return CSR; 
 }
 
 {symbol} { yylval.str = new std::string(yytext); return SYMBOL;}
