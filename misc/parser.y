@@ -93,10 +93,17 @@ notlabel: directive | instruction;
 directive:
     GLOBAL sym_list_global { std::cout << std::endl; } |
     EXTERN  sym_list_extern { std::cout << std::endl; } |
-    SECTION section_name_t { std::cout << ".section " << *$2 << std::endl; delete $2; } |
+    SECTION section_name_t {
+         std::cout << ".section " << *$2 << std::endl; 
+         Assembler::handleSection($2);
+         
+         delete $2; 
+         } |
     WORD sym_or_lit_list_word { std::cout << " <- .word " << std::endl; } |
-    SKIP LITERAL { std::cout << ".skip 0x" << std::hex << $2 << std::dec  << std::endl;  } |
-    END { std::cout << ".end" << std::endl; }
+    SKIP LITERAL { std::cout << ".skip 0x" << std::hex << $2 << std::dec  << std::endl; 
+        Assembler::handleSkip((int32_t)$2);
+    } |
+    END { std::cout << ".end" << std::endl;  Assembler::handleEnd(); }
 ;
 sym_list_global:
     SYMBOL {std::cout << ".global "<< *$1; delete $1;}|

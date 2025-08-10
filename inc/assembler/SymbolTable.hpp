@@ -28,18 +28,27 @@ public:
   typedef struct {
     uint32_t num;
     uint32_t value;
+    uint32_t size;
     Type type;
     Bind bind;
     uint32_t ndx;
   } Entry;
-  static uint32_t LC;
-  static std::unordered_map <std::string, Entry> table;
+  
+  typedef std::unordered_map <std::string, Entry> Map;
+  static Map table;
   static uint32_t current_section;
   static std::vector <std::string> sym_names;
 
+  static Status incLC(uint32_t val);
+  static uint32_t getLC();
+  
+  static Status end();
+  
 private:
   static const char* type_str[];
   static const char* bind_str[];
+  static uint32_t LC;
+  static Map initMap();
 
   
 };

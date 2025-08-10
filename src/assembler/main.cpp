@@ -1,7 +1,8 @@
 #include <iostream>
 
 #include <string.h>
-
+#include "../../inc/assembler/SymbolTable.hpp"
+#include "../../inc/assembler/Assembler.hpp"
 
 static int parseArguments(int argc, char* argv[], char** input, char** output){
   if(argc < 2)return -1; 
@@ -52,6 +53,11 @@ static int processing(const char* input, const char* output){
     
   fclose(inputFile);
 
+  if(!Assembler::finished){
+    std::cerr << "No end directive." << std::endl;
+    
+  }
+  SymbolTable::printTable();
       
   return 0;
 }
