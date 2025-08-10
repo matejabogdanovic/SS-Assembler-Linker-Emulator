@@ -48,8 +48,9 @@ extern int yydebug;
 
     #include <cstdint>
     #include <string>
+    #include "../inc/assembler/Assembler.hpp"
 
-#line 53 "misc/parser.hpp"
+#line 54 "misc/parser.hpp"
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -107,13 +108,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 17 "misc/parser.y"
+#line 18 "misc/parser.y"
 
   std::string* str;
   std::uint32_t num;
   int reg;
 
-#line 117 "misc/parser.hpp"
+#line 118 "misc/parser.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;

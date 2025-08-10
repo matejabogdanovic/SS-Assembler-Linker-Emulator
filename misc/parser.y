@@ -12,6 +12,7 @@ void yyerror(const char *s);
 %code requires {
     #include <cstdint>
     #include <string>
+    #include "../inc/assembler/Assembler.hpp"
 }
 
 %union {
@@ -81,7 +82,12 @@ line:
 labels:
     label | labels label;
 label:
-    SYMBOL COLON { std::cout << *$1 << ":" << std::endl; delete $1;}
+    SYMBOL COLON { 
+        std::cout << *$1 << ":" << std::endl; 
+        Assembler::handleLabel($1);
+
+        delete $1;
+    }
 ;  
 notlabel: directive | instruction; 
 directive:
