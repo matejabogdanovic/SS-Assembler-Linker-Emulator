@@ -106,12 +106,20 @@ directive:
     END { std::cout << ".end" << std::endl;  Assembler::handleEnd(); }
 ;
 sym_list_global:
-    SYMBOL {std::cout << ".global "<< *$1; delete $1;}|
-    sym_list_global COMMA SYMBOL { std::cout << ", " << *$3; delete $3;}
+    SYMBOL {std::cout << ".global "<< *$1;
+    Assembler::handleGlobal($1);
+    delete $1;}|
+    sym_list_global COMMA SYMBOL { std::cout << ", " << *$3;
+    Assembler::handleGlobal($3);
+    delete $3;}
 ;
 sym_list_extern:
-    SYMBOL {std::cout << ".extern "<< *$1; delete $1;}|
-    sym_list_extern COMMA SYMBOL { std::cout << ", " << *$3; delete $3;}
+    SYMBOL {std::cout << ".extern "<< *$1; 
+    Assembler::handleExtern($1);
+    delete $1;}|
+    sym_list_extern COMMA SYMBOL { std::cout << ", " << *$3; 
+    Assembler::handleExtern($3);
+    delete $3;}
 ;
 
 sym_or_lit_list_word:

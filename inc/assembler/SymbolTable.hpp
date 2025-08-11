@@ -13,17 +13,9 @@ public:
     LOC, GLOB
   } Bind;
 
-  typedef enum {
-    OK,
-    ERROR
-  } Status;
+  SymbolTable();
 
-  static void printTable();
-
-  static Status addSymbol(uint32_t value,
-    Type type,
-    Bind bind,
-    std::string name);
+  void printTable();
 
   typedef struct {
     uint32_t num;
@@ -31,25 +23,30 @@ public:
     uint32_t size;
     Type type;
     Bind bind;
-    uint32_t ndx;
+    std::string section;
+    std::uint32_t ndx;
+    bool is_extern;
+    bool is_defined;
   } Entry;
   
   typedef std::unordered_map <std::string, Entry> Map;
-  static Map table;
-  static uint32_t current_section;
-  static std::vector <std::string> sym_names;
+  Map table;
 
-  static Status incLC(uint32_t val);
-  static uint32_t getLC();
+  std::vector <std::string> sections;
+  std::vector <std::string> symbols;
+
+  // static Status incLC(uint32_t val);
+  // static uint32_t getLC();
   
-  static Status end();
-  
+  // static Status end();
+  // bool sectionOpened() const;
+  bool doesSymbolExist(std::string* name) const;
+  // static bool closeSection(
+  //   std::string prev_section, 
+  //   uint32_t prev_section_sz);
 private:
   static const char* type_str[];
   static const char* bind_str[];
-  static uint32_t LC;
-  static Map initMap();
-
   
 };
 
