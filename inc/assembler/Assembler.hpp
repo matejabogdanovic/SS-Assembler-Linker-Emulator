@@ -23,6 +23,7 @@ public:
 
 
 private:
+  static void closeSection();
   static void handleSymbolDefinition(std::string* name);
   static void handleSymbolDeclaration(std::string* name);
   static void handleLiteral();

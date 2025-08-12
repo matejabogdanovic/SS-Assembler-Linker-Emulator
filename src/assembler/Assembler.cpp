@@ -89,27 +89,33 @@ int Assembler::start(int argc, char* argv[]){
 }
 
 
+void Assembler::closeSection(){
+  // close previous section 
+
+  if(!symtab.sectionOpened())return;
+  
+  symtab.getCurrentSection()->size = LC;
+  LC = 0;
+
+}
+
 void Assembler::handleSection(std::string* name){
-  if(symtab.sectionOpened()){ 
-      if(symtab.doesSymbolExist(name)){ // section opened again
-        std::cerr << "Multiple section definitions." << std::endl;
-        return;  
-      }
-      // set previous section size
-      symtab.getCurrentSection().size = LC;
-    }
-    symtab.current_section = symtab.sections.size();
-    symtab.sections.push_back(*name);
-    LC = 0;
 
-
-  symtab.table[*name] = SymbolTable::Entry(      
+  if(symtab.doesSectionExist(name)){ // section opened again
+    std::cerr << "Multiple section definitions." << std::endl;
+    return;  
+  }
+  // close previous section
+  closeSection();
+  // add new section and set it to current
+  symtab.addSection(name, SymbolTable::Entry(      
     0, 
     SymbolTable::Bind::LOC,
-    symtab.getCurrentSectionName(),
+    *name,
     SymbolTable::Flags::DEFINED,
     SymbolTable::Type::SCTN
-    );
+    )
+  );
 
 
 };
@@ -121,7 +127,7 @@ void Assembler::handleSymbolDefinition(std::string* name){
   }
 
   if(symtab.doesSymbolExist(name)){
-    SymbolTable::Entry* s = &symtab.table[*name];
+    SymbolTable::Entry* s = symtab.getSymbol(name);
     if(SymbolTable::isDefined(s->flags) || SymbolTable::isExtern(s->flags)){
       std::cerr << "Symbol redeclaration." << std::endl;
     }  
@@ -151,7 +157,7 @@ void Assembler::handleLabel(std::string* name){
 void Assembler::handleGlobal(std::string* name){
   SymbolTable::Entry* s;
   if(symtab.doesSymbolExist(name)){
-    s = &symtab.table[*name];
+    s = symtab.getSymbol(name);
 
     if(SymbolTable::isExtern(s->flags)){
       std::cerr << "Symbol is flagged as extern, can't be global." << std::endl;
@@ -174,7 +180,7 @@ void Assembler::handleGlobal(std::string* name){
 void Assembler::handleExtern(std::string* name){
   SymbolTable::Entry* s;
   if(symtab.doesSymbolExist(name)){
-    s = &symtab.table[*name];
+    s = symtab.getSymbol(name);
 
     if(SymbolTable::isDefined(s->flags)){
       std::cerr << "Symbol can't be defined and extern." << std::endl;
@@ -228,7 +234,7 @@ void Assembler::handleWordSymbol(std::string* name){
           0, SymbolTable::Bind::LOC, symtab.getUndefinedSectionName()
         });
   }
-  SymbolTable::Entry* e = &symtab.table[*name];
+  SymbolTable::Entry* e = symtab.getSymbol(name);
   // fill with zeros and backpatch real value
   std::cout << std::hex << 0 << std::dec;
 
@@ -237,8 +243,8 @@ void Assembler::handleWordSymbol(std::string* name){
 }
 
 void Assembler::handleEnd(){
-  
-  symtab.getCurrentSection().size = LC;
+
+  closeSection();
 
   finished = true;
 };

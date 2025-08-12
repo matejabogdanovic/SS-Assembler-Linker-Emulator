@@ -2,6 +2,8 @@
 
 .skip 9
 .word b
-.extern b
+.global b
 b:
+.section b
+.skip 9
 .end

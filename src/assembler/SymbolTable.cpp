@@ -20,8 +20,8 @@ const char* SymbolTable::bind_str[] = {"LOC", "GLOB"};
 
 SymbolTable::SymbolTable(){
 
-  this->table[""] = Entry (0, Bind::LOC, "", 0, Type::SCTN);
-  this->sections.push_back("");
+  this->sections[""] = Entry (0, Bind::LOC, "", 0, Type::SCTN);
+  this->section_names.push_back("");
 }
 bool SymbolTable::isDefined(uint8_t flags) {
   return flags & (Flags::DEFINED);
@@ -32,28 +32,48 @@ bool SymbolTable::isExtern(uint8_t flags){
 bool SymbolTable::isAbsolute(uint8_t flags){
   return flags & (Flags::ABSOLUTE);
 }
+
 bool SymbolTable::doesSymbolExist(std::string* name) const{
-  return table.count(*name) > 0;
+  return symbols.count(*name) > 0;
+};
+
+bool SymbolTable::doesSectionExist(std::string* name) const{
+  return sections.count(*name) > 0;
 };
 
 std::string SymbolTable::getCurrentSectionName() const{
-  return sections[current_section];
+  return section_names[current_section];
 }
 std::string SymbolTable::getUndefinedSectionName() const{
-  return sections[0];
+  return section_names[0];
 }
 bool SymbolTable::sectionOpened() const{
     return current_section != 0;
 }
 
-SymbolTable::Entry& SymbolTable::getCurrentSection(){
-  return table[getCurrentSectionName()];
+SymbolTable::Entry* SymbolTable::getCurrentSection(){
+  return &sections[getCurrentSectionName()];
 }
 
 void SymbolTable::addSymbol(std::string* name, Entry e){
-  table[*name] = e;
-  symbols.push_back(*name);
+  symbols[*name] = e;
+  symbol_names.push_back(*name);
 }
+
+void SymbolTable::addSection(std::string* name, Entry e){
+  sections[*name] = e;
+  current_section = section_names.size();
+  section_names.push_back(*name);
+}
+
+SymbolTable::Entry* SymbolTable::getSymbol(std::string* name){
+  return &symbols[*name];
+}
+SymbolTable::Entry* SymbolTable::getSection(std::string* name){
+  return &sections[*name];
+}
+
+
 
 void SymbolTable::printTable(){
   
@@ -69,18 +89,18 @@ void SymbolTable::printTable(){
     std::endl;
 
     
-  for(int i = 0; i < sections.size(); i++){
-    Entry* e =  &table[sections[i]];
+  for(int i = 0; i < section_names.size(); i++){
+    Entry* e =  &sections[section_names[i]];
     e->num = i;
     e->ndx = i;
-    printTablePart(&sections[i], e);
+    printTablePart(&section_names[i], e);
   }
 
-  for(int i = 0; i < symbols.size(); i++){
-    Entry* e =  &table[symbols[i]];
-    e->num = sections.size() + i;
-    e->ndx = table[e->section].ndx;
-    printTablePart(&symbols[i], e);
+  for(int i = 0; i < symbol_names.size(); i++){
+    Entry* e =  &symbols[symbol_names[i]];
+    e->num = section_names.size() + i;
+    e->ndx = symbols[e->section].ndx;
+    printTablePart(&symbol_names[i], e);
   }
 
 }

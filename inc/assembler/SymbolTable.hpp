@@ -57,27 +57,37 @@ public:
   static bool isDefined(uint8_t flags) ;
   static bool isExtern(uint8_t flags) ;
   static bool isAbsolute(uint8_t flags) ;
+
   bool sectionOpened() const;
 
   std::string getCurrentSectionName() const;
   std::string getUndefinedSectionName() const;
-  Entry& getCurrentSection();
-  void addSymbol(std::string* name, Entry e);
-
-  typedef std::unordered_map <std::string, Entry> Map;
-  Map table;
-
-  std::vector <std::string> sections;
-  uint32_t current_section = 0;
-  std::vector <std::string> symbols;
-
+  Entry* getCurrentSection();
 
   bool doesSymbolExist(std::string* name) const;
+  void addSymbol(std::string* name, Entry e);
+  Entry* getSymbol(std::string* name);
+  Entry* getSection(std::string* name);
+
+  bool doesSectionExist(std::string* name) const;
+  void addSection(std::string* name, Entry e);
+
+  typedef std::unordered_map <std::string, Entry> Map;
+  Map symbols;
+  Map sections;
+
+  uint32_t current_section = 0;
+  std::vector <std::string> section_names;
+  std::vector <std::string> symbol_names;
+
+
+
   
 
 private:
   static const char* type_str[];
   static const char* bind_str[];
+
   void printTablePart(std::string* name, Entry* e) const;
 };
 
