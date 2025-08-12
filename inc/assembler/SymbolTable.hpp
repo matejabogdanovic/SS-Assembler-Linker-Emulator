@@ -79,10 +79,8 @@ public:
   uint32_t current_section = 0;
   std::vector <std::string> section_names;
   std::vector <std::string> symbol_names;
-
-
-
   
+
 
 private:
   static const char* type_str[];

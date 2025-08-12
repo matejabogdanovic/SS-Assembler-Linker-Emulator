@@ -1,6 +1,6 @@
 #pragma once
 #include "../../inc/assembler/SymbolTable.hpp"
-
+#include <list>
 class Assembler {
   
 public:
@@ -23,9 +23,20 @@ public:
 
 
 private:
+  typedef struct {
+    uint32_t location;
+    SymbolTable::Entry* symbol;
+    SymbolTable::Entry* section;
+  }Backpatch;
+
+  static std::list <Backpatch> backpatch;
+  static void startBackpatch();
+
+
+
   static void closeSection();
   static void handleSymbolDefinition(std::string* name);
-  static void handleSymbolDeclaration(std::string* name);
+  static void handleSymbolUsage(std::string* name);
   static void handleLiteral();
 
   static int parseArguments(int argc, char* argv[]);

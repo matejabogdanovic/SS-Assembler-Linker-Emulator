@@ -57,12 +57,14 @@ SymbolTable::Entry* SymbolTable::getCurrentSection(){
 
 void SymbolTable::addSymbol(std::string* name, Entry e){
   symbols[*name] = e;
+  e.num = symbol_names.size();
   symbol_names.push_back(*name);
 }
 
 void SymbolTable::addSection(std::string* name, Entry e){
-  sections[*name] = e;
   current_section = section_names.size();
+  e.num = current_section;
+  sections[*name] = e;
   section_names.push_back(*name);
 }
 
@@ -73,7 +75,7 @@ SymbolTable::Entry* SymbolTable::getSection(std::string* name){
   return &sections[*name];
 }
 
-
+  
 
 void SymbolTable::printTable(){
   
@@ -99,7 +101,7 @@ void SymbolTable::printTable(){
   for(int i = 0; i < symbol_names.size(); i++){
     Entry* e =  &symbols[symbol_names[i]];
     e->num = section_names.size() + i;
-    e->ndx = symbols[e->section].ndx;
+    e->ndx = sections[e->section].ndx;
     printTablePart(&symbol_names[i], e);
   }
 
