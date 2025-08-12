@@ -253,7 +253,7 @@ void Assembler::handleWordSymbol(std::string* name){
         });
   }
   SymbolTable::Entry* s = symtab.getSymbol(name);
-  
+  // populate memory with zeros and backpatch
   backpatch.push_back({LC, s, symtab.getCurrentSection()});
 
   std::cout << std::hex << 0 << std::dec;
@@ -291,10 +291,10 @@ void Assembler::startBackpatch(){
 }
 
 void Assembler::handleEnd(){
-
-  closeSection();
-  startBackpatch();
-
-  finished = true;
+  if(!finished){
+    closeSection();
+    startBackpatch();
+    finished = true;
+  }
 };
 
