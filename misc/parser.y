@@ -129,9 +129,13 @@ sym_or_lit_list_word:
 ;
 
 sym_or_lit_word:
-    SYMBOL  {std::cout << std::hex << *$1<< std::dec; delete $1;}
+    SYMBOL  {std::cout << std::hex << *$1<< std::dec; 
+    Assembler::handleWordSymbol($1);
+    delete $1;}
     |
-    LITERAL {std::cout << "0x" <<  std::hex <<$1<< std::dec; }
+    LITERAL {std::cout << "0x" <<  std::hex <<$1<< std::dec; 
+    Assembler::handleWordLiteral($1);
+    }
 ;
 section_name_t:
   SYMBOL        { $$ = $1; } |  

@@ -12,42 +12,73 @@ public:
   typedef enum {
     LOC, GLOB
   } Bind;
-
+  typedef enum : uint8_t  {
+    DEFINED = 0b00000001,
+    EXTERN = 0b00000010,
+    ABSOLUTE = 0b00000100
+  } Flags;
+  
   SymbolTable();
 
   void printTable();
 
-  typedef struct {
-    uint32_t num;
-    uint32_t value;
-    uint32_t size;
-    Type type;
+   typedef struct Entry {
+    uint32_t offset;
     Bind bind;
     std::string section;
+    uint8_t flags;
+    Type type;
+
     std::uint32_t ndx;
-    bool is_extern;
-    bool is_defined;
+    uint32_t size;
+    uint32_t num;
+    Entry(){
+
+    }
+    
+    Entry(
+    uint32_t offset,
+    Bind bind,
+    std::string section,
+    uint8_t flags = 0,
+    Type type = NOTYP,
+    std::uint32_t ndx = 0,
+    uint32_t size = 0,
+    uint32_t num = 0
+  ) : offset(offset), bind(bind), section(section), flags(flags),
+    type(type), ndx(ndx),size(size), num(num)
+    {
+
+    }
+
   } Entry;
-  
+
+
+  static bool isDefined(uint8_t flags) ;
+  static bool isExtern(uint8_t flags) ;
+  static bool isAbsolute(uint8_t flags) ;
+  bool sectionOpened() const;
+
+  std::string getCurrentSectionName() const;
+  std::string getUndefinedSectionName() const;
+  Entry& getCurrentSection();
+  void addSymbol(std::string* name, Entry e);
+
   typedef std::unordered_map <std::string, Entry> Map;
   Map table;
 
   std::vector <std::string> sections;
+  uint32_t current_section = 0;
   std::vector <std::string> symbols;
 
-  // static Status incLC(uint32_t val);
-  // static uint32_t getLC();
-  
-  // static Status end();
-  // bool sectionOpened() const;
+
   bool doesSymbolExist(std::string* name) const;
-  // static bool closeSection(
-  //   std::string prev_section, 
-  //   uint32_t prev_section_sz);
+  
+
 private:
   static const char* type_str[];
   static const char* bind_str[];
-  
+  void printTablePart(std::string* name, Entry* e) const;
 };
 
 // Num Value Size Type Bind Ndx Name

@@ -19,9 +19,40 @@ const char* SymbolTable::bind_str[] = {"LOC", "GLOB"};
 
 
 SymbolTable::SymbolTable(){
- 
-  this->table[""] = {0, 0, 0, Type::NOTYP, Bind::LOC, "UND", 0};
+
+  this->table[""] = Entry (0, Bind::LOC, "", 0, Type::SCTN);
   this->sections.push_back("");
+}
+bool SymbolTable::isDefined(uint8_t flags) {
+  return flags & (Flags::DEFINED);
+}
+bool SymbolTable::isExtern(uint8_t flags){
+  return flags & (Flags::EXTERN);
+}
+bool SymbolTable::isAbsolute(uint8_t flags){
+  return flags & (Flags::ABSOLUTE);
+}
+bool SymbolTable::doesSymbolExist(std::string* name) const{
+  return table.count(*name) > 0;
+};
+
+std::string SymbolTable::getCurrentSectionName() const{
+  return sections[current_section];
+}
+std::string SymbolTable::getUndefinedSectionName() const{
+  return sections[0];
+}
+bool SymbolTable::sectionOpened() const{
+    return current_section != 0;
+}
+
+SymbolTable::Entry& SymbolTable::getCurrentSection(){
+  return table[getCurrentSectionName()];
+}
+
+void SymbolTable::addSymbol(std::string* name, Entry e){
+  table[*name] = e;
+  symbols.push_back(*name);
 }
 
 void SymbolTable::printTable(){
@@ -30,22 +61,38 @@ void SymbolTable::printTable(){
     "|  Num  " << 
     "|  Type  "<< 
     "|  Bind  " << 
-    "|  Value  " << 
+    "|  Offset  " << 
     "|  Size  " << 
     "|  Ndx  "<< 
-    "|  Extern  " << 
-    "|  Defined  " << 
+    "|  Flags  " << 
     "|  Name  |" << 
     std::endl;
+
+    
   for(int i = 0; i < sections.size(); i++){
     Entry* e =  &table[sections[i]];
     e->num = i;
     e->ndx = i;
-    std::cout << 
+    printTablePart(&sections[i], e);
+  }
+
+  for(int i = 0; i < symbols.size(); i++){
+    Entry* e =  &table[symbols[i]];
+    e->num = sections.size() + i;
+    e->ndx = table[e->section].ndx;
+    printTablePart(&symbols[i], e);
+  }
+
+}
+
+
+void SymbolTable::printTablePart(std::string* name, Entry* e) const {
+  
+      std::cout << 
     " " << std::left << std::setw(7) << std::setfill(' ') << e->num <<
     " " << std::left << std::setw(8) << std::setfill(' ') << type_str[e->type] << 
     " " << std::left << std::setw(8) << std::setfill(' ') << bind_str[e->bind] << 
-    " x" << std::right << std::setw(8) << std::setfill('0') << std::hex << e->value << std::dec <<  
+    " 0x" << std::right << std::setw(8) << std::setfill('0') << std::hex << e->offset << std::dec <<  
     " " << std::left << std::setw(8) << std::setfill(' ') << e->size << 
     " " << std::left << std::setw(7) << std::setfill(' ');
 
@@ -53,57 +100,10 @@ void SymbolTable::printTable(){
     else std::cout << e->ndx;
 
      std::cout << 
-    " " << std::left << std::setw(10) << std::setfill(' ') << (e->is_extern ? "true" : "false")<< 
-    " " << std::left << std::setw(11) << std::setfill(' ') << (e->is_defined ? "true" : "false")<< 
-    " " << std::left << std::setw(8) << std::setfill(' ') << sections[i] << 
+   
+    " " << std::left << std::setw(1) << std::setfill(' ') << (isDefined(e->flags) ? "d":" ") << 
+    std::left << std::setw(1) << std::setfill(' ') << (isExtern(e->flags) ? "e":" ") <<  
+    std::left << std::setw(7) << std::setfill(' ') << (isAbsolute(e->flags) ? "a":" ")<< 
+    " " << std::left << std::setw(8) << std::setfill(' ') << *name << 
     std::endl;
-  }
-
-  for(int i = 0; i < symbols.size(); i++){
-    Entry* e =  &table[symbols[i]];
-    e->num = sections.size() + i;
-    e->ndx = table[e->section].ndx;
-    std::cout << 
-    " " << std::left << std::setw(7) << std::setfill(' ') << e->num <<
-    " " << std::left << std::setw(8) << std::setfill(' ') << type_str[e->type] << 
-    " " << std::left << std::setw(8) << std::setfill(' ') << bind_str[e->bind] << 
-    " x" << std::right << std::setw(8) << std::setfill('0') << std::hex << e->value << std::dec <<  
-    " " << std::left << std::setw(8) << std::setfill(' ') << e->size << 
-    " " << std::left << std::setw(7) << std::setfill(' ');
-
-    if(e->ndx == 0)std::cout << "UND";
-    else std::cout << e->ndx;
-
-    std::cout << 
-    " " << std::left << std::setw(10) << std::setfill(' ') << (e->is_extern ? "true" : "false")<< 
-    " " << std::left << std::setw(11) << std::setfill(' ') << (e->is_defined ? "true" : "false")<< 
-    " " << std::left << std::setw(8) << std::setfill(' ') << symbols[i] << 
-    std::endl;
-  }
-
 }
-bool SymbolTable::doesSymbolExist(std::string* name) const{
-  return table.count(*name) > 0;
-};
-
-
-// SymbolTable:: Status SymbolTable::end(){
-//   // close current section
-//   table[current_section].size = LC;
-
-//   return Status::OK;
-// };
-
-
-// SymbolTable::Status SymbolTable::incLC(uint32_t val){
-//   if(current_section == 0 && val > 0){
-//     std::cerr << "Undefined section for symbol." << std::endl;
-//     return Status::ERROR;
-//   }
-//   LC += val;
-//   return Status::OK;
-// };
-
-// uint32_t SymbolTable::getLC(){
-//   return LC;
-// };

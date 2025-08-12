@@ -6,7 +6,7 @@ bool Assembler::finished = false;
 char* Assembler::input; 
 char* Assembler::output;
 uint32_t Assembler::LC = 0;
-uint32_t Assembler::current_section = 0;
+
 SymbolTable Assembler::symtab;
 
 extern void yyerror(const char*); // error function
@@ -68,9 +68,7 @@ int Assembler::parseArguments(int argc, char* argv[]){
   return -1;
 }
 
-bool Assembler::sectionOpened(){
-  return current_section != 0;
-}
+
 
 int Assembler::start(int argc, char* argv[]){
   if(parseArguments(argc, argv)<0){
@@ -90,106 +88,101 @@ int Assembler::start(int argc, char* argv[]){
   return 0;
 }
 
-Assembler::Status Assembler::addSymbol(
-    uint32_t value,
-    SymbolTable::Type type,
-    SymbolTable::Bind bind,
-    std::string* name,
-    bool is_defined
-  )
-{
 
-  uint32_t num = 0, size = 0, ndx = 0;
-  if(type==SymbolTable::Type::SCTN){
-    
-    if(sectionOpened()){ 
+void Assembler::handleSection(std::string* name){
+  if(symtab.sectionOpened()){ 
       if(symtab.doesSymbolExist(name)){ // section opened again
-        return Status::ERROR;  
+        std::cerr << "Multiple section definitions." << std::endl;
+        return;  
       }
       // set previous section size
-      symtab.table[symtab.sections[current_section]].size = LC;
+      symtab.getCurrentSection().size = LC;
     }
-    current_section = symtab.sections.size();
+    symtab.current_section = symtab.sections.size();
     symtab.sections.push_back(*name);
     LC = 0;
-  }
-  // else if (symtab.doesSymbolExist(name)){
-  //   if(symtab.table[*name].bind ==)
-  //   std::cerr << "Undefined section for symbol: " << name << std::endl;
-  //   return Status::ERROR;
-  // }
-  
-  symtab.table[*name] = { num, value, size, type, bind, symtab.sections[current_section], ndx, false, is_defined};
-  if(type!=SymbolTable::Type::SCTN)symtab.symbols.push_back(*name);
-  // printTable();
-    
 
-  return Status::OK;
-}
 
-Assembler::Status Assembler::addExternSymbol(std::string* name){
-  
-  symtab.table[*name] = { 0, 0, 0, 
-    SymbolTable::Type::NOTYP, 
-    SymbolTable::Bind::GLOB, 
-    symtab.sections[0], 
-    0, true, false};
-  symtab.symbols.push_back(*name);
-  
-  return Status::OK;
-}
+  symtab.table[*name] = SymbolTable::Entry(      
+    0, 
+    SymbolTable::Bind::LOC,
+    symtab.getCurrentSectionName(),
+    SymbolTable::Flags::DEFINED,
+    SymbolTable::Type::SCTN
+    );
+
+
+};
+
+
 
 void Assembler::handleLabel(std::string* name){
-  if(!sectionOpened()){
+  if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
   }
-  Assembler::addSymbol(
-    LC,
-    SymbolTable::Type::NOTYP,
-    SymbolTable::Bind::LOC,
-    name, 
-    true
-  );
-};
+  if(symtab.doesSymbolExist(name)){
+    std::cerr << "Multiple definitions." << std::endl;
+    return;
+  }
 
-void Assembler::handleSection(std::string* name){
-  
-  Assembler::addSymbol(
-    0,
-    SymbolTable::Type::SCTN,
-    SymbolTable::Bind::LOC,
-    name, 
-    true
-  );
-  
+  symtab.addSymbol(name, SymbolTable::Entry{ 
+    LC,  
+    SymbolTable::Bind::LOC, 
+    symtab.getCurrentSectionName(), 
+    SymbolTable::Flags::DEFINED  
+  });
 };
-
 
 void Assembler::handleGlobal(std::string* name){
-  
-  Assembler::addSymbol(
-    0,
-    SymbolTable::Type::NOTYP,
+  SymbolTable::Entry* s;
+  if(symtab.doesSymbolExist(name)){
+    s = &symtab.table[*name];
+
+    if(SymbolTable::isExtern(s->flags)){
+      std::cerr << "Symbol is flagged as extern, can't be global." << std::endl;
+      return;
+    }
+
+    s->bind = SymbolTable::Bind::GLOB;
+    return;
+  }
+
+
+   symtab.addSymbol(name, SymbolTable::Entry{ 
+    0, 
     SymbolTable::Bind::GLOB,
-    name, 
-    false
-  );
-  
+    symtab.getUndefinedSectionName()
+  });
 };
 
 
 void Assembler::handleExtern(std::string* name){
+  SymbolTable::Entry* s;
+  if(symtab.doesSymbolExist(name)){
+    s = &symtab.table[*name];
+
+    if(SymbolTable::isDefined(s->flags)){
+      std::cerr << "Symbol can't be defined and extern." << std::endl;
+      return;
+    }
+
+    s->flags |= SymbolTable::Flags::EXTERN;
+    return;
+  }
   
-  Assembler::addExternSymbol(
-    name
-  );
-  
+
+  symtab.addSymbol(name, SymbolTable::Entry{ 
+    0, 
+    SymbolTable::Bind::GLOB,
+    symtab.getUndefinedSectionName(),
+    SymbolTable::Flags::EXTERN
+  });
 };
 
 void Assembler::handleSkip(int32_t size){
 
-  if(!sectionOpened()){
+  if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
   }
@@ -199,28 +192,41 @@ void Assembler::handleSkip(int32_t size){
     return;
   };
 
-
+  
   LC+=size;
 
 };
 
+void Assembler::handleWordLiteral(int32_t value){
+  // [] [] [] [] <= value
+  std::cout << std::hex << value << std::dec;
+  LC+=4;
+}
+
+void Assembler::handleWordSymbol(std::string* name){
+  // [] [] [] [] <= value of name (address)
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+
+  if(!symtab.doesSymbolExist(name)){
+    symtab.addSymbol(name, SymbolTable::Entry{
+          0, SymbolTable::Bind::LOC, symtab.getUndefinedSectionName()
+        });
+  }
+  SymbolTable::Entry* e = &symtab.table[*name];
+  // fill with zeros and backpatch real value
+  std::cout << std::hex << 0 << std::dec;
+
+
+  LC+=4;
+}
+
 void Assembler::handleEnd(){
   
-  symtab.table[symtab.sections[current_section]].size = LC;
+  symtab.getCurrentSection().size = LC;
 
   finished = true;
 };
 
-
-// int Assembler::incLC(uint32_t val){
-//   if(SymbolTable::current_section == "UND" && val > 0){
-//     std::cerr << "Undefined section." << std::endl;
-//     return -1;
-//   }
-//   LC += val;
-//   return 0;
-// };
-
-// uint32_t Assembler::getLC(){
-//   return LC;
-// };
