@@ -114,15 +114,17 @@ void Assembler::handleSection(std::string* name){
 
 };
 
-
-
-void Assembler::handleLabel(std::string* name){
+void Assembler::handleSymbolDefinition(std::string* name){
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
   }
+
   if(symtab.doesSymbolExist(name)){
-    std::cerr << "Multiple definitions." << std::endl;
+    SymbolTable::Entry* s = &symtab.table[*name];
+    if(SymbolTable::isDefined(s->flags) || SymbolTable::isExtern(s->flags)){
+      std::cerr << "Symbol redeclaration." << std::endl;
+    }  
     return;
   }
 
@@ -132,6 +134,18 @@ void Assembler::handleLabel(std::string* name){
     symtab.getCurrentSectionName(), 
     SymbolTable::Flags::DEFINED  
   });
+}
+
+void Assembler::handleSymbolDeclaration(std::string* name){
+
+}
+
+void Assembler::handleLiteral(){
+  
+}
+
+void Assembler::handleLabel(std::string* name){
+  handleSymbolDefinition(name);
 };
 
 void Assembler::handleGlobal(std::string* name){
@@ -180,26 +194,25 @@ void Assembler::handleExtern(std::string* name){
   });
 };
 
-void Assembler::handleSkip(int32_t size){
+void Assembler::handleSkip(uint32_t size){
 
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
   }
-
-  if(size < 0){
-    std::cerr << "Can't use negative size for .skip." << std::endl;
-    return;
-  };
-
   
   LC+=size;
 
 };
 
-void Assembler::handleWordLiteral(int32_t value){
-  // [] [] [] [] <= value
-  std::cout << std::hex << value << std::dec;
+void Assembler::handleWordLiteral(uint32_t value){
+  
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+  std::cout << std::hex << value << std::dec; // [] [] [] [] <= value
+
   LC+=4;
 }
 

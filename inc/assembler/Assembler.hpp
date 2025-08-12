@@ -10,8 +10,8 @@ public:
   static void handleSection(std::string* name);
   static void handleGlobal(std::string* name);
   static void handleExtern(std::string* name);
-  static void handleSkip(int32_t size);
-  static void handleWordLiteral(int32_t value);
+  static void handleSkip(uint32_t size);
+  static void handleWordLiteral(uint32_t value);
   static void handleWordSymbol(std::string* name);
   static void handleEnd();
 
@@ -23,6 +23,9 @@ public:
 
 
 private:
+  static void handleSymbolDefinition(std::string* name);
+  static void handleSymbolDeclaration(std::string* name);
+  static void handleLiteral();
 
   static int parseArguments(int argc, char* argv[]);
   static int processing();
