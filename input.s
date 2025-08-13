@@ -1,11 +1,13 @@
 .section .a
 
-.skip 9
+
 .global b
-.word b
+
 
 .section b
-.skip 9
+.skip 10
 b:
+.word b
+.skip 4
 .end
 .section adsadsa

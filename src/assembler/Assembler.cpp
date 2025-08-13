@@ -1,12 +1,14 @@
 #include "../../inc/assembler/Assembler.hpp"
 #include <iostream>
 #include <string.h>
+#include <iomanip>
 
 bool Assembler::finished = false;
 char* Assembler::input; 
 char* Assembler::output;
 uint32_t Assembler::LC = 0;
 std::list <Assembler::Backpatch> Assembler::backpatch;
+std::vector<uint8_t> Assembler::memory;
 
 SymbolTable Assembler::symtab;
 
@@ -225,6 +227,9 @@ void Assembler::handleSkip(uint32_t size){
   
   // populate memory with zeros
 
+  for(int i = 0; i<size; i++)
+    memory.push_back(0);
+
   LC+=size;
 
 };
@@ -237,6 +242,8 @@ void Assembler::handleWordLiteral(uint32_t value){
   }
   std::cout << std::hex << value << std::dec; // [] [] [] [] <= value
 
+  for(int i = 0; i<4; i++)
+    memory.push_back(0);
   LC+=4;
 }
 
@@ -255,9 +262,11 @@ void Assembler::handleWordSymbol(std::string* name){
   SymbolTable::Entry* s = symtab.getSymbol(name);
   // populate memory with zeros and backpatch
   backpatch.push_back({LC, s, symtab.getCurrentSection()});
-
+  
   std::cout << std::hex << 0 << std::dec;
 
+  for(int i = 0; i<4; i++)
+    memory.push_back(0);
 
   LC+=4;
 }
@@ -285,8 +294,49 @@ void Assembler::startBackpatch(){
     }
 
     std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;
+  for(uint32_t i = 0; i < memory.size(); i++){
+     if(i%8==0)std::cout << (i>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
+      i << ":";
+   std::cout << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
+   static_cast<int>(memory[i]);
+  
 
   }
+  std::cout << std::dec << std::endl;
+    // get section beginning
+    uint32_t sz = 0;
+    for(int i = 0; i < symtab.section_names.size() ; i++){
+      SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[0]);
+      if(section->ndx == p.section->ndx){
+        break;  
+      }
+      sz += section->size;
+
+    }
+    // write
+    uint32_t loc_to_patch = p.location + sz;
+   
+    uint32_t value = p.symbol->offset;
+    for (int i = 0; i < 4; i++){
+      memory[loc_to_patch+i] = (uint8_t)value;
+       
+      value >>= 16;
+    }
+
+    
+
+  }
+
+std::cout << "After patch: " << std::endl;
+  for(uint32_t i = 0; i < memory.size(); i++){
+     if(i%8==0)std::cout << (i>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
+      i << ":";
+   std::cout << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
+   static_cast<int>(memory[i]);
+  
+
+  }
+  std::cout << std::dec << std::endl;
 
 }
 

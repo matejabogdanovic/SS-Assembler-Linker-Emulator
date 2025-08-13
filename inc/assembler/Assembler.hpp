@@ -29,6 +29,9 @@ private:
     SymbolTable::Entry* section;
   }Backpatch;
 
+
+  static std::vector<uint8_t> memory;
+
   static std::list <Backpatch> backpatch;
   static void startBackpatch();
 
