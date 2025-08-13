@@ -2,13 +2,14 @@
 #include <iostream>
 #include <string.h>
 #include <iomanip>
+#include <fstream>
 
 bool Assembler::finished = false;
 char* Assembler::input; 
 char* Assembler::output;
 uint32_t Assembler::LC = 0;
 std::list <Assembler::Backpatch> Assembler::backpatch;
-std::vector<uint8_t> Assembler::memory;
+Memory Assembler::memory;
 
 SymbolTable Assembler::symtab;
 
@@ -46,8 +47,30 @@ int Assembler::processing(){
     std::cerr << "No end directive." << std::endl;
     
   }
-  symtab.printTable();
-      
+
+  symtab.printTable(std::cout);
+    
+  std::ofstream outputFile(output); // otvara fajl za pisanje
+
+  symtab.printTable(outputFile);
+
+  if (!outputFile.is_open()) {
+        std::cerr << "assembler: error: can't open output file\n";
+        return -1;
+  }
+
+  outputFile.close(); 
+    
+  // std::ofstream outputFileBinary(output, std::ios_base::binary); // otvara fajl za pisanje
+
+  // symtab.printTable(outputFileBinary);
+
+  // if (!outputFileBinary.is_open()) {
+  //       std::cerr << "assembler: error: can't open output file\n";
+  //       return -1;
+  // }
+
+  // outputFileBinary.close(); 
   return 0;
 }
 
@@ -227,8 +250,8 @@ void Assembler::handleSkip(uint32_t size){
   
   // populate memory with zeros
 
-  for(int i = 0; i<size; i++)
-    memory.push_back(0);
+  memory.writeByte(0, size);
+
 
   LC+=size;
 
@@ -242,8 +265,7 @@ void Assembler::handleWordLiteral(uint32_t value){
   }
   std::cout << std::hex << value << std::dec; // [] [] [] [] <= value
 
-  for(int i = 0; i<4; i++)
-    memory.push_back(0);
+  memory.writeByte(0, 4);
   LC+=4;
 }
 
@@ -265,11 +287,18 @@ void Assembler::handleWordSymbol(std::string* name){
   
   std::cout << std::hex << 0 << std::dec;
 
-  for(int i = 0; i<4; i++)
-    memory.push_back(0);
+  memory.writeByte(0, 4);
 
   LC+=4;
 }
+
+void Assembler::handleHalt(){
+  // todo
+  memory.writeInstruction({Instruction::OPCode::HALT, 1, 2, 3, 4});
+
+}
+
+
 void Assembler::startBackpatch(){
   // all values should be known except for extern symbols
   while(!backpatch.empty()){
@@ -294,15 +323,10 @@ void Assembler::startBackpatch(){
     }
 
     std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;
-  for(uint32_t i = 0; i < memory.size(); i++){
-     if(i%8==0)std::cout << (i>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
-      i << ":";
-   std::cout << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
-   static_cast<int>(memory[i]);
-  
 
-  }
-  std::cout << std::dec << std::endl;
+    memory.print();
+
+  
     // get section beginning
     uint32_t sz = 0;
     for(int i = 0; i < symtab.section_names.size() ; i++){
@@ -318,8 +342,8 @@ void Assembler::startBackpatch(){
    
     uint32_t value = p.symbol->offset;
     for (int i = 0; i < 4; i++){
-      memory[loc_to_patch+i] = (uint8_t)value;
-       
+     // memory[loc_to_patch+i] = (uint8_t)value;
+      memory.changeByte(value, loc_to_patch+i);
       value >>= 16;
     }
 
@@ -327,16 +351,8 @@ void Assembler::startBackpatch(){
 
   }
 
-std::cout << "After patch: " << std::endl;
-  for(uint32_t i = 0; i < memory.size(); i++){
-     if(i%8==0)std::cout << (i>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
-      i << ":";
-   std::cout << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
-   static_cast<int>(memory[i]);
-  
-
-  }
-  std::cout << std::dec << std::endl;
+  std::cout << "After patch: " << std::endl;
+  memory.print();
 
 }
 

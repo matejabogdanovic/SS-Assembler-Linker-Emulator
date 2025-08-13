@@ -7,7 +7,9 @@
 .section b
 .skip 10
 b:
-.word b
+.word 3
 .skip 4
+
+halt
 .end
 .section adsadsa

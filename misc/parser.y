@@ -142,7 +142,7 @@ section_name_t:
   SECTION_NAME  { $$ = $1; }
 ;
 instruction: 
-    HALT {std::cout<<"halt"<< std::endl;}|
+    HALT {std::cout<<"halt"<< std::endl; Assembler::handleHalt();}|
     INT {std::cout<<"int"<< std::endl;}|
     IRET {std::cout<<"iret"<< std::endl;}|
     RET {std::cout<<"ret"<< std::endl;} 

@@ -3,8 +3,11 @@ INC = inc
 MISC = misc
 TESTS = tests
 
+COMMON_DIR = $(SRC)/common
+COMMON_FILES = $(COMMON_DIR)/*.cpp
+
 ASSEMBLER_DIR = $(SRC)/assembler
-ASSEMBLER_FILES = $(ASSEMBLER_DIR)/*.cpp
+ASSEMBLER_FILES = $(ASSEMBLER_DIR)/*.cpp 
 
 LINKER_DIR = $(SRC)/linker
 LINKER_FILES = $(LINKER_DIR)/*.cpp
@@ -25,9 +28,10 @@ parsing:
 	flex $(LEXER_GENERATOR)
 
 asembler: parsing  
-	g++ -std=c++11 -fdiagnostics-color=always -g -o ${@} $(ASSEMBLER_FILES) $(PARSER_CPP) $(LEXER_CPP)
+	g++ -std=c++11 -fdiagnostics-color=always -g -o ${@} \
+	$(COMMON_FILES) $(ASSEMBLER_FILES) $(PARSER_CPP) $(LEXER_CPP)
 
-linker: $(LINKER_FILES)
+linker: $(COMMON_FILES) $(LINKER_FILES)
 	g++ -std=c++11 -fdiagnostics-color=always -g -o ${@} ${^}
 	
 clean:

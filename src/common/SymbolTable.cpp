@@ -1,4 +1,4 @@
-#include "../../inc/assembler/SymbolTable.hpp"
+#include "../../inc/common/SymbolTable.hpp"
 #include <iostream>
 #include <iomanip>
 // Num Value Size Type Bind Ndx Name
@@ -20,8 +20,10 @@ const char* SymbolTable::bind_str[] = {"LOC", "GLOB"};
 
 SymbolTable::SymbolTable(){
 
-  this->sections[""] = Entry (0, Bind::LOC, 0, Type::SCTN);
+  this->sections[""] = Entry (0, Bind::LOC, 0, 0, Type::SCTN);
   this->section_names.push_back("");
+
+ 
 }
 bool SymbolTable::isDefined(uint8_t flags) {
   return flags & (Flags::DEFINED);
@@ -41,19 +43,6 @@ bool SymbolTable::doesSectionExist(std::string* name) const{
   return sections.count(*name) > 0;
 };
 
-std::string SymbolTable::getCurrentSectionName() const{
-  return section_names[current_section];
-}
-std::string SymbolTable::getUndefinedSectionName() const{
-  return section_names[0];
-}
-bool SymbolTable::sectionOpened() const{
-    return current_section != 0;
-}
-
-SymbolTable::Entry* SymbolTable::getCurrentSection(){
-  return &sections[getCurrentSectionName()];
-}
 
 void SymbolTable::addSymbol(std::string* name, Entry e){
   symbols[*name] = e;
@@ -69,9 +58,11 @@ void SymbolTable::addSection(std::string* name, Entry e){
   section_names.push_back(*name);
 }
 
+
 SymbolTable::Entry* SymbolTable::getSymbol(std::string* name){
   return &symbols[*name];
 }
+
 SymbolTable::Entry* SymbolTable::getSection(std::string* name){
   return &sections[*name];
 }
@@ -84,9 +75,30 @@ std::string SymbolTable::getSectionName(Entry* e) const{
   return section_names[e->ndx];
 }
 
-void SymbolTable::printTable(){
+// for assembler, linker won't need -----
+
+bool SymbolTable::sectionOpened() const{
+    return current_section != 0;
+}
+
+std::string SymbolTable::getCurrentSectionName() const{
+  return section_names[current_section];
+}
+
+std::string SymbolTable::getUndefinedSectionName() const{
+  return section_names[0];
+}
+
+SymbolTable::Entry* SymbolTable::getCurrentSection(){
+  return &sections[getCurrentSectionName()];
+}
+// --------------------------------------
+
+
+
+void SymbolTable::printTable(std::ostream& os){
   
-  std::cout << 
+  os << 
     "|  Num  " << 
     "|  Type  "<< 
     "|  Bind  " << 
@@ -102,22 +114,22 @@ void SymbolTable::printTable(){
     Entry* e =  &sections[section_names[i]];
    // e->num = i;
     //e->ndx = i;
-    printTablePart(&section_names[i], e);
+    printTablePart(&section_names[i], e, os);
   }
 
   for(int i = 0; i < symbol_names.size(); i++){
     Entry* e =  &symbols[symbol_names[i]];
     e->num = section_names.size() + i; // correct index (from sections)
     // e->ndx = e->ndx+1;
-    printTablePart(&symbol_names[i], e);
+    printTablePart(&symbol_names[i], e, os);
   }
 
 }
 
 
-void SymbolTable::printTablePart(std::string* name, Entry* e) const {
+void SymbolTable::printTablePart(std::string* name, Entry* e, std::ostream& os) const {
   
-      std::cout << 
+      os<< 
     " " << std::left << std::setw(7) << std::setfill(' ') << e->num <<
     " " << std::left << std::setw(8) << std::setfill(' ') << type_str[e->type] << 
     " " << std::left << std::setw(8) << std::setfill(' ') << bind_str[e->bind] << 
@@ -125,10 +137,10 @@ void SymbolTable::printTablePart(std::string* name, Entry* e) const {
     " " << std::left << std::setw(8) << std::setfill(' ') << e->size << 
     " " << std::left << std::setw(7) << std::setfill(' ');
 
-    if(e->ndx == 0)std::cout << "UND";
-    else std::cout << e->ndx;
+    if(e->ndx == 0)os<< "UND";
+    else os<< e->ndx;
 
-     std::cout << 
+     os << 
    
     " " << std::left << std::setw(1) << std::setfill(' ') << (isDefined(e->flags) ? "d":" ") << 
     std::left << std::setw(1) << std::setfill(' ') << (isExtern(e->flags) ? "e":" ") <<  

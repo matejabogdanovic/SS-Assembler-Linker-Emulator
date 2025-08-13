@@ -1,5 +1,6 @@
 #pragma once
-#include "../../inc/assembler/SymbolTable.hpp"
+#include "../../inc/common/SymbolTable.hpp"
+#include "../../inc/common/Memory.hpp"
 #include <list>
 class Assembler {
   
@@ -14,6 +15,8 @@ public:
   static void handleWordLiteral(uint32_t value);
   static void handleWordSymbol(std::string* name);
   static void handleEnd();
+
+  static void handleHalt();
 
   typedef enum {
     OK,
@@ -30,7 +33,8 @@ private:
   }Backpatch;
 
 
-  static std::vector<uint8_t> memory;
+  // static std::vector<uint8_t> memory;
+  static Memory memory;
 
   static std::list <Backpatch> backpatch;
   static void startBackpatch();

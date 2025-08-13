@@ -1593,7 +1593,7 @@ yyreduce:
 
   case 30:
 #line 145 "misc/parser.y"
-         {std::cout<<"halt"<< std::endl;}
+         {std::cout<<"halt"<< std::endl; Assembler::handleHalt();}
 #line 1598 "misc/parser.cpp"
     break;
 

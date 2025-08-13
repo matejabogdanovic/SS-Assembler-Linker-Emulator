@@ -20,7 +20,7 @@ public:
   
   SymbolTable();
 
-  void printTable();
+  void printTable(std::ostream& stream);
 
    typedef struct Entry {
     uint32_t offset;
@@ -52,28 +52,29 @@ public:
 
   } Entry;
 
-
+  // checks
   static bool isDefined(uint8_t flags) ;
   static bool isExtern(uint8_t flags) ;
   static bool isAbsolute(uint8_t flags) ;
-
-  bool sectionOpened() const;
-
+  bool doesSymbolExist(std::string* name) const;
+  bool sectionOpened() const; 
+  bool doesSectionExist(std::string* name) const;
+  
+  // getters
   std::string getCurrentSectionName() const;
   std::string getUndefinedSectionName() const;
   Entry* getCurrentSection();
 
-  bool doesSymbolExist(std::string* name) const;
-  void addSymbol(std::string* name, Entry e);
-  Entry* getSymbol(std::string* name);
-  
-  std::string getSymbolName(Entry* e) const;
   Entry* getSection(std::string* name);
+  Entry* getSymbol(std::string* name);
+  std::string getSymbolName(Entry* e) const;
   std::string getSectionName(Entry* e) const;
 
-  bool doesSectionExist(std::string* name) const;
+  
+  void addSymbol(std::string* name, Entry e);
   void addSection(std::string* name, Entry e);
 
+  
   typedef std::unordered_map <std::string, Entry> Map;
   Map symbols;
   Map sections;
@@ -85,11 +86,11 @@ public:
   
 
 
-private:
+  private:
   static const char* type_str[];
   static const char* bind_str[];
-
-  void printTablePart(std::string* name, Entry* e) const;
+  
+  void printTablePart(std::string* name, Entry* e, std::ostream& os) const;
 };
 
 // Num Value Size Type Bind Ndx Name
