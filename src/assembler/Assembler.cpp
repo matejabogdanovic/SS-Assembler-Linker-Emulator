@@ -294,7 +294,7 @@ void Assembler::handleWordSymbol(std::string* name){
 
 void Assembler::handleHalt(){
   // todo
-  memory.writeInstruction({Instruction::OPCode::HALT, 1, 2, 3, 4});
+  memory.writeInstruction({Instruction::OPCode::HALT, 1, 2, 3, 0x0456});
 
 }
 

@@ -5,7 +5,9 @@ void Memory::writeInstruction(Instruction instruction){
   
   memory.push_back(instruction.oc);
   memory.push_back((instruction.ra << 4)|instruction.rb);
-  memory.push_back((instruction.rc << 4)|(8>>instruction.disp));
+  // [] [c] | [] [d] [d] [d]
+  //[] [c]  | [] [] [] [d]
+  memory.push_back((instruction.disp>>8)|(instruction.rc << 4));
   memory.push_back(instruction.disp);
 }
 
