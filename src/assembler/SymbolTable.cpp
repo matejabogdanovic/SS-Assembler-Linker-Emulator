@@ -20,7 +20,7 @@ const char* SymbolTable::bind_str[] = {"LOC", "GLOB"};
 
 SymbolTable::SymbolTable(){
 
-  this->sections[""] = Entry (0, Bind::LOC, "", 0, Type::SCTN);
+  this->sections[""] = Entry (0, Bind::LOC, 0, Type::SCTN);
   this->section_names.push_back("");
 }
 bool SymbolTable::isDefined(uint8_t flags) {
@@ -57,13 +57,14 @@ SymbolTable::Entry* SymbolTable::getCurrentSection(){
 
 void SymbolTable::addSymbol(std::string* name, Entry e){
   symbols[*name] = e;
-  e.num = symbol_names.size();
+  e.num = symbol_names.size(); // to get my name
   symbol_names.push_back(*name);
 }
 
 void SymbolTable::addSection(std::string* name, Entry e){
   current_section = section_names.size();
-  e.num = current_section;
+  e.num = current_section; 
+  e.ndx = current_section;
   sections[*name] = e;
   section_names.push_back(*name);
 }
@@ -75,7 +76,13 @@ SymbolTable::Entry* SymbolTable::getSection(std::string* name){
   return &sections[*name];
 }
 
-  
+std::string SymbolTable::getSymbolName(Entry* e) const{
+  return symbol_names[e->num];
+}
+
+std::string SymbolTable::getSectionName(Entry* e) const{
+  return section_names[e->ndx];
+}
 
 void SymbolTable::printTable(){
   
@@ -93,15 +100,15 @@ void SymbolTable::printTable(){
     
   for(int i = 0; i < section_names.size(); i++){
     Entry* e =  &sections[section_names[i]];
-    e->num = i;
-    e->ndx = i;
+   // e->num = i;
+    //e->ndx = i;
     printTablePart(&section_names[i], e);
   }
 
   for(int i = 0; i < symbol_names.size(); i++){
     Entry* e =  &symbols[symbol_names[i]];
-    e->num = section_names.size() + i;
-    e->ndx = sections[e->section].ndx;
+    e->num = section_names.size() + i; // correct index (from sections)
+    // e->ndx = e->ndx+1;
     printTablePart(&symbol_names[i], e);
   }
 

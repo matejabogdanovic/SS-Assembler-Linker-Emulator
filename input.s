@@ -3,8 +3,9 @@
 .skip 9
 .global b
 .word b
-b:
+
 .section b
 .skip 9
+b:
 .end
-.end
+.section adsadsa

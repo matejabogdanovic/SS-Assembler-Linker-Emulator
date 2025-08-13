@@ -25,11 +25,11 @@ public:
    typedef struct Entry {
     uint32_t offset;
     Bind bind;
-    std::string section;
+    std::uint32_t ndx;
+   
     uint8_t flags;
     Type type;
 
-    std::uint32_t ndx;
     uint32_t size;
     uint32_t num;
     Entry(){
@@ -39,13 +39,12 @@ public:
     Entry(
     uint32_t offset,
     Bind bind,
-    std::string section,
+    std::uint32_t ndx = 0,
     uint8_t flags = 0,
     Type type = NOTYP,
-    std::uint32_t ndx = 0,
     uint32_t size = 0,
     uint32_t num = 0
-  ) : offset(offset), bind(bind), section(section), flags(flags),
+  ) : offset(offset), bind(bind),  flags(flags),
     type(type), ndx(ndx),size(size), num(num)
     {
 
@@ -67,7 +66,10 @@ public:
   bool doesSymbolExist(std::string* name) const;
   void addSymbol(std::string* name, Entry e);
   Entry* getSymbol(std::string* name);
+  
+  std::string getSymbolName(Entry* e) const;
   Entry* getSection(std::string* name);
+  std::string getSectionName(Entry* e) const;
 
   bool doesSectionExist(std::string* name) const;
   void addSection(std::string* name, Entry e);
@@ -77,6 +79,7 @@ public:
   Map sections;
 
   uint32_t current_section = 0;
+  static const uint32_t UNDEFINED_SECTION = 0;
   std::vector <std::string> section_names;
   std::vector <std::string> symbol_names;
   

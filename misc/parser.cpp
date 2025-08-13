@@ -1527,7 +1527,7 @@ yyreduce:
 
   case 19:
 #line 106 "misc/parser.y"
-        { std::cout << ".end" << std::endl;  Assembler::handleEnd(); }
+        { std::cout << ".end" << std::endl;  Assembler::handleEnd(); YYACCEPT;}
 #line 1532 "misc/parser.cpp"
     break;
 

@@ -112,7 +112,7 @@ void Assembler::handleSection(std::string* name){
   symtab.addSection(name, SymbolTable::Entry(      
     0, 
     SymbolTable::Bind::LOC,
-    *name,
+    symtab.current_section+1,
     SymbolTable::Flags::DEFINED,
     SymbolTable::Type::SCTN
     )
@@ -135,7 +135,7 @@ void Assembler::handleSymbolDefinition(std::string* name){
     } 
 
     s->offset = LC;
-    s->section = symtab.getCurrentSectionName();
+    s->ndx = symtab.getCurrentSection()->ndx;
     s->flags |= SymbolTable::Flags::DEFINED ;
     return;
   }
@@ -143,7 +143,7 @@ void Assembler::handleSymbolDefinition(std::string* name){
   symtab.addSymbol(name, SymbolTable::Entry{ 
     LC,  
     SymbolTable::Bind::LOC, 
-    symtab.getCurrentSectionName(), 
+    symtab.current_section, 
     SymbolTable::Flags::DEFINED  
   });
 }
@@ -187,7 +187,7 @@ void Assembler::handleGlobal(std::string* name){
    symtab.addSymbol(name, SymbolTable::Entry{ 
     0, 
     SymbolTable::Bind::GLOB,
-    symtab.getUndefinedSectionName()
+    SymbolTable::UNDEFINED_SECTION
   });
 };
 
@@ -211,7 +211,7 @@ void Assembler::handleExtern(std::string* name){
   symtab.addSymbol(name, SymbolTable::Entry{ 
     0, 
     SymbolTable::Bind::GLOB,
-    symtab.getUndefinedSectionName(),
+    symtab.current_section,
     SymbolTable::Flags::EXTERN
   });
 };
@@ -249,7 +249,7 @@ void Assembler::handleWordSymbol(std::string* name){
 
   if(!symtab.doesSymbolExist(name)){
     symtab.addSymbol(name, SymbolTable::Entry{
-          0, SymbolTable::Bind::LOC, symtab.getUndefinedSectionName()
+          0, SymbolTable::Bind::LOC, SymbolTable::UNDEFINED_SECTION
         });
   }
   SymbolTable::Entry* s = symtab.getSymbol(name);
@@ -269,8 +269,8 @@ void Assembler::startBackpatch(){
 
     std::cout << 
     "Backpatching symbol "  <<
-     symtab.symbol_names[p.symbol->num] << 
-    " in section " << symtab.section_names[p.section->ndx+1]<<
+     symtab.getSymbolName(p.symbol) << 
+    " in section " << symtab.getSectionName(p.section)<<
      " location 0x" << std::hex << p.location << std::dec << 
     std::endl;
 
@@ -291,10 +291,10 @@ void Assembler::startBackpatch(){
 }
 
 void Assembler::handleEnd(){
-  if(!finished){
+  
     closeSection();
     startBackpatch();
     finished = true;
-  }
+  
 };
 

@@ -103,7 +103,7 @@ directive:
     SKIP LITERAL { std::cout << ".skip 0x" << std::hex << $2 << std::dec  << std::endl; 
         Assembler::handleSkip((int32_t)$2);
     } |
-    END { std::cout << ".end" << std::endl;  Assembler::handleEnd(); }
+    END { std::cout << ".end" << std::endl;  Assembler::handleEnd(); YYACCEPT;}
 ;
 sym_list_global:
     SYMBOL {std::cout << ".global "<< *$1;
