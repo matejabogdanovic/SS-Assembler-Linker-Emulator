@@ -1,5 +1,4 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 0        1       d         .a      
- 2       SCTN     LOC      0x00000000 18       2       d         b       
- 3       NOTYP    GLOB     0x0000000a 0        2       d         b       
+ 1       SCTN     LOC      0x00000000 21       1       d         a       
+ 2       NOTYP    LOC      0x00000005 0        1       d         a       

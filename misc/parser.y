@@ -143,7 +143,7 @@ section_name_t:
 ;
 instruction: 
     HALT {std::cout<<"halt"<< std::endl; Assembler::handleHalt();}|
-    INT {std::cout<<"int"<< std::endl;}|
+    INT {std::cout<<"int"<< std::endl; Assembler::handleInt();}|
     IRET {std::cout<<"iret"<< std::endl;}|
     RET {std::cout<<"ret"<< std::endl;} 
     |
@@ -172,7 +172,9 @@ alu_instructions:
 ;
 jump_instructions:
     /* <literal> or <symbol> => value of (<literal> or <symbol>) = address */
-    CALL LITERAL { std::cout << std::hex <<"call 0x" << $2 << std::dec << std::endl; }|
+    CALL LITERAL { std::cout << std::hex <<"call 0x" << $2 << std::dec << std::endl; 
+        Assembler::handleCallLiteral($2);
+    }|
     CALL SYMBOL { std::cout << "call " << *$2<< std::endl; delete $2; }|
     
     JMP LITERAL { std::cout << std::hex << "jmp 0x" << $2<< std::dec << std::endl; }|

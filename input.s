@@ -1,15 +1,10 @@
-.section .a
+.section a
 
-
-.global b
-
-
-.section b
-.skip 10
-b:
-.word 3
-.skip 4
-
+.skip 1
+.word a
+a:
+int
+call 0x00000007
 halt
 .end
-.section adsadsa
+

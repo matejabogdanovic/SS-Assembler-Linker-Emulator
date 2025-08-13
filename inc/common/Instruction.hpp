@@ -1,14 +1,17 @@
 #pragma once
 #include <cstdint>
 
-
+static const uint8_t SP =14;
+static const uint8_t PC =15;
 
 typedef struct Instruction{ // 4B = 32b
+
+
   enum OPCode : uint8_t{
     HALT = 0x00,
     INT = 0x10,
-    CALL_REG_DIR_DISP = 0x20,
-    CALL_REG_IND_DISP = 0x21,
+    CALL_REG = 0x20,
+    CALL_IND = 0x21,
     
     JMP_REG_DIR_DISP = 0x30,
     BEQ_REG_DIR_DISP = 0x31,
@@ -21,8 +24,14 @@ typedef struct Instruction{ // 4B = 32b
 
   } ;
   OPCode oc; // 4b op and 4b mod 
-  uint8_t ra; // 4b
-  uint8_t rb; // 4b
-  uint8_t rc; // 4b
-  uint16_t disp; // 12b signed
+  uint8_t ra = 0; // 4b
+  uint8_t rb = 0; // 4b
+  uint8_t rc = 0; // 4b
+  uint16_t disp = 0; // 12b signed
+  Instruction(OPCode oc, uint8_t ra = 0, uint8_t rb = 0, uint8_t rc = 0, uint16_t disp = 0)
+  : oc(oc), ra(ra), rb(rb), rc(rc), disp(disp) 
+  {
+
+  }
+
 }Instruction;

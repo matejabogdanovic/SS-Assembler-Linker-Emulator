@@ -8,9 +8,11 @@ bool Assembler::finished = false;
 char* Assembler::input; 
 char* Assembler::output;
 uint32_t Assembler::LC = 0;
+std::list <Assembler::LiteralPatch> Assembler::literalpatch;
 std::list <Assembler::Backpatch> Assembler::backpatch;
 Memory Assembler::memory;
-
+std::vector <uint32_t> Assembler::literalPool;
+std::unordered_map <uint32_t, uint32_t> Assembler::literalTable;
 SymbolTable Assembler::symtab;
 
 extern void yyerror(const char*); // error function
@@ -120,6 +122,39 @@ void Assembler::closeSection(){
 
   if(!symtab.sectionOpened())return;
   
+    // get section beginning
+    uint32_t sz = 0;
+    for(int i = 0; i < symtab.section_names.size() ; i++){
+      SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[0]);
+      if(section->ndx == symtab.current_section){
+        break;  
+      }
+      sz += section->size;
+
+    }
+    uint32_t end_of_section_addr = sz + LC; 
+    for(int i = 0; i < literalPool.size(); i++){
+      memory.writeWord(literalPool[i]);
+      LC+=4;
+    }
+
+  while(!literalpatch.empty()){
+    
+    LiteralPatch p = literalpatch.front();
+    literalpatch.pop_front();
+    
+    uint32_t loc_to_patch = p.location;
+    uint32_t value = end_of_section_addr + p.index_of_literal * 4 - (loc_to_patch+2);
+    // for (int i = 0; i < 4; i++){
+    //  // memory[loc_to_patch+i] = (uint8_t)value;
+    //   memory.changeByte(value, loc_to_patch + i);
+    //   value >>= 8;
+    // }
+
+    memory.changeWord(value, loc_to_patch);
+    
+  }
+
   symtab.getCurrentSection()->size = LC;
   LC = 0;
 
@@ -293,11 +328,42 @@ void Assembler::handleWordSymbol(std::string* name){
 }
 
 void Assembler::handleHalt(){
-  // todo
-  memory.writeInstruction({Instruction::OPCode::HALT, 1, 2, 3, 0x0456});
-
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+  memory.writeInstruction({Instruction::OPCode::HALT});
+  LC+=4;
 }
 
+void Assembler::handleInt(){
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+  memory.writeInstruction({Instruction::OPCode::INT});
+  LC+=4;
+}
+
+void Assembler::handleCallLiteral(uint32_t value){
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+
+  memory.writeInstruction({Instruction::OPCode::CALL_IND, PC, 0, 0, 0});
+  
+
+  if(literalTable.count(value)==0){ // literal doesn't exist 
+    
+    literalTable[value] = {(uint32_t)literalPool.size()};
+
+    literalPool.push_back(value);
+  }
+  literalpatch.push_back({LC+2, literalTable[value]}); // should be 2.5 but can't write
+
+  LC+=4;
+}
 
 void Assembler::startBackpatch(){
   // all values should be known except for extern symbols
@@ -341,12 +407,14 @@ void Assembler::startBackpatch(){
     uint32_t loc_to_patch = p.location + sz;
    
     uint32_t value = p.symbol->offset;
-    for (int i = 0; i < 4; i++){
-     // memory[loc_to_patch+i] = (uint8_t)value;
-      memory.changeByte(value, loc_to_patch+i);
-      value >>= 16;
-    }
-
+    // for (int i = 0; i < 4; i++){
+    //  // memory[loc_to_patch+i] = (uint8_t)value;
+    //  // [][] [][] [][] [][]
+    //   memory.changeByte(value, loc_to_patch+i);
+    //   value >>= 8;
+    
+    // }
+    memory.changeWord(value, loc_to_patch);
     
 
   }

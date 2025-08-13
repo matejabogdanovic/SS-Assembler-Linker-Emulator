@@ -17,6 +17,28 @@ void Memory::writeByte(uint8_t data, uint32_t n){
     memory.push_back(0);
 }
 
+void Memory::writeWord(uint8_t data){
+  
+   for (int i = 0; i < 4; i++){
+
+      memory.push_back(data);
+      //data >>= 16;
+      data >>= 8;
+    }
+}
+
+void Memory::changeWord(uint32_t data, uint32_t location){
+ 
+    for (int i = 0; i < 4; i++){
+      memory[location+i] = (uint8_t)data;
+
+      data >>= 8;
+
+    }
+
+}
+
+
 void Memory::changeByte(uint8_t data, uint32_t location){
   memory[location] = (uint8_t)data;
 }

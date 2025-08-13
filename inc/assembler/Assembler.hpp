@@ -1,7 +1,9 @@
 #pragma once
+#include <list>
+
 #include "../../inc/common/SymbolTable.hpp"
 #include "../../inc/common/Memory.hpp"
-#include <list>
+
 class Assembler {
   
 public:
@@ -17,7 +19,8 @@ public:
   static void handleEnd();
 
   static void handleHalt();
-
+  static void handleInt();
+  static void handleCallLiteral(uint32_t value);
   typedef enum {
     OK,
     ERROR
@@ -36,6 +39,14 @@ private:
   // static std::vector<uint8_t> memory;
   static Memory memory;
 
+  typedef struct {
+    uint32_t location;
+    uint32_t index_of_literal;
+  }LiteralPatch;
+
+  static std::unordered_map <uint32_t, uint32_t> literalTable;
+  static std::list <LiteralPatch> literalpatch;
+  static std::vector <uint32_t> literalPool;
   static std::list <Backpatch> backpatch;
   static void startBackpatch();
 
