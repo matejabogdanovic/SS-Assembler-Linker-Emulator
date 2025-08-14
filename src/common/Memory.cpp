@@ -11,6 +11,10 @@ void Memory::writeInstruction(Instruction instruction){
   memory.push_back(instruction.disp);
 }
 
+uint8_t Memory::readByte(uint32_t location) const{
+  return memory[location];
+}
+
 void Memory::writeByte(uint8_t data, uint32_t n){
   
   for(uint32_t i = 0; i<n; i++)

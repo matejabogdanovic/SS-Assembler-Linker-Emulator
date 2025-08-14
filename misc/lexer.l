@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 extern int yyerror(const char*);
+
+
 %}
 
 %option outfile="misc/lexer.cpp" header-file="misc/lexer.hpp"

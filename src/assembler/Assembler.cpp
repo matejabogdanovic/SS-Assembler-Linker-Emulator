@@ -122,26 +122,9 @@ void Assembler::closeSection(){
 
   if(!symtab.sectionOpened())return;
   
-    // get section beginning
-    // uint32_t sz = 0;
-    // for(int i = 0; i < symtab.section_names.size() ; i++){
-    //   SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[0]);
-    //   if(section->ndx == symtab.current_section){
-    //     break;  
-    //   }
-    //   sz += section->size;
 
-    // }
   uint32_t end_of_section_addr = LC + symtab.getSectionStart(symtab.current_section); 
-
-  // write literal pool
-  // for(int i = 0; i < literalPool.size(); i++){
-  //   memory.writeWord(literalPool[i]);
-  //   LC+=4;
-  // }
-
   memory.writeWordVector(&literalPool);
-
   LC += 4 * literalPool.size();
 
   while(!literalpatch.empty()){
@@ -151,9 +134,16 @@ void Assembler::closeSection(){
     
     uint32_t loc_to_patch = p.location;
     uint32_t value = end_of_section_addr + p.index_of_literal * 4 - (loc_to_patch+2);
+    //value = 0x12345678;
+     
 
+    uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
+    uint8_t oo_highDisp = (uint8_t)(0x0F & (value >> 8));
+    uint8_t rc_oo = (0xF0 &rc_highDisp);
 
-    memory.changeWord(value, loc_to_patch);
+    memory.changeByte( rc_oo | oo_highDisp,
+     loc_to_patch);
+    memory.changeByte(value, loc_to_patch+1);
     
   }
 
@@ -353,7 +343,7 @@ void Assembler::handleCallLiteral(uint32_t value){
     return;
   }
 
-  memory.writeInstruction({Instruction::OPCode::CALL_IND, PC, 0, 0, 0});
+  memory.writeInstruction({Instruction::OPCode::CALL_IND, PC, 7, 2, 0});
   
 
   if(literalTable.count(value)==0){ // literal doesn't exist 

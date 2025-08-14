@@ -13,6 +13,7 @@ void yyerror(const char *s);
     #include <cstdint>
     #include <string>
     #include "../inc/assembler/Assembler.hpp"
+  
 }
 
 %union {
@@ -245,3 +246,4 @@ memory_instructions:
 void yyerror(const char* s) {
   std::cerr << "Greška: " << s << std::endl;
 }
+

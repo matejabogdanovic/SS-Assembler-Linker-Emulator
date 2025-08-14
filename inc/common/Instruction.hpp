@@ -1,11 +1,14 @@
 #pragma once
 #include <cstdint>
 
-static const uint8_t SP =14;
-static const uint8_t PC =15;
+
+
+static const uint8_t SP = 14;
+static const uint8_t PC = 15;
+
 
 typedef struct Instruction{ // 4B = 32b
-
+  
 
   enum OPCode : uint8_t{
     HALT = 0x00,
