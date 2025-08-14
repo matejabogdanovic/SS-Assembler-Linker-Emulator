@@ -55,7 +55,7 @@ int Assembler::processing(){
   std::ofstream outputFile(output); // otvara fajl za pisanje
 
   symtab.printTable(outputFile);
-
+  memory.print(outputFile);
   if (!outputFile.is_open()) {
         std::cerr << "assembler: error: can't open output file\n";
         return -1;
@@ -388,7 +388,7 @@ void Assembler::symbolBackpatch(){
 
     std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;
 
-    memory.print();
+    memory.print(std::cout);
 
   
     // get section beginning
@@ -412,7 +412,7 @@ void Assembler::symbolBackpatch(){
   }
 
   std::cout << "After patch: " << std::endl;
-  memory.print();
+  memory.print(std::cout);
 
 }
 

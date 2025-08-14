@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include <iostream>
 #include "./Instruction.hpp"
 class Memory{
 public:
@@ -15,7 +16,7 @@ public:
   void writeWordVector(std::vector<uint32_t>* vector, uint32_t n=0);
   void changeWordVector(std::vector<uint32_t>* vector, uint32_t location, uint32_t n=0);
 
-  void print();
+  void print(std::ostream& os);
 private:
   std::vector<uint8_t> memory;
 

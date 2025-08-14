@@ -1,5 +1,5 @@
 #include "../../inc/common/Memory.hpp"
-#include <iostream>
+
 #include <iomanip>
 void Memory::writeInstruction(Instruction instruction){
   
@@ -68,15 +68,15 @@ void Memory::changeWordVector(std::vector<uint32_t>* vector, uint32_t location, 
 
 
 
-void Memory::print(){
+void Memory::print(std::ostream& os){
 
   for(uint32_t i = 0; i < memory.size(); i++){
-     if(i%8==0)std::cout << (i>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
+     if(i%8==0)os << (i>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
       i << ":";
-   std::cout << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
+   os << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
    static_cast<int>(memory[i]);
   
 
   }
-  std::cout << std::dec << std::endl;
+  os << std::dec << std::endl;
 }
