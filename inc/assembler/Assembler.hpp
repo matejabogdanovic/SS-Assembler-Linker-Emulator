@@ -1,8 +1,9 @@
 #pragma once
-#include <list>
-
 #include "../../inc/common/SymbolTable.hpp"
 #include "../../inc/common/Memory.hpp"
+#include <list>
+
+
 
 class Assembler {
   
@@ -21,6 +22,8 @@ public:
   static void handleHalt();
   static void handleInt();
   static void handleCallLiteral(uint32_t value);
+
+  static void handleGprInstructions(Instruction::OPCode op,uint8_t gprS, uint8_t gprD);
   typedef enum {
     OK,
     ERROR

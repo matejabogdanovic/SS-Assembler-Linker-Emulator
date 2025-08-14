@@ -148,9 +148,8 @@ instruction:
     IRET {std::cout<<"iret"<< std::endl;}|
     RET {std::cout<<"ret"<< std::endl;} 
     |
-    alu_instructions
+    gpr_instructions
     |
-    XCHG GPRX COMMA GPRX { std::cout << "xchg %r" << $2 << ", %r" << $4 << std::endl; }|
     CSRRD CSR COMMA GPRX { std::cout << "csrrd %csr" << $2 << ", %r" << $4 << std::endl; }|
     CSRWR GPRX COMMA CSR { std::cout << "csrwr %r" << $2 << ", %csr" << $4 << std::endl; }
     |
@@ -159,17 +158,41 @@ instruction:
     memory_instructions
    
 ;
-alu_instructions:
-    ADD GPRX COMMA GPRX { std::cout << "add %r" << $2 << ", %r" << $4 << std::endl; }|
-    SUB GPRX COMMA GPRX { std::cout << "sub %r" << $2 << ", %r" << $4 << std::endl; }|
-    MUL GPRX COMMA GPRX { std::cout << "mul %r" << $2 << ", %r" << $4 << std::endl; }|
-    DIV GPRX COMMA GPRX { std::cout << "div %r" << $2 << ", %r" << $4 << std::endl; }|
-    NOT GPRX {std::cout << "not %r" << $2 << std::endl; }| 
-    AND GPRX COMMA GPRX { std::cout << "and %r" << $2 << ", %r" << $4 << std::endl; }|
-    OR GPRX COMMA GPRX { std::cout << "or %r" << $2 << ", %r" << $4 << std::endl; }|
-    XOR GPRX COMMA GPRX { std::cout << "xor %r" << $2 << ", %r" << $4 << std::endl; }|
-    SHL GPRX COMMA GPRX { std::cout << "shl %r" << $2 << ", %r" << $4 << std::endl; }|
-    SHR GPRX COMMA GPRX { std::cout << "shr %r" << $2 << ", %r" << $4 << std::endl; }
+gpr_instructions:
+    
+    XCHG GPRX COMMA GPRX { std::cout << "xchg %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::XCHG, $2, $4);
+    }|
+    ADD GPRX COMMA GPRX { std::cout << "add %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::ADD, $2, $4);
+    }|
+    SUB GPRX COMMA GPRX { std::cout << "sub %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::SUB, $2, $4);
+    }|
+    MUL GPRX COMMA GPRX { std::cout << "mul %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::MUL, $2, $4);
+    }|
+    DIV GPRX COMMA GPRX { std::cout << "div %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::DIV, $2, $4);
+    }|
+    NOT GPRX {std::cout << "not %r" << $2 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::NOT, $2, -1);
+    }| 
+    AND GPRX COMMA GPRX { std::cout << "and %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::AND, $2, $4);
+    }|
+    OR GPRX COMMA GPRX { std::cout << "or %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::OR, $2, $4);
+    }|
+    XOR GPRX COMMA GPRX { std::cout << "xor %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::XOR, $2, $4);
+    }|
+    SHL GPRX COMMA GPRX { std::cout << "shl %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::SHL, $2, $4);
+    }|
+    SHR GPRX COMMA GPRX { std::cout << "shr %r" << $2 << ", %r" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::SHR, $2, $4);
+    }
 ;
 jump_instructions:
     /* <literal> or <symbol> => value of (<literal> or <symbol>) = address */

@@ -566,16 +566,16 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
        0,    73,    73,    76,    77,    79,    80,    81,    82,    84,
       84,    86,    93,    93,    95,    96,    97,   103,   104,   107,
      110,   113,   118,   121,   127,   129,   133,   137,   142,   143,
-     146,   147,   148,   149,   151,   153,   154,   155,   157,   159,
-     163,   164,   165,   166,   167,   168,   169,   170,   171,   172,
-     176,   179,   181,   182,   184,   187,   191,   194,   198,   201,
-     208,   209,   212,   213,   214,   215,   218,   219,   220,   221,
-     224,   225,   228,   229,   232,   234,   238,   240
+     146,   147,   148,   149,   151,   153,   154,   156,   158,   163,
+     166,   169,   172,   175,   178,   181,   184,   187,   190,   193,
+     199,   202,   204,   205,   207,   210,   214,   217,   221,   224,
+     231,   232,   235,   236,   237,   238,   241,   242,   243,   244,
+     247,   248,   251,   252,   255,   257,   261,   263
 };
 #endif
 
@@ -592,7 +592,7 @@ static const char *const yytname[] =
   "SHR", "LD", "ST", "CSRRD", "CSRWR", "$accept", "program", "lines",
   "line", "labels", "label", "notlabel", "directive", "sym_list_global",
   "sym_list_extern", "sym_or_lit_list_word", "sym_or_lit_word",
-  "section_name_t", "instruction", "alu_instructions", "jump_instructions",
+  "section_name_t", "instruction", "gpr_instructions", "jump_instructions",
   "memory_instructions", YY_NULLPTR
 };
 #endif
@@ -653,7 +653,7 @@ static const yytype_int8 yydefact[] =
       31,    32,    33,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     2,     3,     0,     9,
-       0,    12,    13,    34,    38,    39,    11,    20,    14,    22,
+       0,    12,    13,    34,    37,    38,    11,    20,    14,    22,
       15,    28,    29,    16,    27,    26,    17,    24,    18,    50,
       51,    52,    53,     0,     0,     0,    60,    61,     0,     0,
        0,     0,     0,    44,     0,     0,     0,     0,     0,     0,
@@ -661,9 +661,9 @@ static const yytype_int8 yydefact[] =
       10,     0,     5,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     6,    21,
-      23,    25,     0,     0,     0,    35,    40,    41,    42,    43,
+      23,    25,     0,     0,     0,    39,    40,    41,    42,    43,
       45,    46,    47,    48,    49,     0,     0,     0,     0,    66,
-      67,    70,     0,     0,    68,    69,    71,    36,    37,     0,
+      67,    70,     0,     0,    68,    69,    71,    35,    36,     0,
        0,     0,    62,    63,     0,     0,     0,    64,    65,     0,
       54,    55,    56,    57,    58,    59,    72,     0,     0,    73,
        0,     0,     0,     0,     0,    74,    76,    75,    77
@@ -766,7 +766,7 @@ static const yytype_int8 yyr1[] =
        0,    47,    48,    49,    49,    50,    50,    50,    50,    51,
       51,    52,    53,    53,    54,    54,    54,    54,    54,    54,
       55,    55,    56,    56,    57,    57,    58,    58,    59,    59,
-      60,    60,    60,    60,    60,    60,    60,    60,    60,    60,
+      60,    60,    60,    60,    60,    60,    60,    60,    60,    61,
       61,    61,    61,    61,    61,    61,    61,    61,    61,    61,
       62,    62,    62,    62,    62,    62,    62,    62,    62,    62,
       63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
@@ -779,7 +779,7 @@ static const yytype_int8 yyr2[] =
        0,     2,     1,     1,     2,     2,     3,     2,     1,     1,
        2,     2,     1,     1,     2,     2,     2,     2,     2,     1,
        1,     3,     1,     3,     1,     3,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     4,     4,     4,     1,     1,
+       1,     1,     1,     1,     1,     4,     4,     1,     1,     4,
        4,     4,     4,     4,     2,     4,     4,     4,     4,     4,
        2,     2,     2,     2,     6,     6,     6,     6,     6,     6,
        2,     2,     5,     5,     5,     5,     4,     4,     4,     4,
@@ -1618,269 +1618,291 @@ yyreduce:
 
   case 35:
 #line 153 "misc/parser.y"
-                         { std::cout << "xchg %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
+                         { std::cout << "csrrd %csr" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
 #line 1623 "misc/parser.cpp"
     break;
 
   case 36:
 #line 154 "misc/parser.y"
-                         { std::cout << "csrrd %csr" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
+                         { std::cout << "csrwr %r" << (yyvsp[-2].reg) << ", %csr" << (yyvsp[0].reg) << std::endl; }
 #line 1629 "misc/parser.cpp"
     break;
 
-  case 37:
-#line 155 "misc/parser.y"
-                         { std::cout << "csrwr %r" << (yyvsp[-2].reg) << ", %csr" << (yyvsp[0].reg) << std::endl; }
-#line 1635 "misc/parser.cpp"
+  case 39:
+#line 163 "misc/parser.y"
+                         { std::cout << "xchg %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::XCHG, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
+#line 1637 "misc/parser.cpp"
     break;
 
   case 40:
-#line 163 "misc/parser.y"
-                        { std::cout << "add %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1641 "misc/parser.cpp"
+#line 166 "misc/parser.y"
+                        { std::cout << "add %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::ADD, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
+#line 1645 "misc/parser.cpp"
     break;
 
   case 41:
-#line 164 "misc/parser.y"
-                        { std::cout << "sub %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1647 "misc/parser.cpp"
-    break;
-
-  case 42:
-#line 165 "misc/parser.y"
-                        { std::cout << "mul %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
+#line 169 "misc/parser.y"
+                        { std::cout << "sub %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::SUB, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
 #line 1653 "misc/parser.cpp"
     break;
 
+  case 42:
+#line 172 "misc/parser.y"
+                        { std::cout << "mul %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::MUL, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
+#line 1661 "misc/parser.cpp"
+    break;
+
   case 43:
-#line 166 "misc/parser.y"
-                        { std::cout << "div %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1659 "misc/parser.cpp"
+#line 175 "misc/parser.y"
+                        { std::cout << "div %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::DIV, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
+#line 1669 "misc/parser.cpp"
     break;
 
   case 44:
-#line 167 "misc/parser.y"
-             {std::cout << "not %r" << (yyvsp[0].reg) << std::endl; }
-#line 1665 "misc/parser.cpp"
-    break;
-
-  case 45:
-#line 168 "misc/parser.y"
-                        { std::cout << "and %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1671 "misc/parser.cpp"
-    break;
-
-  case 46:
-#line 169 "misc/parser.y"
-                       { std::cout << "or %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
+#line 178 "misc/parser.y"
+             {std::cout << "not %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::NOT, (yyvsp[0].reg), -1);
+    }
 #line 1677 "misc/parser.cpp"
     break;
 
+  case 45:
+#line 181 "misc/parser.y"
+                        { std::cout << "and %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::AND, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
+#line 1685 "misc/parser.cpp"
+    break;
+
+  case 46:
+#line 184 "misc/parser.y"
+                       { std::cout << "or %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::OR, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
+#line 1693 "misc/parser.cpp"
+    break;
+
   case 47:
-#line 170 "misc/parser.y"
-                        { std::cout << "xor %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1683 "misc/parser.cpp"
+#line 187 "misc/parser.y"
+                        { std::cout << "xor %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::XOR, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
+#line 1701 "misc/parser.cpp"
     break;
 
   case 48:
-#line 171 "misc/parser.y"
-                        { std::cout << "shl %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1689 "misc/parser.cpp"
-    break;
-
-  case 49:
-#line 172 "misc/parser.y"
-                        { std::cout << "shr %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1695 "misc/parser.cpp"
-    break;
-
-  case 50:
-#line 176 "misc/parser.y"
-                 { std::cout << std::hex <<"call 0x" << (yyvsp[0].num) << std::dec << std::endl; 
-        Assembler::handleCallLiteral((yyvsp[0].num));
+#line 190 "misc/parser.y"
+                        { std::cout << "shl %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::SHL, (yyvsp[-2].reg), (yyvsp[0].reg));
     }
-#line 1703 "misc/parser.cpp"
-    break;
-
-  case 51:
-#line 179 "misc/parser.y"
-                { std::cout << "call " << *(yyvsp[0].str)<< std::endl; delete (yyvsp[0].str); }
 #line 1709 "misc/parser.cpp"
     break;
 
+  case 49:
+#line 193 "misc/parser.y"
+                        { std::cout << "shr %r" << (yyvsp[-2].reg) << ", %r" << (yyvsp[0].reg) << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::SHR, (yyvsp[-2].reg), (yyvsp[0].reg));
+    }
+#line 1717 "misc/parser.cpp"
+    break;
+
+  case 50:
+#line 199 "misc/parser.y"
+                 { std::cout << std::hex <<"call 0x" << (yyvsp[0].num) << std::dec << std::endl; 
+        Assembler::handleCallLiteral((yyvsp[0].num));
+    }
+#line 1725 "misc/parser.cpp"
+    break;
+
+  case 51:
+#line 202 "misc/parser.y"
+                { std::cout << "call " << *(yyvsp[0].str)<< std::endl; delete (yyvsp[0].str); }
+#line 1731 "misc/parser.cpp"
+    break;
+
   case 52:
-#line 181 "misc/parser.y"
+#line 204 "misc/parser.y"
                 { std::cout << std::hex << "jmp 0x" << (yyvsp[0].num)<< std::dec << std::endl; }
-#line 1715 "misc/parser.cpp"
+#line 1737 "misc/parser.cpp"
     break;
 
   case 53:
-#line 182 "misc/parser.y"
+#line 205 "misc/parser.y"
                { std::cout << "jmp " << *(yyvsp[0].str)<< std::endl; delete (yyvsp[0].str); }
-#line 1721 "misc/parser.cpp"
+#line 1743 "misc/parser.cpp"
     break;
 
   case 54:
-#line 184 "misc/parser.y"
+#line 207 "misc/parser.y"
                                       { 
         std::cout << "beq %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", 0x" << std::hex << (yyvsp[0].num) << std::dec << std::endl;
     }
-#line 1729 "misc/parser.cpp"
+#line 1751 "misc/parser.cpp"
     break;
 
   case 55:
-#line 187 "misc/parser.y"
+#line 210 "misc/parser.y"
                                      { 
         std::cout << "beq %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", " <<  *(yyvsp[0].str) << std::endl;
         delete (yyvsp[0].str);
     }
-#line 1738 "misc/parser.cpp"
+#line 1760 "misc/parser.cpp"
     break;
 
   case 56:
-#line 191 "misc/parser.y"
+#line 214 "misc/parser.y"
                                       { 
         std::cout << "bne %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", 0x" << std::hex << (yyvsp[0].num) << std::dec << std::endl;
     }
-#line 1746 "misc/parser.cpp"
+#line 1768 "misc/parser.cpp"
     break;
 
   case 57:
-#line 194 "misc/parser.y"
+#line 217 "misc/parser.y"
                                      { 
         std::cout << "bne %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", " <<  *(yyvsp[0].str) << std::endl;
         delete (yyvsp[0].str);
     }
-#line 1755 "misc/parser.cpp"
+#line 1777 "misc/parser.cpp"
     break;
 
   case 58:
-#line 198 "misc/parser.y"
+#line 221 "misc/parser.y"
                                       { 
         std::cout << "bgt %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", 0x" << std::hex << (yyvsp[0].num) << std::dec << std::endl;
     }
-#line 1763 "misc/parser.cpp"
+#line 1785 "misc/parser.cpp"
     break;
 
   case 59:
-#line 201 "misc/parser.y"
+#line 224 "misc/parser.y"
                                      { 
         std::cout << "bgt %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", " <<  *(yyvsp[0].str) << std::endl;
         delete (yyvsp[0].str);
     }
-#line 1772 "misc/parser.cpp"
+#line 1794 "misc/parser.cpp"
     break;
 
   case 60:
-#line 208 "misc/parser.y"
+#line 231 "misc/parser.y"
               {std::cout<<"push %r" << (yyvsp[0].reg) << std::endl;}
-#line 1778 "misc/parser.cpp"
+#line 1800 "misc/parser.cpp"
     break;
 
   case 61:
-#line 209 "misc/parser.y"
+#line 232 "misc/parser.y"
              {std::cout<<"pop %r" << (yyvsp[0].reg) << std::endl;}
-#line 1784 "misc/parser.cpp"
+#line 1806 "misc/parser.cpp"
     break;
 
   case 62:
-#line 212 "misc/parser.y"
+#line 235 "misc/parser.y"
                                  {std::cout << "ld $0x" << std::hex << (yyvsp[-2].num) << std::dec << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1790 "misc/parser.cpp"
+#line 1812 "misc/parser.cpp"
     break;
 
   case 63:
-#line 213 "misc/parser.y"
+#line 236 "misc/parser.y"
                                 {std::cout << "ld $" << *(yyvsp[-2].str) << ", %r" << (yyvsp[0].reg) << std::endl; delete (yyvsp[-2].str); }
-#line 1796 "misc/parser.cpp"
+#line 1818 "misc/parser.cpp"
     break;
 
   case 64:
-#line 214 "misc/parser.y"
+#line 237 "misc/parser.y"
                                  {std::cout << "st %r"<< (yyvsp[-3].reg)  << ", $" << std::hex << (yyvsp[0].num) << std::dec << std::endl; }
-#line 1802 "misc/parser.cpp"
+#line 1824 "misc/parser.cpp"
     break;
 
   case 65:
-#line 215 "misc/parser.y"
+#line 238 "misc/parser.y"
                                 {std::cout << "st %r"<< (yyvsp[-3].reg)  << ", $" << std::hex << *(yyvsp[0].str) << std::dec << std::endl; delete (yyvsp[0].str); }
-#line 1808 "misc/parser.cpp"
+#line 1830 "misc/parser.cpp"
     break;
 
   case 66:
-#line 218 "misc/parser.y"
+#line 241 "misc/parser.y"
                           {std::cout << "ld 0x" << std::hex << (yyvsp[-2].num) << std::dec << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1814 "misc/parser.cpp"
+#line 1836 "misc/parser.cpp"
     break;
 
   case 67:
-#line 219 "misc/parser.y"
+#line 242 "misc/parser.y"
                          {std::cout << "ld " << *(yyvsp[-2].str) << ", %r" << (yyvsp[0].reg) << std::endl; delete (yyvsp[-2].str); }
-#line 1820 "misc/parser.cpp"
+#line 1842 "misc/parser.cpp"
     break;
 
   case 68:
-#line 220 "misc/parser.y"
+#line 243 "misc/parser.y"
                           {std::cout << "st %r"<< (yyvsp[-2].reg)  << ", " << std::hex << (yyvsp[0].num) << std::dec << std::endl; }
-#line 1826 "misc/parser.cpp"
+#line 1848 "misc/parser.cpp"
     break;
 
   case 69:
-#line 221 "misc/parser.y"
+#line 244 "misc/parser.y"
                          {std::cout << "st %r"<< (yyvsp[-2].reg)  << ", " << std::hex << *(yyvsp[0].str) << std::dec << std::endl; delete (yyvsp[0].str); }
-#line 1832 "misc/parser.cpp"
+#line 1854 "misc/parser.cpp"
     break;
 
   case 70:
-#line 224 "misc/parser.y"
+#line 247 "misc/parser.y"
                        {std::cout << "ld %r" <<  (yyvsp[-2].reg) <<  ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1838 "misc/parser.cpp"
+#line 1860 "misc/parser.cpp"
     break;
 
   case 71:
-#line 225 "misc/parser.y"
+#line 248 "misc/parser.y"
                        {std::cout << "st %r"<< (yyvsp[-2].reg)  << ", %r" << (yyvsp[0].reg) << std::endl; }
-#line 1844 "misc/parser.cpp"
+#line 1866 "misc/parser.cpp"
     break;
 
   case 72:
-#line 228 "misc/parser.y"
+#line 251 "misc/parser.y"
                                          {std::cout << "ld [%r"<< (yyvsp[-3].reg)  << "], %r" << (yyvsp[0].reg) << std::endl; }
-#line 1850 "misc/parser.cpp"
+#line 1872 "misc/parser.cpp"
     break;
 
   case 73:
-#line 229 "misc/parser.y"
+#line 252 "misc/parser.y"
                                          {std::cout << "st %r" <<  (yyvsp[-4].reg) <<  ", [%r" << (yyvsp[-1].reg) <<"]" << std::endl; }
-#line 1856 "misc/parser.cpp"
+#line 1878 "misc/parser.cpp"
     break;
 
   case 74:
-#line 233 "misc/parser.y"
+#line 256 "misc/parser.y"
     {std::cout << "ld [%r"<< (yyvsp[-5].reg)  <<" + 0x" << std::hex << (yyvsp[-3].num) << std::dec <<"], %r" << (yyvsp[0].reg) << std::endl; }
-#line 1862 "misc/parser.cpp"
+#line 1884 "misc/parser.cpp"
     break;
 
   case 75:
-#line 235 "misc/parser.y"
+#line 258 "misc/parser.y"
     {std::cout << "st %r" <<  (yyvsp[-6].reg) <<  ", [%r" << (yyvsp[-3].reg) <<" + 0x" << std::hex << (yyvsp[-1].num) << std::dec << "]" << std::endl; }
-#line 1868 "misc/parser.cpp"
+#line 1890 "misc/parser.cpp"
     break;
 
   case 76:
-#line 239 "misc/parser.y"
+#line 262 "misc/parser.y"
     {std::cout << "ld [%r"<< (yyvsp[-5].reg)  <<" + " << *(yyvsp[-3].str) << "], %r" << (yyvsp[0].reg) << std::endl; delete (yyvsp[-3].str); }
-#line 1874 "misc/parser.cpp"
+#line 1896 "misc/parser.cpp"
     break;
 
   case 77:
-#line 241 "misc/parser.y"
+#line 264 "misc/parser.y"
     {std::cout << "st %r" <<  (yyvsp[-6].reg) <<  ", [%r" << (yyvsp[-3].reg) <<" + " <<  *(yyvsp[-1].str) <<  "]" << std::endl; delete (yyvsp[-1].str); }
-#line 1880 "misc/parser.cpp"
+#line 1902 "misc/parser.cpp"
     break;
 
 
-#line 1884 "misc/parser.cpp"
+#line 1906 "misc/parser.cpp"
 
       default: break;
     }
@@ -2112,7 +2134,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 245 "misc/parser.y"
+#line 268 "misc/parser.y"
 
 void yyerror(const char* s) {
   std::cerr << "Greška: " << s << std::endl;

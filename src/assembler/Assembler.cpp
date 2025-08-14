@@ -363,6 +363,37 @@ void Assembler::handleCallLiteral(uint32_t value){
   LC+=4;
 }
 
+void Assembler::handleGprInstructions(Instruction::OPCode op, uint8_t gprS, uint8_t gprD){
+
+  switch (op)
+  {
+    case Instruction::OPCode::XCHG: // has 2 destinations
+       memory.writeInstruction({op, 0, gprD, gprS});
+    break;
+    case Instruction::OPCode::ADD:
+    case Instruction::OPCode::SUB:
+    case Instruction::OPCode::MUL:
+    case Instruction::OPCode::DIV:
+    case Instruction::OPCode::AND:
+    case Instruction::OPCode::OR:
+    case Instruction::OPCode::XOR:
+    case Instruction::OPCode::SHL:
+    case Instruction::OPCode::SHR:
+       memory.writeInstruction({op, gprD, gprD, gprS});
+    break;
+    
+    case Instruction::OPCode::NOT:
+      memory.writeInstruction({op, gprD, gprS});
+    break;
+
+ 
+  default:
+    std::cout << "Invalid handleGprInstructions call." << std::endl;
+    return;
+  }
+  LC += 4;
+}
+
 void Assembler::symbolBackpatch(){
   // all values should be known except for extern symbols
   while(!backpatch.empty()){

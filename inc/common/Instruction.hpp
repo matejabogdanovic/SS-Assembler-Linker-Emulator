@@ -23,7 +23,24 @@ typedef struct Instruction{ // 4B = 32b
     JMP_REG_IND_DISP = 0x38,
     BEQ_REG_IND_DISP = 0x39,
     BNE_REG_IND_DISP = 0x3A,
-    BGT_REG_IND_DISP = 0x3B
+    BGT_REG_IND_DISP = 0x3B,
+
+    XCHG = 0x40,
+    ADD = 0x50, 
+    SUB = 0x51, 
+    MUL = 0x52, 
+    DIV = 0x53,
+
+    NOT = 0x60,
+    AND = 0x61, 
+    OR = 0x62,
+    XOR = 0x63,
+
+    SHL = 0x70,
+    SHR = 0x71,
+
+    CSRRD = 0x90,
+    CSRWR = 0x94
 
   } ;
   OPCode oc; // 4b op and 4b mod 
