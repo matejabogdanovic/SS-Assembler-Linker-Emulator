@@ -150,16 +150,19 @@ instruction:
     |
     gpr_instructions
     |
-    CSRRD CSR COMMA GPRX { std::cout << "csrrd %csr" << $2 << ", %r" << $4 << std::endl; }|
-    CSRWR GPRX COMMA CSR { std::cout << "csrwr %r" << $2 << ", %csr" << $4 << std::endl; }
-    |
+   
     jump_instructions
     |
     memory_instructions
    
 ;
 gpr_instructions:
-    
+    CSRRD CSR COMMA GPRX { std::cout << "csrrd %csr" << $2 << ", %r" << $4 << std::endl;
+        Assembler::handleGprInstructions(Instruction::OPCode::CSRRD, $2, $4);
+     }|
+    CSRWR GPRX COMMA CSR { std::cout << "csrwr %r" << $2 << ", %csr" << $4 << std::endl; 
+        Assembler::handleGprInstructions(Instruction::OPCode::CSRWR, $2, $4);
+    } |
     XCHG GPRX COMMA GPRX { std::cout << "xchg %r" << $2 << ", %r" << $4 << std::endl; 
         Assembler::handleGprInstructions(Instruction::OPCode::XCHG, $2, $4);
     }|

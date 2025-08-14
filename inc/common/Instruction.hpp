@@ -8,7 +8,9 @@ static const uint8_t PC = 15;
 
 
 typedef struct Instruction{ // 4B = 32b
-  
+  // status = 1;
+  // handler = 2;
+  // cause = 3;
 
   enum OPCode : uint8_t{
     HALT = 0x00,

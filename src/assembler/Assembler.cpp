@@ -381,7 +381,10 @@ void Assembler::handleGprInstructions(Instruction::OPCode op, uint8_t gprS, uint
     case Instruction::OPCode::SHR:
        memory.writeInstruction({op, gprD, gprD, gprS});
     break;
-    
+    case Instruction::OPCode::CSRRD:
+    case Instruction::OPCode::CSRWR:
+       memory.writeInstruction({op, gprD, gprS, 0});
+    break;
     case Instruction::OPCode::NOT:
       memory.writeInstruction({op, gprD, gprS});
     break;
