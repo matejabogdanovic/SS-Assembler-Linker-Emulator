@@ -48,8 +48,8 @@ private:
   static std::list <LiteralPatch> literalpatch;
   static std::vector <uint32_t> literalPool;
   static std::list <Backpatch> backpatch;
-  static void startBackpatch();
-
+  static void symbolBackpatch();
+  static void literalBackpatch();
 
 
   static void closeSection();

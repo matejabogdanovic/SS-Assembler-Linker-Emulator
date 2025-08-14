@@ -117,35 +117,41 @@ int Assembler::start(int argc, char* argv[]){
 }
 
 
+void Assembler::literalBackpatch(){
+  // get end of section without literal pool
+  uint32_t end_of_section_addr = LC + symtab.getSectionStart(symtab.current_section); 
+  // write literal pool to end of section
+  memory.writeWordVector(&literalPool);
+  // increase section size
+  LC += 4 * literalPool.size();
+
+  // literal patch, writing PC relative displacement in instruction to literal pool
+  while(!literalpatch.empty()){
+    // get location to patch
+    LiteralPatch p = literalpatch.front();
+    literalpatch.pop_front();
+    // calculate location to patch and displacement
+    uint32_t loc_to_patch = p.location;
+    uint32_t displacement = end_of_section_addr + p.index_of_literal * 4 - (loc_to_patch+2);
+    // [CCCC][DDDD] [DDDD][DDDD]
+    //  ^rc  ^highDisp 
+    uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
+    uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
+    uint8_t rc_oo = (0xF0 &rc_highDisp);
+
+    memory.changeByte( rc_oo | oo_highDisp,
+     loc_to_patch);
+    memory.changeByte(displacement, loc_to_patch+1);
+    
+  }
+}
+
 void Assembler::closeSection(){
   // close previous section 
 
   if(!symtab.sectionOpened())return;
   
-
-  uint32_t end_of_section_addr = LC + symtab.getSectionStart(symtab.current_section); 
-  memory.writeWordVector(&literalPool);
-  LC += 4 * literalPool.size();
-
-  while(!literalpatch.empty()){
-    
-    LiteralPatch p = literalpatch.front();
-    literalpatch.pop_front();
-    
-    uint32_t loc_to_patch = p.location;
-    uint32_t value = end_of_section_addr + p.index_of_literal * 4 - (loc_to_patch+2);
-    //value = 0x12345678;
-     
-
-    uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
-    uint8_t oo_highDisp = (uint8_t)(0x0F & (value >> 8));
-    uint8_t rc_oo = (0xF0 &rc_highDisp);
-
-    memory.changeByte( rc_oo | oo_highDisp,
-     loc_to_patch);
-    memory.changeByte(value, loc_to_patch+1);
-    
-  }
+  literalBackpatch();
 
   symtab.getCurrentSection()->size = LC;
   LC = 0;
@@ -357,7 +363,7 @@ void Assembler::handleCallLiteral(uint32_t value){
   LC+=4;
 }
 
-void Assembler::startBackpatch(){
+void Assembler::symbolBackpatch(){
   // all values should be known except for extern symbols
   while(!backpatch.empty()){
     Backpatch p = backpatch.front();
@@ -413,7 +419,7 @@ void Assembler::startBackpatch(){
 void Assembler::handleEnd(){
   
     closeSection();
-    startBackpatch();
+    symbolBackpatch();
     finished = true;
   
 };
