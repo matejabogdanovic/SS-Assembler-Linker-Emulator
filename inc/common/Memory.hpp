@@ -5,10 +5,15 @@
 class Memory{
 public:
   void writeInstruction(Instruction instruction);
-  void writeByte(uint8_t data, uint32_t n = 0);
-  void writeWord(uint8_t data);
-  void  changeWord(uint32_t data, uint32_t location);
+  void writeByte(uint8_t data, uint32_t n = 1);
   void changeByte(uint8_t data, uint32_t location);
+  
+  void writeWord(uint32_t data, uint32_t n = 1);
+  void changeWord(uint32_t data, uint32_t location);
+  
+  void writeWordVector(std::vector<uint32_t>* vector, uint32_t n=0);
+  void changeWordVector(std::vector<uint32_t>* vector, uint32_t location, uint32_t n=0);
+
   void print();
 private:
   std::vector<uint8_t> memory;

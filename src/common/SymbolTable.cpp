@@ -75,6 +75,21 @@ std::string SymbolTable::getSectionName(Entry* e) const{
   return section_names[e->ndx];
 }
 
+uint32_t SymbolTable::getSectionStart(uint32_t ndx){
+  
+  uint32_t sz = 0;
+  for(int i = 0; i < section_names.size() ; i++){
+    SymbolTable::Entry* curr = &sections[section_names[0]];
+    if(curr->ndx == ndx){
+      
+        return sz;
+    }
+    sz += curr->size;
+
+  }
+  return 0;
+}
+
 // for assembler, linker won't need -----
 
 bool SymbolTable::sectionOpened() const{

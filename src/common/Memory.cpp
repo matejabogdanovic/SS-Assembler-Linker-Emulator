@@ -14,17 +14,22 @@ void Memory::writeInstruction(Instruction instruction){
 void Memory::writeByte(uint8_t data, uint32_t n){
   
   for(uint32_t i = 0; i<n; i++)
-    memory.push_back(0);
+  memory.push_back(data);
 }
 
-void Memory::writeWord(uint8_t data){
-  
-   for (int i = 0; i < 4; i++){
+void Memory::changeByte(uint8_t data, uint32_t location){
+  memory[location] = (uint8_t)data;
+}
+
+
+void Memory::writeWord(uint32_t data, uint32_t n){
+  for(int i = 0; i < n; i++){
+   for (int j = 0; j < 4; j++){
 
       memory.push_back(data);
-      //data >>= 16;
       data >>= 8;
     }
+  }
 }
 
 void Memory::changeWord(uint32_t data, uint32_t location){
@@ -38,10 +43,26 @@ void Memory::changeWord(uint32_t data, uint32_t location){
 
 }
 
+void Memory::writeWordVector(std::vector<uint32_t>* vector, uint32_t n){
+  if(n==0){
+    n = vector->size();
+  }
 
-void Memory::changeByte(uint8_t data, uint32_t location){
-  memory[location] = (uint8_t)data;
+  for(int i = 0; i < n; i++){
+    writeWord(vector->at(i));
+  }
 }
+
+void Memory::changeWordVector(std::vector<uint32_t>* vector, uint32_t location, uint32_t n){
+  if(n==0){
+    n = vector->size();
+  }
+  for(int i = 0; i < n; i++){
+    changeWord(vector->at(i), location);
+  }
+}
+
+
 
 void Memory::print(){
 

@@ -123,20 +123,26 @@ void Assembler::closeSection(){
   if(!symtab.sectionOpened())return;
   
     // get section beginning
-    uint32_t sz = 0;
-    for(int i = 0; i < symtab.section_names.size() ; i++){
-      SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[0]);
-      if(section->ndx == symtab.current_section){
-        break;  
-      }
-      sz += section->size;
+    // uint32_t sz = 0;
+    // for(int i = 0; i < symtab.section_names.size() ; i++){
+    //   SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[0]);
+    //   if(section->ndx == symtab.current_section){
+    //     break;  
+    //   }
+    //   sz += section->size;
 
-    }
-    uint32_t end_of_section_addr = sz + LC; 
-    for(int i = 0; i < literalPool.size(); i++){
-      memory.writeWord(literalPool[i]);
-      LC+=4;
-    }
+    // }
+  uint32_t end_of_section_addr = LC + symtab.getSectionStart(symtab.current_section); 
+
+  // write literal pool
+  // for(int i = 0; i < literalPool.size(); i++){
+  //   memory.writeWord(literalPool[i]);
+  //   LC+=4;
+  // }
+
+  memory.writeWordVector(&literalPool);
+
+  LC += 4 * literalPool.size();
 
   while(!literalpatch.empty()){
     
@@ -145,11 +151,7 @@ void Assembler::closeSection(){
     
     uint32_t loc_to_patch = p.location;
     uint32_t value = end_of_section_addr + p.index_of_literal * 4 - (loc_to_patch+2);
-    // for (int i = 0; i < 4; i++){
-    //  // memory[loc_to_patch+i] = (uint8_t)value;
-    //   memory.changeByte(value, loc_to_patch + i);
-    //   value >>= 8;
-    // }
+
 
     memory.changeWord(value, loc_to_patch);
     
@@ -394,26 +396,20 @@ void Assembler::startBackpatch(){
 
   
     // get section beginning
-    uint32_t sz = 0;
-    for(int i = 0; i < symtab.section_names.size() ; i++){
-      SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[0]);
-      if(section->ndx == p.section->ndx){
-        break;  
-      }
-      sz += section->size;
+    // uint32_t sz = 0;
+    // for(int i = 0; i < symtab.section_names.size() ; i++){
+    //   SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[0]);
+    //   if(section->ndx == p.section->ndx){
+    //     break;  
+    //   }
+    //   sz += section->size;
 
-    }
+    // }
     // write
-    uint32_t loc_to_patch = p.location + sz;
+    uint32_t loc_to_patch = p.location + symtab.getSectionStart(p.section->ndx);
    
     uint32_t value = p.symbol->offset;
-    // for (int i = 0; i < 4; i++){
-    //  // memory[loc_to_patch+i] = (uint8_t)value;
-    //  // [][] [][] [][] [][]
-    //   memory.changeByte(value, loc_to_patch+i);
-    //   value >>= 8;
-    
-    // }
+
     memory.changeWord(value, loc_to_patch);
     
 

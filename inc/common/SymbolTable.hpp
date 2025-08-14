@@ -64,6 +64,7 @@ public:
   std::string getCurrentSectionName() const;
   std::string getUndefinedSectionName() const;
   Entry* getCurrentSection();
+  uint32_t getSectionStart(uint32_t ndx);
 
   Entry* getSection(std::string* name);
   Entry* getSymbol(std::string* name);

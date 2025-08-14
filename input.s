@@ -4,7 +4,7 @@
 .word a
 a:
 int
-call 0x00000007
+call 0x12345678
 halt
 .end
 
