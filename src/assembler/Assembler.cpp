@@ -343,7 +343,7 @@ void Assembler::handleCallLiteral(uint32_t value){
     return;
   }
 
-  memory.writeInstruction({Instruction::OPCode::CALL_IND, PC, 7, 2, 0});
+  memory.writeInstruction({Instruction::OPCode::CALL_IND, PC});
   
 
   if(literalTable.count(value)==0){ // literal doesn't exist 
