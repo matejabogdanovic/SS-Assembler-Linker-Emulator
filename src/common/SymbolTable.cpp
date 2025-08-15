@@ -78,8 +78,9 @@ std::string SymbolTable::getSectionName(Entry* e) const{
 uint32_t SymbolTable::getSectionStart(uint32_t ndx){
   
   uint32_t sz = 0;
+  SymbolTable::Entry* curr;
   for(int i = 0; i < section_names.size() ; i++){
-    SymbolTable::Entry* curr = &sections[section_names[0]];
+    curr =  &sections[section_names[i]];
     if(curr->ndx == ndx){
       
         return sz;

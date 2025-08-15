@@ -202,7 +202,11 @@ jump_instructions:
     CALL LITERAL { std::cout << std::hex <<"call 0x" << $2 << std::dec << std::endl; 
         Assembler::handleCallLiteral($2);
     }|
-    CALL SYMBOL { std::cout << "call " << *$2<< std::endl; delete $2; }|
+    CALL SYMBOL { 
+        std::cout << "call " << *$2<< std::endl; 
+        Assembler::handleCallSymbol($2);
+        delete $2; 
+    }|
     
     JMP LITERAL { std::cout << std::hex << "jmp 0x" << $2<< std::dec << std::endl; }|
     JMP SYMBOL { std::cout << "jmp " << *$2<< std::endl; delete $2; }|

@@ -1,6 +1,7 @@
 #pragma once
 #include "../../inc/common/SymbolTable.hpp"
 #include "../../inc/common/Memory.hpp"
+#include "../../inc/assembler/LiteralPool.hpp"
 #include <list>
 
 
@@ -22,7 +23,7 @@ public:
   static void handleHalt();
   static void handleInt();
   static void handleCallLiteral(uint32_t value);
-
+  static void handleCallSymbol(std::string* name);
   static void handleGprInstructions(Instruction::OPCode op,uint8_t gprS, uint8_t gprD);
   typedef enum {
     OK,
@@ -42,14 +43,8 @@ private:
   // static std::vector<uint8_t> memory;
   static Memory memory;
 
-  typedef struct {
-    uint32_t location;
-    uint32_t index_of_literal;
-  }LiteralPatch;
 
-  static std::unordered_map <uint32_t, uint32_t> literalTable;
-  static std::list <LiteralPatch> literalpatch;
-  static std::vector <uint32_t> literalPool;
+  static LiteralPool literalPool;
   static std::list <Backpatch> backpatch;
   static void symbolBackpatch();
   static void literalBackpatch();
