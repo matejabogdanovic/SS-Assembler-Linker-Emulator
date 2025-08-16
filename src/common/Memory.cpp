@@ -7,8 +7,8 @@ void Memory::writeInstruction(Instruction instruction){
   memory.push_back((instruction.ra << 4)|instruction.rb);
   // [] [c] | [] [d] [d] [d]
   //[] [c]  | [] [] [] [d]
-  memory.push_back((instruction.disp>>8)|(instruction.rc << 4));
-  memory.push_back(instruction.disp);
+  memory.push_back(((instruction.disp>>8)&0x0F)|(instruction.rc << 4));
+  memory.push_back((uint8_t)instruction.disp);
 }
 
 uint8_t Memory::readByte(uint32_t location) const{

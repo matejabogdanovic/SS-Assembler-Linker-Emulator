@@ -143,10 +143,10 @@ section_name_t:
   SECTION_NAME  { $$ = $1; }
 ;
 instruction: 
-    HALT {LOG(std::cout<<"halt"<< std::endl;); Assembler::handleHalt();}|
-    INT {LOG(std::cout<<"int"<< std::endl;); Assembler::handleInt();}|
-    IRET {LOG(std::cout<<"iret"<< std::endl;);}|
-    RET {LOG(std::cout<<"ret"<< std::endl;);} 
+    HALT {LOG(std::cout<<"halt"<< std::endl;); Assembler::handleZeroArgsInstructions(Instruction::OPCode::HALT);}|
+    INT {LOG(std::cout<<"int"<< std::endl;); Assembler::handleZeroArgsInstructions(Instruction::OPCode::INT);}|
+    IRET {LOG(std::cout<<"iret"<< std::endl;); Assembler::handleZeroArgsInstructions(Instruction::OPCode::IRET);}|
+    RET {LOG(std::cout<<"ret"<< std::endl;); Assembler::handleZeroArgsInstructions(Instruction::OPCode::RET);} 
     |
     gpr_instructions
     |
@@ -200,16 +200,22 @@ gpr_instructions:
 jump_instructions:
     /* <literal> or <symbol> => value of (<literal> or <symbol>) = address */
     CALL LITERAL { LOG(std::cout << std::hex <<"call 0x" << $2 << std::dec << std::endl;); 
-        Assembler::handleCallLiteral($2);
+ 
+        Assembler::handleJustLiteralInstructions(Instruction::OPCode::CALL_IND, $2);
     }|
     CALL SYMBOL { 
         LOG(std::cout << "call " << *$2<< std::endl;); 
-        Assembler::handleCallSymbol($2);
+        Assembler::handleJustSymbolInstructions(Instruction::OPCode::CALL_IND, $2);
         delete $2; 
     }|
     
-    JMP LITERAL { LOG(std::cout << std::hex << "jmp 0x" << $2<< std::dec << std::endl;); }|
-    JMP SYMBOL { LOG(std::cout << "jmp " << *$2<< std::endl;); delete $2; }|
+    JMP LITERAL { LOG(std::cout << std::hex << "jmp 0x" << $2<< std::dec << std::endl;); 
+        Assembler::handleJustLiteralInstructions(Instruction::OPCode::JMP_REG_IND_DISP, $2);
+    }|
+    JMP SYMBOL { LOG(std::cout << "jmp " << *$2<< std::endl;); 
+        Assembler::handleJustSymbolInstructions(Instruction::OPCode::JMP_REG_IND_DISP, $2);
+        delete $2; 
+    }|
     
     BEQ GPRX COMMA GPRX COMMA LITERAL { 
         LOG(std::cout << "beq %r"<< $2 << ", %r" << $4 <<", 0x" << std::hex << $6 << std::dec << std::endl;);
@@ -235,8 +241,12 @@ jump_instructions:
 ;
 
 memory_instructions:
-    PUSH GPRX {LOG(std::cout<<"push %r" << $2 << std::endl;);}|
-    POP GPRX {LOG(std::cout<<"pop %r" << $2 << std::endl;);}|
+    PUSH GPRX {LOG(std::cout<<"push %r" << $2 << std::endl;);
+        Assembler::handleStackOperations(Instruction::OPCode::PUSH, $2);
+    }|
+    POP GPRX {LOG(std::cout<<"pop %r" << $2 << std::endl;);
+        Assembler::handleStackOperations(Instruction::OPCode::POP, $2);
+    }|
 
     /* $<literal> or $<symbol> => value of (<literal> or <symbol>) = data */
     LD DOLLAR LITERAL COMMA GPRX {LOG(std::cout << "ld $0x" << std::hex << $3 << std::dec << ", %r" << $5 << std::endl;); }|

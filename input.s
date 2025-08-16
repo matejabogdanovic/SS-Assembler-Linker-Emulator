@@ -1,13 +1,14 @@
 .section a
-call here
-.skip 1
-here: 
-call there
-
-halt
-
+push %r2
+pop %r1
+call b
+call 0x0f
+# jmp b
+# jmp 0x0f
+b:
+iret
+ret
 .section b
-.skip 2
-there:
-call here
+.skip 1
+a:
 .end

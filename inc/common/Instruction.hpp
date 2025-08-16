@@ -17,7 +17,8 @@ typedef struct Instruction{ // 4B = 32b
     INT = 0x10,
     CALL_REG = 0x20,
     CALL_IND = 0x21,
-    
+    IRET = 0xF0, // not real code
+    RET = 0xF1, // not real code
     JMP_REG_DIR_DISP = 0x30,
     BEQ_REG_DIR_DISP = 0x31,
     BNE_REG_DIR_DISP = 0x32,
@@ -26,6 +27,9 @@ typedef struct Instruction{ // 4B = 32b
     BEQ_REG_IND_DISP = 0x39,
     BNE_REG_IND_DISP = 0x3A,
     BGT_REG_IND_DISP = 0x3B,
+
+    PUSH = 0x81,
+    POP = 0x93,
 
     XCHG = 0x40,
     ADD = 0x50, 

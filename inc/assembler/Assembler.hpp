@@ -22,11 +22,12 @@ public:
   static void handleWordSymbol(std::string* name);
   static void handleEnd();
 
-  static void handleHalt();
-  static void handleInt();
-  static void handleCallLiteral(uint32_t value);
-  static void handleCallSymbol(std::string* name);
+
+  static void handleZeroArgsInstructions(Instruction::OPCode op);
+  static void handleJustLiteralInstructions(Instruction::OPCode op, uint32_t value);
+  static void handleJustSymbolInstructions(Instruction::OPCode op, std::string* name);
   static void handleGprInstructions(Instruction::OPCode op,uint8_t gprS, uint8_t gprD);
+  static void handleStackOperations(Instruction::OPCode op, uint8_t gpr);
   typedef enum {
     OK,
     ERROR
