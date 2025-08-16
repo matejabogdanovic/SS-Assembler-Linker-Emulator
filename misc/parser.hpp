@@ -49,7 +49,7 @@ extern int yydebug;
     #include <cstdint>
     #include <string>
     #include "../inc/assembler/Assembler.hpp"
-  
+    #include "../inc/common/Macros.hpp"
 
 #line 55 "misc/parser.hpp"
 

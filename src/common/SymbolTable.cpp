@@ -45,8 +45,8 @@ bool SymbolTable::doesSectionExist(std::string* name) const{
 
 
 void SymbolTable::addSymbol(std::string* name, Entry e){
-  symbols[*name] = e;
   e.num = symbol_names.size(); // to get my name
+  symbols[*name] = e;
   symbol_names.push_back(*name);
 }
 

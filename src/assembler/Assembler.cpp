@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 
+
 bool Assembler::finished = false;
 char* Assembler::input; 
 char* Assembler::output;
@@ -119,9 +120,9 @@ int Assembler::start(int argc, char* argv[]){
 
 void Assembler::literalBackpatch(){
   // get end of section without literal pool
-  uint32_t startOfPool = LC; //+ symtab.getSectionStart(symtab.current_section); 
+  uint32_t start_of_pool_relative = LC; //+ symtab.getSectionStart(symtab.current_section); 
   // write literal pool to end of section
-  memory.writeWordVector(&literalPool.literalPool);
+  memory.writeWordVector(&literalPool.pool);
   // increase section size
   LC += 4 * literalPool.size();
   // literal patch, writing PC relative displacement in instruction to literal pool
@@ -130,35 +131,30 @@ void Assembler::literalBackpatch(){
     LiteralPool::LiteralPatch p = literalPool.literalpatch.front();
     literalPool.literalpatch.pop_front();
 
-    // calculate location to patch and displacement
-    uint32_t loc_to_patch = p.location;
+    uint32_t loc_to_patch_relative = p.location;
 
-    
-    // bool invalid = false;
-    // for(int i = 0; i < literalPool.invalidValues.size(); i++){
-    //   if(literalPool.invalidValues[i] == loc_to_patch){
-    //     invalid = true;
-    //     break;
-    //   }
-    //}
-    if(literalPool.isInvalid(loc_to_patch)){
-      
+    if(literalPool.isInvalid(loc_to_patch_relative)){
+      // fix location in backpatch to point to location in pool
       for (auto it = backpatch.begin(); it != backpatch.end(); ++it) {
-        if(it->location == loc_to_patch){
-          it->location = startOfPool + p.index_of_literal * 4 ;
+        if(it->location == loc_to_patch_relative){
+          it->location = start_of_pool_relative + p.index_of_literal * 4 ;
         }
       }
     }
 
     uint32_t displacement =
-     startOfPool + p.index_of_literal * 4 - (loc_to_patch+2);
+     start_of_pool_relative +    
+     p.index_of_literal * 4 - // offset in literal pool
+     (loc_to_patch_relative+2); // after displacement
     // [CCCC][DDDD] [DDDD][DDDD]
     //  ^rc  ^highDisp 
-    loc_to_patch += symtab.getSectionStart(symtab.current_section); // absolute address
+    uint32_t loc_to_patch = loc_to_patch_relative + 
+    symtab.getSectionStart(symtab.current_section); // absolute address
+
     uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
     uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
     uint8_t rc_oo = (0xF0 &rc_highDisp);
-    std::cout << "LOC TO PATCH" << std::hex << loc_to_patch;
+    
     memory.changeByte( rc_oo | oo_highDisp,
      loc_to_patch);
     memory.changeByte(displacement, loc_to_patch+1);
@@ -167,7 +163,7 @@ void Assembler::literalBackpatch(){
   // todo
 
   literalPool.isInvalidLocation.clear();
-  literalPool.literalPool.clear();
+  literalPool.pool.clear();
   //literalPool.literalpatch.clear();
   // literal pool clear
   //literalPool.literalBackpatch(&memory, end_of_section_addr);
@@ -451,9 +447,9 @@ void Assembler::symbolBackpatch(){
     backpatch.pop_front();
 
     std::cout << 
-    "Backpatching symbol "  <<
+    "====================================\n Backpatching symbol "  <<
      symtab.getSymbolName(p.symbol) << 
-    " in section " << symtab.getSectionName(p.section)<<
+    " in section " << p.section->ndx <<
      " location 0x" << std::hex << p.location << std::dec << 
     std::endl;
 
@@ -468,34 +464,26 @@ void Assembler::symbolBackpatch(){
     }
 
     std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;
-
+    if(p.symbol->ndx != p.section->ndx){
+      std::cout << ">>> Symbol in different section, needs relocation." << std::endl;
+    }
+    
     memory.print(std::cout);
 
-  
-    // get section beginning
-    // uint32_t sz = 0;
-    // for(int i = 0; i < symtab.section_names.size() ; i++){
-    //   SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[0]);
-    //   if(section->ndx == p.section->ndx){
-    //     break;  
-    //   }
-    //   sz += section->size;
-
-    // }
+    
     // write
     uint32_t loc_to_patch = p.location + symtab.getSectionStart(p.section->ndx);
-    std::cout << std::hex << "LOC" << loc_to_patch << "ploc" << p.location  << "sz" << symtab.getSectionStart(p.section->ndx);
-    
-    
-    uint32_t value = p.symbol->offset + 
-    symtab.getSectionStart(p.symbol->ndx); // RELOKACIONI ZAPIS, SKOK NA LABELU IZ DRUGE SEKCIJE??
 
+    std::cout << std::hex << "(abs) 0x" << loc_to_patch << 
+    " (rel) 0x" << p.location << std::dec << std::endl;
+
+    uint32_t value = p.symbol->offset; 
     memory.changeWord(value, loc_to_patch);
     
 
   }
 
-  std::cout << "After patch: " << std::endl;
+  std::cout << "====================================\n After patch: " << std::endl;
   memory.print(std::cout);
 
 }

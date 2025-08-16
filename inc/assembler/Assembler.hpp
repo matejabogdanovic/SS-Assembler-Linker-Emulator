@@ -1,7 +1,9 @@
 #pragma once
 #include "../../inc/common/SymbolTable.hpp"
 #include "../../inc/common/Memory.hpp"
+#include "../../inc/common/Macros.hpp"
 #include "../../inc/assembler/LiteralPool.hpp"
+
 #include <list>
 
 

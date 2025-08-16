@@ -1,1 +1,10 @@
-Output file working.
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 21       1       d         a       
+ 2       SCTN     LOC      0x00000000 10       2       d         b       
+ 3       NOTYP    LOC      0x00000005 0        1       d         here    
+ 4       NOTYP    LOC      0x00000002 0        2       d         there   
+0000: 21 F0 00 09 00 21 F0 00
+0008: 08 00 00 00 00 05 00 00
+0010: 00 02 00 00 00 00 00 21
+0018: F0 00 00 05 00 00 00

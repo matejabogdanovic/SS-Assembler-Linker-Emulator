@@ -36,6 +36,8 @@ public:
 
     }
     
+   // Entry(const Entry&) = default;
+
     Entry(
     uint32_t offset,
     Bind bind,
