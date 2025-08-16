@@ -1810,7 +1810,7 @@ yyreduce:
   case 60:
 #line 244 "misc/parser.y"
               {LOG(std::cout<<"push %r" << (yyvsp[0].reg) << std::endl;);
-        Assembler::handleStackOperations(Instruction::OPCode::PUSH, (yyvsp[0].reg));
+        Assembler::handleStackInstructions(Instruction::OPCode::PUSH, (yyvsp[0].reg));
     }
 #line 1816 "misc/parser.cpp"
     break;
@@ -1818,7 +1818,7 @@ yyreduce:
   case 61:
 #line 247 "misc/parser.y"
              {LOG(std::cout<<"pop %r" << (yyvsp[0].reg) << std::endl;);
-        Assembler::handleStackOperations(Instruction::OPCode::POP, (yyvsp[0].reg));
+        Assembler::handleStackInstructions(Instruction::OPCode::POP, (yyvsp[0].reg));
     }
 #line 1824 "misc/parser.cpp"
     break;

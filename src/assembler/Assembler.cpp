@@ -353,15 +353,19 @@ void Assembler::handleZeroArgsInstructions(Instruction::OPCode op){
   switch (op)
   {
     case Instruction::OPCode::IRET:
-      memory.writeInstruction({op}); // pop pc, pop status
-      memory.writeInstruction({op}); // pop pc, pop status
-      LC += 4*2;
-      return; // 2 instructions
+      handleStackInstructions(Instruction::OPCode::POP, PC);
+      handleStackInstructions(Instruction::OPCode::POP_CSR, STATUS);
+      //memory.writeInstruction({op}); // pop pc, pop status
+      //memory.writeInstruction({op}); // pop pc, pop status
+      //LC += 4*2;
+      return; 
     break;
     case Instruction::OPCode::RET:
-      memory.writeInstruction({op}); // pop pc
-
+      //memory.writeInstruction({op}); // pop pc
+      handleStackInstructions(Instruction::OPCode::POP, PC);
+      return;
     break;
+
     case Instruction::OPCode::HALT: 
     case Instruction::OPCode::INT:
        memory.writeInstruction({op});
@@ -469,7 +473,7 @@ void Assembler::handleGprInstructions(Instruction::OPCode op, uint8_t gprS, uint
   LC += 4;
 }
 // push and pop
-void Assembler::handleStackOperations(Instruction::OPCode op, uint8_t gpr){
+void Assembler::handleStackInstructions(Instruction::OPCode op, uint8_t reg){
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
@@ -477,16 +481,17 @@ void Assembler::handleStackOperations(Instruction::OPCode op, uint8_t gpr){
   switch (op)
   {
     case Instruction::OPCode::PUSH:
-      memory.writeInstruction({op, SP, 0, gpr, (uint16_t)-4}); // pop pc, pop status
+      memory.writeInstruction({op, SP, 0, reg, (uint16_t)-4}); 
 
     break;
     case Instruction::OPCode::POP:
-      memory.writeInstruction({op, gpr, SP, 0, 4}); // pop pc
+    case Instruction::OPCode::POP_CSR:
+      memory.writeInstruction({op, reg, SP, 0, 4}); // pop pc
 
     break;
 
   default:
-    std::cout << "Invalid handleStackOperations call." << std::endl;
+    std::cout << "Invalid handleStackInstructions call." << std::endl;
     return;
   }
   LC += 4;

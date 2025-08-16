@@ -242,10 +242,10 @@ jump_instructions:
 
 memory_instructions:
     PUSH GPRX {LOG(std::cout<<"push %r" << $2 << std::endl;);
-        Assembler::handleStackOperations(Instruction::OPCode::PUSH, $2);
+        Assembler::handleStackInstructions(Instruction::OPCode::PUSH, $2);
     }|
     POP GPRX {LOG(std::cout<<"pop %r" << $2 << std::endl;);
-        Assembler::handleStackOperations(Instruction::OPCode::POP, $2);
+        Assembler::handleStackInstructions(Instruction::OPCode::POP, $2);
     }|
 
     /* $<literal> or $<symbol> => value of (<literal> or <symbol>) = data */

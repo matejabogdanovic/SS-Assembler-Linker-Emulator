@@ -1,6 +1,6 @@
 .section a
 push %r2
-pop %r1
+pop %r4
 call b
 call 0x0f
 # jmp b

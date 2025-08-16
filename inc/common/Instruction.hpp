@@ -5,8 +5,9 @@
 
 static const uint8_t SP = 14;
 static const uint8_t PC = 15;
-
-
+static const uint8_t STATUS = 1;
+static const uint8_t HANDLER = 2;
+static const uint8_t CAUSE = 3;
 typedef struct Instruction{ // 4B = 32b
   // status = 1;
   // handler = 2;
@@ -30,7 +31,7 @@ typedef struct Instruction{ // 4B = 32b
 
     PUSH = 0x81,
     POP = 0x93,
-
+    POP_CSR = 0x97,
     XCHG = 0x40,
     ADD = 0x50, 
     SUB = 0x51, 

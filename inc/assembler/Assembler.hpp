@@ -27,7 +27,7 @@ public:
   static void handleJustLiteralInstructions(Instruction::OPCode op, uint32_t value);
   static void handleJustSymbolInstructions(Instruction::OPCode op, std::string* name);
   static void handleGprInstructions(Instruction::OPCode op,uint8_t gprS, uint8_t gprD);
-  static void handleStackOperations(Instruction::OPCode op, uint8_t gpr);
+  static void handleStackInstructions(Instruction::OPCode op, uint8_t reg);
   typedef enum {
     OK,
     ERROR
