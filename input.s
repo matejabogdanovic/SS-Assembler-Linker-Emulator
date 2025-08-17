@@ -3,8 +3,9 @@
 #pop %r4
 #call b
 #call 0x0f
+.skip 1
 b:
- jmp b
+ 
  jmp 0x0f
  .skip 2
  
@@ -13,6 +14,7 @@ b:
 #iret
 #ret
 .section b
+jmp b
 .skip 1
 a:
 .end

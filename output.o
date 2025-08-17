@@ -1,9 +1,9 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 18       1       d         a       
- 2       SCTN     LOC      0x00000000 1        2       d         b       
- 3       NOTYP    LOC      0x00000000 0        1       d         b       
- 4       NOTYP    LOC      0x00000001 0        2       d         a       
-0000: 78 56 3F FC 38 F0 00 06
-0008: 00 00 81 E0 2F FC 0F 00
-0010: 00 00 00
+ 1       SCTN     LOC      0x00000000 15       1       d         a       
+ 2       SCTN     LOC      0x00000000 9        2       d         b       
+ 3       NOTYP    LOC      0x00000001 0        1       d         b       
+ 4       NOTYP    LOC      0x00000005 0        2       d         a       
+0000: 00 38 F0 00 06 00 00 81
+0008: E0 2F FC 0F 00 00 00 38
+0010: F0 00 01 00 01 00 00 00

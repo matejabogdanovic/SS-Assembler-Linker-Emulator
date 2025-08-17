@@ -135,7 +135,8 @@ void Assembler::literalBackpatch(){
       // fix location in backpatch to point to location in pool
       for (auto it = backpatch.begin(); it != backpatch.end(); ++it) {
         if(it->location == p.location){ 
-          if(SymbolTable::isDefined(it->symbol->flags)){
+            
+          if(it->symbol->ndx == symtab.current_section && SymbolTable::isDefined(it->symbol->flags)){
             // THEN I WOULD NEED TO CHANGE INSTRUCTION TO BE JUST DISPLACEMENT
             std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;
             memory.changeWord(0x12345678, p.location-2); // TODO changeInstruction
