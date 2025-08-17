@@ -6,6 +6,8 @@
 class Memory{
 public:
   void writeInstruction(Instruction instruction);
+  void changeInstruction(Instruction instruction, uint32_t location);
+
   uint8_t readByte(uint32_t location) const;
   void writeByte(uint8_t data, uint32_t n = 1);
   void changeByte(uint8_t data, uint32_t location);

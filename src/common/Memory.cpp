@@ -11,14 +11,22 @@ void Memory::writeInstruction(Instruction instruction){
   memory.push_back((uint8_t)instruction.disp);
 }
 
+void Memory::changeInstruction(Instruction instruction, uint32_t location){
+  
+  changeByte(instruction.oc, location++);
+  changeByte((instruction.ra << 4)|instruction.rb, location++);
+  changeByte(((instruction.disp>>8)&0x0F)|(instruction.rc << 4), location++);
+  changeByte((uint8_t)instruction.disp, location);
+}
+
+
 uint8_t Memory::readByte(uint32_t location) const{
   return memory[location];
 }
 
 void Memory::writeByte(uint8_t data, uint32_t n){
   
-  for(uint32_t i = 0; i<n; i++)
-  memory.push_back(data);
+  for(uint32_t i = 0; i<n; i++)memory.push_back(data);
 }
 
 void Memory::changeByte(uint8_t data, uint32_t location){
@@ -76,7 +84,7 @@ void Memory::print(std::ostream& os){
    os << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
    static_cast<int>(memory[i]);
   
-
+    
   }
   os << std::dec << std::endl;
 }

@@ -139,7 +139,7 @@ void Assembler::literalBackpatch(){
           if(it->symbol->ndx == symtab.current_section && SymbolTable::isDefined(it->symbol->flags)){
             // THEN I WOULD NEED TO CHANGE INSTRUCTION TO BE JUST DISPLACEMENT
             std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;
-            memory.changeWord(0x12345678, p.location-2); // TODO changeInstruction
+            memory.changeInstruction(it->alternative, p.location-2); // TODO changeInstruction
             instruction_alternative_used = true;  
             displacement = it->symbol->offset - (p.location+2);
             backpatch.erase(it);

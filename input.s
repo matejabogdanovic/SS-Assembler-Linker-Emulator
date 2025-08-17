@@ -1,11 +1,11 @@
 .section a
 # push %r2
 # pop %r4
-# call b
-# call 0x0f
+call b
+call 0x0f
 
  jmp b
- jmp 0x69
+# jmp 0x69
 .skip 1
 b:
 
