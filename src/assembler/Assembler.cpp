@@ -516,6 +516,79 @@ void Assembler::handleStackInstructions(Instruction::OPCode op, uint8_t reg){
   LC += 4;
 }
 
+void Assembler::handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, uint32_t value){
+  
+if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+   switch (op)
+  {
+    case Instruction::OPCode::BEQ_REG_IND_DISP:
+    case Instruction::OPCode::BNE_REG_IND_DISP:
+    case Instruction::OPCode::BGT_REG_IND_DISP:
+      memory.writeInstruction({op, PC, gpr1, gpr2});
+      literalPool.put(value, LC+2);
+
+    break;
+
+
+  default:
+    std::cout << "Invalid handleBranchLiteralInstructions call." << std::endl;
+    return;
+  }
+
+  LC+=4;
+
+}
+
+void Assembler::handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, std::string* name){
+
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+
+  if(!symtab.doesSymbolExist(name)){
+    symtab.addSymbol(name, SymbolTable::Entry{
+          0, SymbolTable::Bind::LOC, SymbolTable::UNDEFINED_SECTION
+        });
+  }
+  SymbolTable::Entry* s = symtab.getSymbol(name);
+  
+   switch (op)
+  {
+    case Instruction::OPCode::BEQ_REG_IND_DISP:
+      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+        {Instruction::OPCode::BEQ_REG_DIR_DISP, PC, gpr1, gpr2}});
+      memory.writeInstruction({op, PC, gpr1, gpr2});
+      literalPool.put(0xfffffff2, LC+2, true);
+    break;
+    case Instruction::OPCode::BNE_REG_IND_DISP:
+      // location is not known, it will be known when backpatch starts
+      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+      {Instruction::OPCode::BNE_REG_DIR_DISP, PC, gpr1, gpr2}});
+      memory.writeInstruction({op, PC, gpr1, gpr2});
+      literalPool.put(0xfffffff3, LC+2, true);
+
+    break;
+    case Instruction::OPCode::BGT_REG_IND_DISP:
+      // location is not known, it will be known when backpatch starts
+      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+      {Instruction::OPCode::BGT_REG_DIR_DISP, PC, gpr1, gpr2}});
+      memory.writeInstruction({op, PC, gpr1, gpr2});
+      literalPool.put(0xfffffff4, LC+2, true);
+
+    break;
+
+  default:
+    std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;
+    return;
+  }
+
+
+  LC+=4;
+}
 void Assembler::symbolBackpatch(){
   // all values should be known except for extern symbols
   while(!backpatch.empty()){
@@ -583,7 +656,7 @@ void Assembler::printCode(std::ostream& os){
 void Assembler::handleEnd(){
   closeSection();
   symbolBackpatch();
-
+  printCode(std::cout);
   
   finished = true;
   

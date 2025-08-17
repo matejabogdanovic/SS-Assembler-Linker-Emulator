@@ -28,6 +28,8 @@ public:
   static void handleJustSymbolInstructions(Instruction::OPCode op, std::string* name);
   static void handleGprInstructions(Instruction::OPCode op,uint8_t gprS, uint8_t gprD);
   static void handleStackInstructions(Instruction::OPCode op, uint8_t reg);
+  static void handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, uint32_t value);
+  static void handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, std::string* name);
   typedef enum {
     OK,
     ERROR

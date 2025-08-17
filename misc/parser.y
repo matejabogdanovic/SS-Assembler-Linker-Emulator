@@ -219,23 +219,29 @@ jump_instructions:
     
     BEQ GPRX COMMA GPRX COMMA LITERAL { 
         LOG(std::cout << "beq %r"<< $2 << ", %r" << $4 <<", 0x" << std::hex << $6 << std::dec << std::endl;);
+        Assembler::handleBranchLiteralInstructions(Instruction::OPCode::BEQ_REG_IND_DISP, $2, $4, $6);
     }|
     BEQ GPRX COMMA GPRX COMMA SYMBOL { 
         LOG(std::cout << "beq %r"<< $2 << ", %r" << $4 <<", " <<  *$6 << std::endl;);
+        Assembler::handleBranchSymbolInstructions(Instruction::OPCode::BEQ_REG_IND_DISP, $2, $4, $6);
         delete $6;
     }|
     BNE GPRX COMMA GPRX COMMA LITERAL { 
         LOG(std::cout << "bne %r"<< $2 << ", %r" << $4 <<", 0x" << std::hex << $6 << std::dec << std::endl;);
+        Assembler::handleBranchLiteralInstructions(Instruction::OPCode::BNE_REG_IND_DISP, $2, $4, $6);
     }|
     BNE GPRX COMMA GPRX COMMA SYMBOL { 
         LOG(std::cout << "bne %r"<< $2 << ", %r" << $4 <<", " <<  *$6 << std::endl;);
+        Assembler::handleBranchSymbolInstructions(Instruction::OPCode::BNE_REG_IND_DISP, $2, $4, $6);
         delete $6;
     }|
     BGT GPRX COMMA GPRX COMMA LITERAL { 
         LOG(std::cout << "bgt %r"<< $2 << ", %r" << $4 <<", 0x" << std::hex << $6 << std::dec << std::endl;);
+        Assembler::handleBranchLiteralInstructions(Instruction::OPCode::BGT_REG_IND_DISP, $2, $4, $6);
     }|
     BGT GPRX COMMA GPRX COMMA SYMBOL { 
         LOG(std::cout << "bgt %r"<< $2 << ", %r" << $4 <<", " <<  *$6 << std::endl;);
+        Assembler::handleBranchSymbolInstructions(Instruction::OPCode::BGT_REG_IND_DISP, $2, $4, $6);
         delete $6;
     }
 ;

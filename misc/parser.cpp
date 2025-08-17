@@ -573,9 +573,9 @@ static const yytype_int16 yyrline[] =
      110,   113,   118,   121,   127,   129,   133,   137,   142,   143,
      146,   147,   148,   149,   151,   154,   156,   160,   163,   166,
      169,   172,   175,   178,   181,   184,   187,   190,   193,   196,
-     202,   206,   212,   215,   220,   223,   227,   230,   234,   237,
-     244,   247,   252,   253,   254,   255,   258,   259,   260,   261,
-     264,   265,   268,   269,   272,   274,   278,   280
+     202,   206,   212,   215,   220,   224,   229,   233,   238,   242,
+     250,   253,   258,   259,   260,   261,   264,   265,   266,   267,
+     270,   271,   274,   275,   278,   280,   284,   286
 };
 #endif
 
@@ -1760,167 +1760,173 @@ yyreduce:
 #line 220 "misc/parser.y"
                                       { 
         LOG(std::cout << "beq %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", 0x" << std::hex << (yyvsp[0].num) << std::dec << std::endl;);
+        Assembler::handleBranchLiteralInstructions(Instruction::OPCode::BEQ_REG_IND_DISP, (yyvsp[-4].reg), (yyvsp[-2].reg), (yyvsp[0].num));
     }
-#line 1765 "misc/parser.cpp"
+#line 1766 "misc/parser.cpp"
     break;
 
   case 55:
-#line 223 "misc/parser.y"
+#line 224 "misc/parser.y"
                                      { 
         LOG(std::cout << "beq %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", " <<  *(yyvsp[0].str) << std::endl;);
+        Assembler::handleBranchSymbolInstructions(Instruction::OPCode::BEQ_REG_IND_DISP, (yyvsp[-4].reg), (yyvsp[-2].reg), (yyvsp[0].str));
         delete (yyvsp[0].str);
     }
-#line 1774 "misc/parser.cpp"
+#line 1776 "misc/parser.cpp"
     break;
 
   case 56:
-#line 227 "misc/parser.y"
+#line 229 "misc/parser.y"
                                       { 
         LOG(std::cout << "bne %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", 0x" << std::hex << (yyvsp[0].num) << std::dec << std::endl;);
+        Assembler::handleBranchLiteralInstructions(Instruction::OPCode::BNE_REG_IND_DISP, (yyvsp[-4].reg), (yyvsp[-2].reg), (yyvsp[0].num));
     }
-#line 1782 "misc/parser.cpp"
+#line 1785 "misc/parser.cpp"
     break;
 
   case 57:
-#line 230 "misc/parser.y"
+#line 233 "misc/parser.y"
                                      { 
         LOG(std::cout << "bne %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", " <<  *(yyvsp[0].str) << std::endl;);
+        Assembler::handleBranchSymbolInstructions(Instruction::OPCode::BNE_REG_IND_DISP, (yyvsp[-4].reg), (yyvsp[-2].reg), (yyvsp[0].str));
         delete (yyvsp[0].str);
     }
-#line 1791 "misc/parser.cpp"
+#line 1795 "misc/parser.cpp"
     break;
 
   case 58:
-#line 234 "misc/parser.y"
+#line 238 "misc/parser.y"
                                       { 
         LOG(std::cout << "bgt %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", 0x" << std::hex << (yyvsp[0].num) << std::dec << std::endl;);
+        Assembler::handleBranchLiteralInstructions(Instruction::OPCode::BGT_REG_IND_DISP, (yyvsp[-4].reg), (yyvsp[-2].reg), (yyvsp[0].num));
     }
-#line 1799 "misc/parser.cpp"
+#line 1804 "misc/parser.cpp"
     break;
 
   case 59:
-#line 237 "misc/parser.y"
+#line 242 "misc/parser.y"
                                      { 
         LOG(std::cout << "bgt %r"<< (yyvsp[-4].reg) << ", %r" << (yyvsp[-2].reg) <<", " <<  *(yyvsp[0].str) << std::endl;);
+        Assembler::handleBranchSymbolInstructions(Instruction::OPCode::BGT_REG_IND_DISP, (yyvsp[-4].reg), (yyvsp[-2].reg), (yyvsp[0].str));
         delete (yyvsp[0].str);
     }
-#line 1808 "misc/parser.cpp"
+#line 1814 "misc/parser.cpp"
     break;
 
   case 60:
-#line 244 "misc/parser.y"
+#line 250 "misc/parser.y"
               {LOG(std::cout<<"push %r" << (yyvsp[0].reg) << std::endl;);
         Assembler::handleStackInstructions(Instruction::OPCode::PUSH, (yyvsp[0].reg));
     }
-#line 1816 "misc/parser.cpp"
+#line 1822 "misc/parser.cpp"
     break;
 
   case 61:
-#line 247 "misc/parser.y"
+#line 253 "misc/parser.y"
              {LOG(std::cout<<"pop %r" << (yyvsp[0].reg) << std::endl;);
         Assembler::handleStackInstructions(Instruction::OPCode::POP, (yyvsp[0].reg));
     }
-#line 1824 "misc/parser.cpp"
-    break;
-
-  case 62:
-#line 252 "misc/parser.y"
-                                 {LOG(std::cout << "ld $0x" << std::hex << (yyvsp[-2].num) << std::dec << ", %r" << (yyvsp[0].reg) << std::endl;); }
 #line 1830 "misc/parser.cpp"
     break;
 
-  case 63:
-#line 253 "misc/parser.y"
-                                {LOG(std::cout << "ld $" << *(yyvsp[-2].str) << ", %r" << (yyvsp[0].reg) << std::endl;); delete (yyvsp[-2].str); }
+  case 62:
+#line 258 "misc/parser.y"
+                                 {LOG(std::cout << "ld $0x" << std::hex << (yyvsp[-2].num) << std::dec << ", %r" << (yyvsp[0].reg) << std::endl;); }
 #line 1836 "misc/parser.cpp"
     break;
 
-  case 64:
-#line 254 "misc/parser.y"
-                                 {LOG(std::cout << "st %r"<< (yyvsp[-3].reg)  << ", $" << std::hex << (yyvsp[0].num) << std::dec << std::endl;); }
+  case 63:
+#line 259 "misc/parser.y"
+                                {LOG(std::cout << "ld $" << *(yyvsp[-2].str) << ", %r" << (yyvsp[0].reg) << std::endl;); delete (yyvsp[-2].str); }
 #line 1842 "misc/parser.cpp"
     break;
 
-  case 65:
-#line 255 "misc/parser.y"
-                                {LOG(std::cout << "st %r"<< (yyvsp[-3].reg)  << ", $" << std::hex << *(yyvsp[0].str) << std::dec << std::endl;); delete (yyvsp[0].str); }
+  case 64:
+#line 260 "misc/parser.y"
+                                 {LOG(std::cout << "st %r"<< (yyvsp[-3].reg)  << ", $" << std::hex << (yyvsp[0].num) << std::dec << std::endl;); }
 #line 1848 "misc/parser.cpp"
     break;
 
-  case 66:
-#line 258 "misc/parser.y"
-                          {LOG(std::cout << "ld 0x" << std::hex << (yyvsp[-2].num) << std::dec << ", %r" << (yyvsp[0].reg) << std::endl;); }
+  case 65:
+#line 261 "misc/parser.y"
+                                {LOG(std::cout << "st %r"<< (yyvsp[-3].reg)  << ", $" << std::hex << *(yyvsp[0].str) << std::dec << std::endl;); delete (yyvsp[0].str); }
 #line 1854 "misc/parser.cpp"
     break;
 
-  case 67:
-#line 259 "misc/parser.y"
-                         {LOG(std::cout << "ld " << *(yyvsp[-2].str) << ", %r" << (yyvsp[0].reg) << std::endl;); delete (yyvsp[-2].str); }
+  case 66:
+#line 264 "misc/parser.y"
+                          {LOG(std::cout << "ld 0x" << std::hex << (yyvsp[-2].num) << std::dec << ", %r" << (yyvsp[0].reg) << std::endl;); }
 #line 1860 "misc/parser.cpp"
     break;
 
-  case 68:
-#line 260 "misc/parser.y"
-                          {LOG(std::cout << "st %r"<< (yyvsp[-2].reg)  << ", " << std::hex << (yyvsp[0].num) << std::dec << std::endl;); }
+  case 67:
+#line 265 "misc/parser.y"
+                         {LOG(std::cout << "ld " << *(yyvsp[-2].str) << ", %r" << (yyvsp[0].reg) << std::endl;); delete (yyvsp[-2].str); }
 #line 1866 "misc/parser.cpp"
     break;
 
-  case 69:
-#line 261 "misc/parser.y"
-                         {LOG(std::cout << "st %r"<< (yyvsp[-2].reg)  << ", " << std::hex << *(yyvsp[0].str) << std::dec << std::endl;); delete (yyvsp[0].str); }
+  case 68:
+#line 266 "misc/parser.y"
+                          {LOG(std::cout << "st %r"<< (yyvsp[-2].reg)  << ", " << std::hex << (yyvsp[0].num) << std::dec << std::endl;); }
 #line 1872 "misc/parser.cpp"
     break;
 
-  case 70:
-#line 264 "misc/parser.y"
-                       {LOG(std::cout << "ld %r" <<  (yyvsp[-2].reg) <<  ", %r" << (yyvsp[0].reg) << std::endl;); }
+  case 69:
+#line 267 "misc/parser.y"
+                         {LOG(std::cout << "st %r"<< (yyvsp[-2].reg)  << ", " << std::hex << *(yyvsp[0].str) << std::dec << std::endl;); delete (yyvsp[0].str); }
 #line 1878 "misc/parser.cpp"
     break;
 
-  case 71:
-#line 265 "misc/parser.y"
-                       {LOG(std::cout << "st %r"<< (yyvsp[-2].reg)  << ", %r" << (yyvsp[0].reg) << std::endl;); }
+  case 70:
+#line 270 "misc/parser.y"
+                       {LOG(std::cout << "ld %r" <<  (yyvsp[-2].reg) <<  ", %r" << (yyvsp[0].reg) << std::endl;); }
 #line 1884 "misc/parser.cpp"
     break;
 
-  case 72:
-#line 268 "misc/parser.y"
-                                         {LOG(std::cout << "ld [%r"<< (yyvsp[-3].reg)  << "], %r" << (yyvsp[0].reg) << std::endl;); }
+  case 71:
+#line 271 "misc/parser.y"
+                       {LOG(std::cout << "st %r"<< (yyvsp[-2].reg)  << ", %r" << (yyvsp[0].reg) << std::endl;); }
 #line 1890 "misc/parser.cpp"
     break;
 
-  case 73:
-#line 269 "misc/parser.y"
-                                         {LOG(std::cout << "st %r" <<  (yyvsp[-4].reg) <<  ", [%r" << (yyvsp[-1].reg) <<"]" << std::endl;); }
+  case 72:
+#line 274 "misc/parser.y"
+                                         {LOG(std::cout << "ld [%r"<< (yyvsp[-3].reg)  << "], %r" << (yyvsp[0].reg) << std::endl;); }
 #line 1896 "misc/parser.cpp"
     break;
 
-  case 74:
-#line 273 "misc/parser.y"
-    {LOG(std::cout << "ld [%r"<< (yyvsp[-5].reg)  <<" + 0x" << std::hex << (yyvsp[-3].num) << std::dec <<"], %r" << (yyvsp[0].reg) << std::endl;); }
+  case 73:
+#line 275 "misc/parser.y"
+                                         {LOG(std::cout << "st %r" <<  (yyvsp[-4].reg) <<  ", [%r" << (yyvsp[-1].reg) <<"]" << std::endl;); }
 #line 1902 "misc/parser.cpp"
     break;
 
-  case 75:
-#line 275 "misc/parser.y"
-    {LOG(std::cout << "st %r" <<  (yyvsp[-6].reg) <<  ", [%r" << (yyvsp[-3].reg) <<" + 0x" << std::hex << (yyvsp[-1].num) << std::dec << "]" << std::endl;); }
+  case 74:
+#line 279 "misc/parser.y"
+    {LOG(std::cout << "ld [%r"<< (yyvsp[-5].reg)  <<" + 0x" << std::hex << (yyvsp[-3].num) << std::dec <<"], %r" << (yyvsp[0].reg) << std::endl;); }
 #line 1908 "misc/parser.cpp"
     break;
 
-  case 76:
-#line 279 "misc/parser.y"
-    {LOG(std::cout << "ld [%r"<< (yyvsp[-5].reg)  <<" + " << *(yyvsp[-3].str) << "], %r" << (yyvsp[0].reg) << std::endl;); delete (yyvsp[-3].str); }
+  case 75:
+#line 281 "misc/parser.y"
+    {LOG(std::cout << "st %r" <<  (yyvsp[-6].reg) <<  ", [%r" << (yyvsp[-3].reg) <<" + 0x" << std::hex << (yyvsp[-1].num) << std::dec << "]" << std::endl;); }
 #line 1914 "misc/parser.cpp"
     break;
 
-  case 77:
-#line 281 "misc/parser.y"
-    {LOG(std::cout << "st %r" <<  (yyvsp[-6].reg) <<  ", [%r" << (yyvsp[-3].reg) <<" + " <<  *(yyvsp[-1].str) <<  "]" << std::endl;); delete (yyvsp[-1].str); }
+  case 76:
+#line 285 "misc/parser.y"
+    {LOG(std::cout << "ld [%r"<< (yyvsp[-5].reg)  <<" + " << *(yyvsp[-3].str) << "], %r" << (yyvsp[0].reg) << std::endl;); delete (yyvsp[-3].str); }
 #line 1920 "misc/parser.cpp"
     break;
 
+  case 77:
+#line 287 "misc/parser.y"
+    {LOG(std::cout << "st %r" <<  (yyvsp[-6].reg) <<  ", [%r" << (yyvsp[-3].reg) <<" + " <<  *(yyvsp[-1].str) <<  "]" << std::endl;); delete (yyvsp[-1].str); }
+#line 1926 "misc/parser.cpp"
+    break;
 
-#line 1924 "misc/parser.cpp"
+
+#line 1930 "misc/parser.cpp"
 
       default: break;
     }
@@ -2152,7 +2158,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 285 "misc/parser.y"
+#line 291 "misc/parser.y"
 
 void yyerror(const char* s) {
   std::cerr << "Greška: " << s << std::endl;
