@@ -36,10 +36,21 @@ public:
 
 
 private:
-  typedef struct {
+  typedef struct Backpatch{
     uint32_t location;
     SymbolTable::Entry* symbol;
     SymbolTable::Entry* section;
+    Instruction alternative; // reg dir
+    
+    Backpatch(
+      uint32_t location,
+    SymbolTable::Entry* symbol,
+    SymbolTable::Entry* section,
+    Instruction alternative = {Instruction::OPCode::HALT}
+    ): location(location), symbol(symbol), section(section), alternative(alternative)
+    {
+      
+    }
   }Backpatch;
 
 

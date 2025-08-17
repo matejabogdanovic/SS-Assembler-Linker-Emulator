@@ -119,29 +119,37 @@ int Assembler::start(int argc, char* argv[]){
 
 
 void Assembler::literalBackpatch(){
- 
+  
   // literal patch, writing PC relative displacement in instruction to literal pool
   while(!literalPool.patches.empty()){
     // get location to patch
+    bool instruction_alternative_used = false;
     LiteralPool::LiteralPatch p = literalPool.patches.front();
     literalPool.patches.pop_front();
+    
+    uint32_t displacement =   
+     LC - // end of pool
+     (p.location+2); // after displacement
 
     if(literalPool.isInvalid(p.location)){
       // fix location in backpatch to point to location in pool
       for (auto it = backpatch.begin(); it != backpatch.end(); ++it) {
-        if(it->location == p.location){
+        if(it->location == p.location){ 
           if(SymbolTable::isDefined(it->symbol->flags)){
             // THEN I WOULD NEED TO CHANGE INSTRUCTION TO BE JUST DISPLACEMENT
             std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;
+            memory.changeWord(0x12345678, p.location-2); // TODO changeInstruction
+            instruction_alternative_used = true;  
+            displacement = it->symbol->offset - (p.location+2);
+            backpatch.erase(it);
+            break;
           }
           it->location = LC; // end of pool
         }
       }
     }
 
-    uint32_t displacement =   
-     LC - // end of pool
-     (p.location+2); // after displacement
+    
     // [CCCC][DDDD] [DDDD][DDDD]
     //  ^rc  ^highDisp 
     uint32_t loc_to_patch = p.location + 
@@ -151,12 +159,15 @@ void Assembler::literalBackpatch(){
     uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
     uint8_t rc_oo = (0xF0 &rc_highDisp);
     // write a literal
-    memory.writeWord(p.literal);
+    if(!instruction_alternative_used){
+      memory.writeWord(p.literal);
+      LC += 4;
+    }
 
     memory.changeByte( rc_oo | oo_highDisp,
      loc_to_patch);
     memory.changeByte(displacement, loc_to_patch+1);
-    LC += 4;
+    
   }
 
 
@@ -418,11 +429,17 @@ void Assembler::handleJustSymbolInstructions(Instruction::OPCode op, std::string
    switch (op)
   {
     case Instruction::OPCode::CALL_IND:
+      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+        {Instruction::OPCode::CALL_REG, PC}});
+      memory.writeInstruction({op, PC});
+      literalPool.put(0xfffffff0, LC+2, true);
+    break;
     case Instruction::OPCode::JMP_REG_IND_DISP:
       // location is not known, it will be known when backpatch starts
-      backpatch.push_back({LC+2, s, symtab.getCurrentSection()});
+      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+      {Instruction::OPCode::JMP_REG_DIR_DISP, PC}});
       memory.writeInstruction({op, PC});
-      literalPool.put(0xffffffff, LC+2, true);
+      literalPool.put(0xfffffff1, LC+2, true);
 
     break;
 
