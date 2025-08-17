@@ -56,7 +56,8 @@ int Assembler::processing(){
   std::ofstream outputFile(output); // otvara fajl za pisanje
 
   symtab.printTable(outputFile);
-  memory.print(outputFile);
+  //memory.print(outputFile);
+  printCode(outputFile);
   if (!outputFile.is_open()) {
         std::cerr << "assembler: error: can't open output file\n";
         return -1;
@@ -563,11 +564,28 @@ void Assembler::symbolBackpatch(){
 
 }
 
-void Assembler::handleEnd(){
+void Assembler::printCode(std::ostream& os){
   
-    closeSection();
-    symbolBackpatch();
-    finished = true;
+  uint32_t start = 0;
+  for (size_t i = 1; i < symtab.section_names.size(); i++){
+    SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[i]);
+    
+    os << "=================Section " << symtab.section_names[i] << "===================\n";
+    memory.print(os, start, section->size);
+    
+    start += section->size;
+    
+  }
+  
+
+}
+
+void Assembler::handleEnd(){
+  closeSection();
+  symbolBackpatch();
+
+  
+  finished = true;
   
 };
 

@@ -70,15 +70,22 @@ void Memory::changeWordVector(std::vector<uint32_t>* vector, uint32_t location, 
     n = vector->size();
   }
   for(int i = 0; i < n; i++){
-    changeWord(vector->at(i), location);
+    changeWord(vector->at(i), location + i);
   }
 }
 
 
 
-void Memory::print(std::ostream& os){
+void Memory::print(std::ostream& os, uint32_t location, uint32_t n){
+  if(n==0){
+    n = memory.size();
+  }
+    if(location % 8 != 0){
+      os << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
+      location<< ":";
+    }
+  for(uint32_t i = location; i < location + n; i++){
 
-  for(uint32_t i = 0; i < memory.size(); i++){
      if(i%8==0)os << (i>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
       i << ":";
    os << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  

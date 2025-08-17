@@ -18,7 +18,7 @@ public:
   void writeWordVector(std::vector<uint32_t>* vector, uint32_t n=0);
   void changeWordVector(std::vector<uint32_t>* vector, uint32_t location, uint32_t n=0);
 
-  void print(std::ostream& os);
+  void print(std::ostream& os, uint32_t location=0, uint32_t n=0);
 private:
   std::vector<uint8_t> memory;
 
