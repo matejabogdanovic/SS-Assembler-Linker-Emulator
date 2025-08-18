@@ -589,6 +589,63 @@ void Assembler::handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t g
 
   LC+=4;
 }
+
+void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint8_t gprD, uint8_t gprS  ){
+
+  
+if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+   switch (op)
+  {
+    case Instruction::OPCode::LD_VLIT:
+    if(value <= 0xFFF){ // gprD <= disp, disp = value 
+      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_DIR_DISP, 
+        gprD, 0, 0, (uint16_t)value});
+    }else{ // gprD <= mem32[PC+disp_to_pool]
+      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+        gprD, PC, 0, 0});
+      literalPool.put(value, LC+2);
+    }
+    break;
+    // case Instruction::OPCode::LD_VSYM :
+    case Instruction::OPCode::LD_LIT: 
+      // gprD <= value of literal
+      // gprD <= mem32[gprD] (mem32[literal])
+      handleLoadLiteral(Instruction::OPCode::LD_VLIT, value, gprD);
+      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+        gprD, gprD, 0, 0});
+    break;
+    // case Instruction::OPCode::LD_SYM:
+    // case Instruction::OPCode::LD_REG:
+    // case Instruction::OPCode::LD_IND_REG:
+    case Instruction::OPCode::LD_IND_REG_LIT: // reg <=
+      if(value > 0xFFF){
+        std::cerr << "Invalid displacement." << std::endl;
+        return;
+      }
+    memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+        gprD, gprS, 0, (uint16_t)value});
+
+    break;
+    // case Instruction::OPCode::LD_IND_REG_SYM:
+
+
+    // break;
+
+
+  default:
+    std::cout << "Invalid handleLoadLiteral call." << std::endl;
+    return;
+  }
+
+  LC+=4;
+
+
+}
+
+
 void Assembler::symbolBackpatch(){
   // all values should be known except for extern symbols
   while(!backpatch.empty()){

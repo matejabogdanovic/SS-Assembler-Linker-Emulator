@@ -255,13 +255,17 @@ memory_instructions:
     }|
 
     /* $<literal> or $<symbol> => value of (<literal> or <symbol>) = data */
-    LD DOLLAR LITERAL COMMA GPRX {LOG(std::cout << "ld $0x" << std::hex << $3 << std::dec << ", %r" << $5 << std::endl;); }|
+    LD DOLLAR LITERAL COMMA GPRX {LOG(std::cout << "ld $0x" << std::hex << $3 << std::dec << ", %r" << $5 << std::endl;); 
+        Assembler::handleLoadLiteral(Instruction::OPCode::LD_VLIT, $3,  $5);
+    }|
     LD DOLLAR SYMBOL COMMA GPRX {LOG(std::cout << "ld $" << *$3 << ", %r" << $5 << std::endl;); delete $3; }|
     ST GPRX COMMA DOLLAR LITERAL {LOG(std::cout << "st %r"<< $2  << ", $" << std::hex << $5 << std::dec << std::endl;); }|
     ST GPRX COMMA DOLLAR SYMBOL {LOG(std::cout << "st %r"<< $2  << ", $" << std::hex << *$5 << std::dec << std::endl;); delete $5; }|
    
     /* <literal> or <symbol> => mem[value of (<literal> or <symbol>)] = data */
-    LD LITERAL COMMA GPRX {LOG(std::cout << "ld 0x" << std::hex << $2 << std::dec << ", %r" << $4 << std::endl;); }|
+    LD LITERAL COMMA GPRX {LOG(std::cout << "ld 0x" << std::hex << $2 << std::dec << ", %r" << $4 << std::endl;); 
+        Assembler::handleLoadLiteral(Instruction::OPCode::LD_LIT, $2,  $4);
+    }|
     LD SYMBOL COMMA GPRX {LOG(std::cout << "ld " << *$2 << ", %r" << $4 << std::endl;); delete $2; }|
     ST GPRX COMMA LITERAL {LOG(std::cout << "st %r"<< $2  << ", " << std::hex << $4 << std::dec << std::endl;); }|
     ST GPRX COMMA SYMBOL {LOG(std::cout << "st %r"<< $2  << ", " << std::hex << *$4 << std::dec << std::endl;); delete $4; }|
@@ -276,7 +280,10 @@ memory_instructions:
 
     /* [%<reg> + <literal>] => mem[value in (<reg>) + value of(<literal>)] = data */
     LD LBRACKET GPRX PLUS LITERAL RBRACKET COMMA GPRX 
-    {LOG(std::cout << "ld [%r"<< $3  <<" + 0x" << std::hex << $5 << std::dec <<"], %r" << $8 << std::endl;); }|
+    {LOG(std::cout << "ld [%r"<< $3  <<" + 0x" << std::hex << $5 << std::dec <<"], %r" << $8 << std::endl;); 
+    Assembler::handleLoadLiteral(Instruction::OPCode::LD_IND_REG_LIT, $5,  $8, $3);
+    
+    }|
     ST GPRX COMMA LBRACKET GPRX PLUS LITERAL RBRACKET 
     {LOG(std::cout << "st %r" <<  $2 <<  ", [%r" << $5 <<" + 0x" << std::hex << $7 << std::dec << "]" << std::endl;); }|
 

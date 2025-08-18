@@ -47,7 +47,19 @@ typedef struct Instruction{ // 4B = 32b
     SHR = 0x71,
 
     CSRRD = 0x90,
-    CSRWR = 0x94
+    CSRWR = 0x94,
+
+    LD_VLIT = 0xE0, // not real code
+    LD_VSYM = 0xE1, // not real code
+    LD_LIT = 0xE2, // not real code
+    LD_SYM = 0xE3, // not real code
+    LD_REG = 0xE4, // not real code
+    LD_IND_REG = 0xE5, // not real code
+    LD_IND_REG_LIT = 0xE6, // not real code
+    LD_IND_REG_SYM = 0xE7, // not real code
+
+    LD_TO_GPR_REG_DIR_DISP = 0x91,
+    LD_TO_GPR_REG_IND_DISP = 0x92,
 
   } ;
   OPCode oc; // 4b op and 4b mod 

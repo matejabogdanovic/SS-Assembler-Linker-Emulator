@@ -30,6 +30,8 @@ public:
   static void handleStackInstructions(Instruction::OPCode op, uint8_t reg);
   static void handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, uint32_t value);
   static void handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, std::string* name);
+ 
+  static void handleLoadLiteral(Instruction::OPCode op, uint32_t value , uint8_t reg, uint8_t gprS = 0 );
   typedef enum {
     OK,
     ERROR
