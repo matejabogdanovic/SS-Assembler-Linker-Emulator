@@ -611,11 +611,17 @@ if(!symtab.sectionOpened()){
     break;
     // case Instruction::OPCode::LD_VSYM :
     case Instruction::OPCode::LD_LIT: 
-      // gprD <= value of literal
-      // gprD <= mem32[gprD] (mem32[literal])
-      handleLoadLiteral(Instruction::OPCode::LD_VLIT, value, gprD);
-      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
-        gprD, gprD, 0, 0});
+      if(value <= 0xFFF){ // gprD <= mem32[disp], disp = value 
+        memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+          gprD, 0, 0, (uint16_t)value});
+      }else{
+        // gprD <= value of literal
+        // gprD <= mem32[gprD] (mem32[literal])
+        handleLoadLiteral(Instruction::OPCode::LD_VLIT, value, gprD);
+        memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+          gprD, gprD, 0, 0});
+      }
+
     break;
     // case Instruction::OPCode::LD_SYM:
     // case Instruction::OPCode::LD_REG:
