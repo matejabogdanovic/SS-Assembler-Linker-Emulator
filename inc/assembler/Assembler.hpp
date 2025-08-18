@@ -32,6 +32,8 @@ public:
   static void handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, std::string* name);
  
   static void handleLoadLiteral(Instruction::OPCode op, uint32_t value , uint8_t reg, uint8_t gprS = 0 );
+  static void handleLoadRegisters(Instruction::OPCode op, uint8_t gprD, uint8_t gprS);
+  
   typedef enum {
     OK,
     ERROR

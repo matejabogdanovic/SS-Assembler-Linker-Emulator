@@ -593,7 +593,7 @@ void Assembler::handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t g
 void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint8_t gprD, uint8_t gprS  ){
 
   
-if(!symtab.sectionOpened()){
+  if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
   }
@@ -651,6 +651,34 @@ if(!symtab.sectionOpened()){
 
 }
 
+void Assembler::handleLoadRegisters(Instruction::OPCode op,  uint8_t gprD, uint8_t gprS ){
+
+  
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+   switch (op)
+  {
+
+    case Instruction::OPCode::LD_REG:
+      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_DIR_DISP, 
+        gprD, gprS, 0, 0});
+    break;
+    case Instruction::OPCode::LD_IND_REG:
+    memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+        gprD, gprS, 0, 0});
+    break;
+
+  default:
+    std::cout << "Invalid handleLoadRegisters call." << std::endl;
+    return;
+  }
+
+  LC+=4;
+
+
+}
 
 void Assembler::symbolBackpatch(){
   // all values should be known except for extern symbols
