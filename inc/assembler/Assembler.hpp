@@ -33,7 +33,8 @@ public:
  
   static void handleLoadLiteral(Instruction::OPCode op, uint32_t value , uint8_t reg, uint8_t gprS = 0 );
   static void handleLoadRegisters(Instruction::OPCode op, uint8_t gprD, uint8_t gprS);
-  
+  static void handleLoadSymbol(Instruction::OPCode op,  std::string* name , uint8_t gprD, uint8_t gprS = 0 );
+
   typedef enum {
     OK,
     ERROR
@@ -46,14 +47,14 @@ private:
     uint32_t location;
     SymbolTable::Entry* symbol;
     SymbolTable::Entry* section;
-    Instruction alternative; // reg dir
+   
     
     Backpatch(
       uint32_t location,
     SymbolTable::Entry* symbol,
-    SymbolTable::Entry* section,
-    Instruction alternative = {Instruction::OPCode::HALT}
-    ): location(location), symbol(symbol), section(section), alternative(alternative)
+    SymbolTable::Entry* section
+   
+    ): location(location), symbol(symbol), section(section)
     {
       
     }

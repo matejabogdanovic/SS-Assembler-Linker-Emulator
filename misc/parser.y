@@ -258,7 +258,9 @@ memory_instructions:
     LD DOLLAR LITERAL COMMA GPRX {LOG(std::cout << "ld $0x" << std::hex << $3 << std::dec << ", %r" << $5 << std::endl;); 
         Assembler::handleLoadLiteral(Instruction::OPCode::LD_VLIT, $3,  $5);
     }|
-    LD DOLLAR SYMBOL COMMA GPRX {LOG(std::cout << "ld $" << *$3 << ", %r" << $5 << std::endl;); delete $3; }|
+    LD DOLLAR SYMBOL COMMA GPRX {LOG(std::cout << "ld $" << *$3 << ", %r" << $5 << std::endl;);
+        Assembler::handleLoadSymbol(Instruction::OPCode::LD_VSYM,  $3 , $5);
+        delete $3; }|
     ST GPRX COMMA DOLLAR LITERAL {LOG(std::cout << "st %r"<< $2  << ", $" << std::hex << $5 << std::dec << std::endl;); }|
     ST GPRX COMMA DOLLAR SYMBOL {LOG(std::cout << "st %r"<< $2  << ", $" << std::hex << *$5 << std::dec << std::endl;); delete $5; }|
    

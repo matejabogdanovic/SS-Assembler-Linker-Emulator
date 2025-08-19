@@ -1,5 +1,4 @@
 .section a
-jmp a
-.skip 0x1000
-a:
+ld [%r10 + 0x1000], %r1
+s:
 .end
