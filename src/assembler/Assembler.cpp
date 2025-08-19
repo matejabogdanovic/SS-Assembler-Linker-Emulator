@@ -218,7 +218,8 @@ void Assembler::handleSection(std::string* name){
 
 };
 
-void Assembler::handleSymbolDefinition(std::string* name){
+// Directives ----------
+void Assembler::handleLabel(std::string* name){
   
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
@@ -243,28 +244,6 @@ void Assembler::handleSymbolDefinition(std::string* name){
     symtab.current_section, 
     SymbolTable::Flags::DEFINED  
   });
-}
-// todo
-void Assembler::handleSymbolUsage(std::string* name){
-  // SymbolTable::Entry* s ;
-  // if(!symtab.doesSymbolExist(name)){
-  //   s = &SymbolTable::Entry{0, SymbolTable::Bind::LOC, symtab.getUndefinedSectionName()};
-  //   if(!symtab.sectionOpened()){
-  //     s->flags = SymbolTable::Flags::ABSOLUTE;
-  //     s->bind = SymbolTable::Bind::GLOB;
-  //   }
-  //   symtab.addSymbol(name, *s);
-  // }
-
-  // insert symbol
-}
-// todo
-void Assembler::handleLiteral(){
-  
-}
-// Directives ----------
-void Assembler::handleLabel(std::string* name){
-  handleSymbolDefinition(name);
 };
 
 void Assembler::handleGlobal(std::string* name){
@@ -812,6 +791,7 @@ void Assembler::handleStoreSymbol(Instruction::OPCode op,  std::string* name, ui
   LC+=4;
 
 }
+
 void Assembler::symbolBackpatch(){
   // all values should be known except for extern symbols
   while(!backpatch.empty()){
