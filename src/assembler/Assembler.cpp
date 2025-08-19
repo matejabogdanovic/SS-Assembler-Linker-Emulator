@@ -400,9 +400,21 @@ void Assembler::handleJustLiteralInstructions(Instruction::OPCode op, uint32_t v
    switch (op)
   {
     case Instruction::OPCode::CALL_IND:
+      if(value <= 0xfff){
+        memory.writeInstruction({Instruction::OPCode::CALL_REG, 0,0,0, (uint16_t)value});
+      }else{
+        memory.writeInstruction({op, PC});
+        literalPool.put(value, LC+2);
+      }
+      break;
     case Instruction::OPCode::JMP_REG_IND_DISP:
-      memory.writeInstruction({op, PC});
-      literalPool.put(value, LC+2);
+      if(value <= 0xfff){
+        memory.writeInstruction({Instruction::OPCode::JMP_REG_DIR_DISP, 0,0,0, (uint16_t)value});
+      }else{
+        memory.writeInstruction({op, PC});
+        literalPool.put(value, LC+2);
+      }
+
 
     break;
 
@@ -518,17 +530,38 @@ void Assembler::handleStackInstructions(Instruction::OPCode op, uint8_t reg){
 
 void Assembler::handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, uint32_t value){
   
-if(!symtab.sectionOpened()){
+  if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
   }
    switch (op)
   {
     case Instruction::OPCode::BEQ_REG_IND_DISP:
+      if(value <= 0xfff){
+        memory.writeInstruction
+        ({Instruction::OPCode::BEQ_REG_DIR_DISP, 0, gpr1, gpr2, (uint16_t)value});
+      }else{
+        memory.writeInstruction({op, PC, gpr1, gpr2});
+        literalPool.put(value, LC+2);
+      }
+    break;
     case Instruction::OPCode::BNE_REG_IND_DISP:
+      if(value <= 0xfff){
+        memory.writeInstruction
+        ({Instruction::OPCode::BNE_REG_DIR_DISP, 0, gpr1, gpr2, (uint16_t)value});
+      }else{
+        memory.writeInstruction({op, PC, gpr1, gpr2});
+        literalPool.put(value, LC+2);
+      }
+    break;
     case Instruction::OPCode::BGT_REG_IND_DISP:
-      memory.writeInstruction({op, PC, gpr1, gpr2});
-      literalPool.put(value, LC+2);
+      if(value <= 0xfff){
+        memory.writeInstruction
+        ({Instruction::OPCode::BGT_REG_DIR_DISP, 0, gpr1, gpr2, (uint16_t)value});
+      }else{
+        memory.writeInstruction({op, PC, gpr1, gpr2});
+        literalPool.put(value, LC+2);
+      }
 
     break;
 
