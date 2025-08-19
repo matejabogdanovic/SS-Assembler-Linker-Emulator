@@ -44,16 +44,18 @@ public:
 
 private:
   typedef struct Backpatch{
+    
+    
     uint32_t location;
     SymbolTable::Entry* symbol;
     SymbolTable::Entry* section;
-   
+  
     
     Backpatch(
       uint32_t location,
-    SymbolTable::Entry* symbol,
-    SymbolTable::Entry* section
-   
+      SymbolTable::Entry* symbol,
+      SymbolTable::Entry* section
+
     ): location(location), symbol(symbol), section(section)
     {
       

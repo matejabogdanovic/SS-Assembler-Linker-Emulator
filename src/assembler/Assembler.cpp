@@ -683,15 +683,35 @@ if(!symtab.sectionOpened()){
    switch (op)
   {
     case Instruction::OPCode::LD_VSYM:
-      // backpatch.push_back({LC, s, symtab.getCurrentSection()});
+      
       memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP,
          gprD, PC});
-      literalPool.put(0xffffffd0, LC, name,{Instruction::OPCode::LD_TO_GPR_REG_DIR_DISP, PC});
+      literalPool.put(0xffffffd0, LC, name,{Instruction::OPCode::LD_TO_GPR_REG_DIR_DISP, gprD, PC});
     break;
 
+    case Instruction::OPCode::LD_SYM:
 
+      // gprD <= val sym
+      handleLoadSymbol(Instruction::OPCode::LD_VSYM, name, gprD);
+      // gprD <= mem[gprD]
+      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+          gprD, gprD, 0, 0});
+      
+    break;
+    // NOT POSSIBLE
+    // case Instruction::OPCode::LD_IND_REG_SYM:
+    //   // if(value > 0xfff){ // CAN'T CHECK NOW
+    //   //   std::cerr << "Invalid displacement." << std::endl;
+    //   //   return;
+    //   // }
+    //   memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+    //     gprD, gprS, 0, 0
+    //   });
+    //   backpatch.push_back({LC, s, symtab.getCurrentSection(), true});
+
+    // break;
   default:
-    std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;
+    std::cout << "Invalid handleLoadSymbol call." << std::endl;
     return;
   }
 

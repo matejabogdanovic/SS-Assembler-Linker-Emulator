@@ -268,7 +268,10 @@ memory_instructions:
     LD LITERAL COMMA GPRX {LOG(std::cout << "ld 0x" << std::hex << $2 << std::dec << ", %r" << $4 << std::endl;); 
         Assembler::handleLoadLiteral(Instruction::OPCode::LD_LIT, $2,  $4);
     }|
-    LD SYMBOL COMMA GPRX {LOG(std::cout << "ld " << *$2 << ", %r" << $4 << std::endl;); delete $2; }|
+    LD SYMBOL COMMA GPRX {LOG(std::cout << "ld " << *$2 << ", %r" << $4 << std::endl;);
+        Assembler::handleLoadSymbol(Instruction::OPCode::LD_SYM,  $2 , $4);
+        delete $2; 
+    }|
     ST GPRX COMMA LITERAL {LOG(std::cout << "st %r"<< $2  << ", " << std::hex << $4 << std::dec << std::endl;); }|
     ST GPRX COMMA SYMBOL {LOG(std::cout << "st %r"<< $2  << ", " << std::hex << *$4 << std::dec << std::endl;); delete $4; }|
   
@@ -291,14 +294,18 @@ memory_instructions:
     
     }|
     ST GPRX COMMA LBRACKET GPRX PLUS LITERAL RBRACKET 
-    {LOG(std::cout << "st %r" <<  $2 <<  ", [%r" << $5 <<" + 0x" << std::hex << $7 << std::dec << "]" << std::endl;); }|
+    {LOG(std::cout << "st %r" <<  $2 <<  ", [%r" << $5 <<" + 0x" << std::hex << $7 << std::dec << "]" << std::endl;); }
+    
 
     /* [%<reg> + <symbol>] => mem[value in (<reg>) + value of(<symbol>)] = data */
-    LD LBRACKET GPRX PLUS SYMBOL RBRACKET COMMA GPRX 
-    {LOG(std::cout << "ld [%r"<< $3  <<" + " << *$5 << "], %r" << $8 << std::endl;); delete $5; }|
+    /*LD LBRACKET GPRX PLUS SYMBOL RBRACKET COMMA GPRX 
+    {LOG(std::cout << "ld [%r"<< $3  <<" + " << *$5 << "], %r" << $8 << std::endl;); 
+        Assembler::handleLoadSymbol(Instruction::OPCode::LD_IND_REG_SYM, $5,  $8, $3);
+        delete $5; }|
+    
     ST GPRX COMMA LBRACKET GPRX PLUS SYMBOL RBRACKET 
     {LOG(std::cout << "st %r" <<  $2 <<  ", [%r" << $5 <<" + " <<  *$7 <<  "]" << std::endl;); delete $7; }
-
+    */
 ;
 
 %%
