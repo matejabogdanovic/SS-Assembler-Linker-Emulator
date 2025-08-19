@@ -130,23 +130,30 @@ void Assembler::literalBackpatch(){
     
     uint32_t displacement =   
      LC - // end of pool
-     (p.location+2); // after displacement
+     (p.location+4); // pc
 
     if(literalPool.isInvalid(p.location)){
       // fix location in backpatch to point to location in pool
       for (auto it = backpatch.begin(); it != backpatch.end(); ++it) {
         if(it->location == p.location){ 
-            
-          if(it->symbol->ndx == symtab.current_section && SymbolTable::isDefined(it->symbol->flags)){
-            // THEN I WOULD NEED TO CHANGE INSTRUCTION TO BE JUST DISPLACEMENT
+            it->location = LC; // end of pool
+
+          if(std::abs((long)(it->symbol->offset - (p.location+4))) <= 0xfff){
+
+            break;
+          }
+          if(
+            it->symbol->ndx == symtab.current_section && 
+            SymbolTable::isDefined(it->symbol->flags)){
+
             std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;
-            memory.changeInstruction(it->alternative, p.location-2); // TODO changeInstruction
+            memory.changeInstruction(it->alternative, p.location); 
             instruction_alternative_used = true;  
-            displacement = it->symbol->offset - (p.location+2);
+            displacement = it->symbol->offset - (p.location+4); // offset to symbol in section
             backpatch.erase(it);
             break;
           }
-          it->location = LC; // end of pool
+          
         }
       }
     }
@@ -154,8 +161,8 @@ void Assembler::literalBackpatch(){
     
     // [CCCC][DDDD] [DDDD][DDDD]
     //  ^rc  ^highDisp 
-    uint32_t loc_to_patch = p.location + 
-    symtab.getSectionStart(symtab.current_section); // absolute address
+    uint32_t loc_to_patch = p.location + 2  // get to offset
+    + symtab.getSectionStart(symtab.current_section); // absolute address
 
     uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
     uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
@@ -400,22 +407,10 @@ void Assembler::handleJustLiteralInstructions(Instruction::OPCode op, uint32_t v
    switch (op)
   {
     case Instruction::OPCode::CALL_IND:
-      if(value <= 0xfff){
-        memory.writeInstruction({Instruction::OPCode::CALL_REG, 0,0,0, (uint16_t)value});
-      }else{
-        memory.writeInstruction({op, PC});
-        literalPool.put(value, LC+2);
-      }
-      break;
     case Instruction::OPCode::JMP_REG_IND_DISP:
-      if(value <= 0xfff){
-        memory.writeInstruction({Instruction::OPCode::JMP_REG_DIR_DISP, 0,0,0, (uint16_t)value});
-      }else{
+
         memory.writeInstruction({op, PC});
-        literalPool.put(value, LC+2);
-      }
-
-
+        literalPool.put(value, LC);
     break;
 
 
@@ -443,17 +438,17 @@ void Assembler::handleJustSymbolInstructions(Instruction::OPCode op, std::string
    switch (op)
   {
     case Instruction::OPCode::CALL_IND:
-      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+      backpatch.push_back({LC, s, symtab.getCurrentSection(), 
         {Instruction::OPCode::CALL_REG, PC}});
       memory.writeInstruction({op, PC});
-      literalPool.put(0xfffffff0, LC+2, true);
+      literalPool.put(0xfffffff0, LC, true);
     break;
     case Instruction::OPCode::JMP_REG_IND_DISP:
       // location is not known, it will be known when backpatch starts
-      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+      backpatch.push_back({LC, s, symtab.getCurrentSection(), 
       {Instruction::OPCode::JMP_REG_DIR_DISP, PC}});
       memory.writeInstruction({op, PC});
-      literalPool.put(0xfffffff1, LC+2, true);
+      literalPool.put(0xfffffff1, LC, true);
 
     break;
 
@@ -537,31 +532,12 @@ void Assembler::handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t 
    switch (op)
   {
     case Instruction::OPCode::BEQ_REG_IND_DISP:
-      if(value <= 0xfff){
-        memory.writeInstruction
-        ({Instruction::OPCode::BEQ_REG_DIR_DISP, 0, gpr1, gpr2, (uint16_t)value});
-      }else{
-        memory.writeInstruction({op, PC, gpr1, gpr2});
-        literalPool.put(value, LC+2);
-      }
-    break;
     case Instruction::OPCode::BNE_REG_IND_DISP:
-      if(value <= 0xfff){
-        memory.writeInstruction
-        ({Instruction::OPCode::BNE_REG_DIR_DISP, 0, gpr1, gpr2, (uint16_t)value});
-      }else{
-        memory.writeInstruction({op, PC, gpr1, gpr2});
-        literalPool.put(value, LC+2);
-      }
-    break;
     case Instruction::OPCode::BGT_REG_IND_DISP:
-      if(value <= 0xfff){
-        memory.writeInstruction
-        ({Instruction::OPCode::BGT_REG_DIR_DISP, 0, gpr1, gpr2, (uint16_t)value});
-      }else{
-        memory.writeInstruction({op, PC, gpr1, gpr2});
-        literalPool.put(value, LC+2);
-      }
+  
+      memory.writeInstruction({op, PC, gpr1, gpr2});
+      literalPool.put(value, LC);
+      
 
     break;
 
@@ -592,25 +568,25 @@ void Assembler::handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t g
    switch (op)
   {
     case Instruction::OPCode::BEQ_REG_IND_DISP:
-      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+      backpatch.push_back({LC, s, symtab.getCurrentSection(), 
         {Instruction::OPCode::BEQ_REG_DIR_DISP, PC, gpr1, gpr2}});
       memory.writeInstruction({op, PC, gpr1, gpr2});
-      literalPool.put(0xfffffff2, LC+2, true);
+      literalPool.put(0xfffffff2, LC, true);
     break;
     case Instruction::OPCode::BNE_REG_IND_DISP:
       // location is not known, it will be known when backpatch starts
-      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+      backpatch.push_back({LC, s, symtab.getCurrentSection(), 
       {Instruction::OPCode::BNE_REG_DIR_DISP, PC, gpr1, gpr2}});
       memory.writeInstruction({op, PC, gpr1, gpr2});
-      literalPool.put(0xfffffff3, LC+2, true);
+      literalPool.put(0xfffffff3, LC, true);
 
     break;
     case Instruction::OPCode::BGT_REG_IND_DISP:
       // location is not known, it will be known when backpatch starts
-      backpatch.push_back({LC+2, s, symtab.getCurrentSection(), 
+      backpatch.push_back({LC, s, symtab.getCurrentSection(), 
       {Instruction::OPCode::BGT_REG_DIR_DISP, PC, gpr1, gpr2}});
       memory.writeInstruction({op, PC, gpr1, gpr2});
-      literalPool.put(0xfffffff4, LC+2, true);
+      literalPool.put(0xfffffff4, LC, true);
 
     break;
 
@@ -633,46 +609,32 @@ void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint
    switch (op)
   {
     case Instruction::OPCode::LD_VLIT:
-    if(value <= 0xFFF){ // gprD <= disp, disp = value 
-      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_DIR_DISP, 
-        gprD, 0, 0, (uint16_t)value});
-    }else{ // gprD <= mem32[PC+disp_to_pool]
+     // gprD <= mem32[PC+disp_to_pool]
       memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
         gprD, PC, 0, 0});
-      literalPool.put(value, LC+2);
-    }
+      literalPool.put(value, LC);
+    
     break;
-    // case Instruction::OPCode::LD_VSYM :
+    
     case Instruction::OPCode::LD_LIT: 
-      if(value <= 0xFFF){ // gprD <= mem32[disp], disp = value 
-        memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
-          gprD, 0, 0, (uint16_t)value});
-      }else{
-        // gprD <= value of literal
-        // gprD <= mem32[gprD] (mem32[literal])
-        handleLoadLiteral(Instruction::OPCode::LD_VLIT, value, gprD);
-        memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+      // gprD <= value of literal
+      // gprD <= mem32[gprD] (mem32[literal])
+      handleLoadLiteral(Instruction::OPCode::LD_VLIT, value, gprD);
+      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
           gprD, gprD, 0, 0});
-      }
+      
 
     break;
-    // case Instruction::OPCode::LD_SYM:
-    // case Instruction::OPCode::LD_REG:
-    // case Instruction::OPCode::LD_IND_REG:
-    case Instruction::OPCode::LD_IND_REG_LIT: // reg <=
-      if(value > 0xFFF){
+    
+    case Instruction::OPCode::LD_IND_REG_LIT: // gprD <= mem32[gprS+disp]
+      if(value > 0xfff){ // std::abs((int)value) >= (1 << 13)
         std::cerr << "Invalid displacement." << std::endl;
         return;
       }
-    memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+      memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
         gprD, gprS, 0, (uint16_t)value});
 
     break;
-    // case Instruction::OPCode::LD_IND_REG_SYM:
-
-
-    // break;
-
 
   default:
     std::cout << "Invalid handleLoadLiteral call." << std::endl;

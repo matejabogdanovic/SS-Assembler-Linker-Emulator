@@ -1,4 +1,5 @@
 .section a
-bgt %r1, %r2, 0x1000
-.skip 1
+jmp a
+.skip 0x1000
+a:
 .end
