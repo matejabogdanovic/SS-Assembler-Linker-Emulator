@@ -1,6 +1,10 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 4        1       d         a       
- 2       NOTYP    LOC      0x00000004 0        1       d         s       
+ 1       SCTN     LOC      0x00000000 10       1       d         a       
+ 2       SCTN     LOC      0x00000000 3        2       d         b       
+ 3       NOTYP    LOC      0x00000003 0        2       d         a       
 =================Section a===================
-0000: 92 11 01 11
+0000: 82 F0 10 02 00 00 03 00
+0008: 00 00
+=================Section b===================
+000A: 00 00 00

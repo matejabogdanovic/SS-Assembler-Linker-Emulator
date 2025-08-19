@@ -35,6 +35,9 @@ public:
   static void handleLoadRegisters(Instruction::OPCode op, uint8_t gprD, uint8_t gprS);
   static void handleLoadSymbol(Instruction::OPCode op,  std::string* name , uint8_t gprD, uint8_t gprS = 0 );
 
+  static void handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8_t gprData, uint8_t gprS = 0);
+  static void handleStoreRegisters(Instruction::OPCode op, uint8_t gprData, uint8_t gprS);
+  static void handleStoreSymbol(Instruction::OPCode op,  std::string* name, uint8_t gprData);
   typedef enum {
     OK,
     ERROR

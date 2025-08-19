@@ -1,5 +1,8 @@
 .section a
-ld [%r1 + 0x111], %r1
-s:
+st  %r1, a
+.skip 2
 
+.section b
+.skip 3
+a:
 .end

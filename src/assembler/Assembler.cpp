@@ -719,6 +719,99 @@ if(!symtab.sectionOpened()){
   LC+=4;
 }
 
+void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8_t gprData, uint8_t gprS){
+
+
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+   switch (op)
+  {
+    case Instruction::OPCode::ST_LIT:
+     // mem32[mem32[PC+0+Disp]] <= gprData
+      memory.writeInstruction({Instruction::OPCode::ST_MEM_IND, 
+        PC, 0, gprData, 0});
+      literalPool.put(value, LC);
+    
+    break;
+    case Instruction::OPCode::ST_IND_REG_LIT:
+    // mem32[gprS+0+Disp] <= gprData
+      if(value > 0xfff){ // std::abs((int)value) >= (1 << 13)
+        std::cerr << "Invalid displacement." << std::endl;
+        return;
+      }
+
+      memory.writeInstruction({Instruction::OPCode::ST_MEM_DIR, 
+        gprS, 0, gprData, (uint16_t)value});
+    break;
+  
+
+  default:
+    std::cout << "Invalid handleStoreLiteral call." << std::endl;
+    return;
+  }
+
+  LC+=4;
+
+}
+
+void Assembler::handleStoreRegisters(Instruction::OPCode op, uint8_t gprData, uint8_t gprS){
+
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+   switch (op)
+  {
+
+    case Instruction::OPCode::ST_REG:
+       memory.writeInstruction({Instruction::OPCode::ST_MEM_DIR, 
+        gprS, 0, gprData, 0});
+    break;
+    case Instruction::OPCode::ST_IND_REG:
+    memory.writeInstruction({Instruction::OPCode::ST_MEM_IND, 
+        gprS, 0, gprData, 0});
+    break;
+
+  default:
+    std::cout << "Invalid handleStoreRegisters call." << std::endl;
+    return;
+  }
+
+  LC+=4;
+}
+
+void Assembler::handleStoreSymbol(Instruction::OPCode op,  std::string* name, uint8_t gprData){
+
+  if(!symtab.sectionOpened()){
+    std::cerr << "Undefined section." << std::endl;
+    return;
+  }
+  if(!symtab.doesSymbolExist(name)){
+    symtab.addSymbol(name, SymbolTable::Entry{
+          0, SymbolTable::Bind::LOC, SymbolTable::UNDEFINED_SECTION
+        });
+  }
+  SymbolTable::Entry* s = symtab.getSymbol(name);
+
+   switch (op)
+  {
+
+    case Instruction::OPCode::ST_SYM:
+       memory.writeInstruction({Instruction::OPCode::ST_MEM_IND, 
+        PC, 0, gprData, 0});
+      literalPool.put(0xffffffe0, LC, name,{Instruction::OPCode::ST_MEM_DIR, PC, 0, gprData, 0});
+    break;
+
+  default:
+    std::cout << "Invalid handleStoreRegisters call." << std::endl;
+    return;
+  }
+
+  LC+=4;
+
+}
 void Assembler::symbolBackpatch(){
   // all values should be known except for extern symbols
   while(!backpatch.empty()){
