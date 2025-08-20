@@ -1,63 +1,10 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 312      1       d         my_code 
- 2       SCTN     LOC      0x00000000 28       2       d         my_data 
- 3       NOTYP    GLOB     0x00000000 0        UND      e        handler 
- 4       NOTYP    GLOB     0x00000000 0        UND      e        mathAdd 
- 5       NOTYP    GLOB     0x00000000 0        UND      e        mathSub 
- 6       NOTYP    GLOB     0x00000000 0        UND      e        mathMul 
- 7       NOTYP    GLOB     0x00000000 0        UND      e        mathDiv 
- 8       NOTYP    GLOB     0x00000000 0        1       d         my_start
- 9       NOTYP    GLOB     0x00000000 0        2       d         value1  
- 10      NOTYP    GLOB     0x00000004 0        2       d         value2  
- 11      NOTYP    GLOB     0x00000008 0        2       d         value3  
- 12      NOTYP    GLOB     0x0000000c 0        2       d         value4  
- 13      NOTYP    GLOB     0x00000010 0        2       d         value5  
- 14      NOTYP    GLOB     0x00000014 0        2       d         value6  
- 15      NOTYP    GLOB     0x00000018 0        2       d         value7  
-=================Section my_code===================
-0000: 92 EF 00 C0 92 1F 00 C0
-0008: 94 21 00 00 10 00 00 00
-0010: 92 1F 00 B8 81 E0 1F FC
-0018: 92 1F 00 B4 81 E0 1F FC
-0020: 21 F0 00 B0 82 F0 10 B0
-0028: 92 1F 00 B0 81 E0 1F FC
-0030: 92 1F 00 AC 81 E0 1F FC
-0038: 21 F0 00 A8 82 F0 10 A8
-0040: 92 1F 00 A8 81 E0 1F FC
-0048: 92 1F 00 A4 81 E0 1F FC
-0050: 21 F0 00 A0 82 F0 10 A0
-0058: 92 1F 00 A0 81 E0 1F FC
-0060: 92 1F 00 9C 81 E0 1F FC
-0068: 21 F0 00 98 82 F0 10 98
-0070: 92 1F 00 98 81 E0 1F FC
-0078: 92 1F 00 94 81 E0 1F FC
-0080: 21 F0 00 90 82 F0 10 90
-0088: 92 1F 00 90 92 11 00 00
-0090: 92 2F 00 8C 92 22 00 00
-0098: 92 3F 00 88 92 33 00 00
-00A0: 92 4F 00 84 92 44 00 00
-00A8: 92 5F 00 80 92 55 00 00
-00B0: 92 6F 00 7C 92 66 00 00
-00B8: 92 7F 00 78 92 77 00 00
-00C0: 00 00 00 00 FE FE FF FF
-00C8: D0 FF FF FF 01 00 00 00
-00D0: 01 00 00 00 00 00 00 F0
-00D8: 04 00 00 00 02 00 00 00
-00E0: 01 00 00 00 F0 FF FF FF
-00E8: 08 00 00 00 07 00 00 00
-00F0: 0B 00 00 00 F0 FF FF FF
-00F8: 0C 00 00 00 05 00 00 00
-0100: 19 00 00 00 F0 FF FF FF
-0108: 10 00 00 00 04 00 00 00
-0110: 18 00 00 00 F0 FF FF FF
-0118: 14 00 00 00 00 00 00 00
-0120: 04 00 00 00 08 00 00 00
-0128: 0C 00 00 00 10 00 00 00
-0130: 14 00 00 00 18 00 00 00
-=================Section my_data===================
-
-0138: 00 00 00 00 00 00 00 00
-0140: 00 00 00 00 00 00 00 00
-0148: 00 00 00 00 00 00 00 00
-0150: 00 00 00 00
+ 1       SCTN     LOC      0x00000000 9        1       d         a       
+ 2       SCTN     LOC      0x00000000 2        2       d         b       
+ 3       NOTYP    GLOB     0x00000000 0        UND      e        e       
+=================Section a===================
+0000: 00 21 F0 00 00 F0 FF FF
+0008: FF
+=================Section b===================
+0009: 00 00

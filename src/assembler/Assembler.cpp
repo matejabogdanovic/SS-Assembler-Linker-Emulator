@@ -15,6 +15,7 @@ std::list <Assembler::Backpatch> Assembler::backpatch;
 Memory Assembler::memory;
 
 SymbolTable Assembler::symtab;
+RelTable Assembler::rel;
 
 extern void yyerror(const char*); // error function
 extern int yyparse(); // parsing function
@@ -119,84 +120,7 @@ int Assembler::start(int argc, char* argv[]){
 }
 
 
-void Assembler::literalBackpatch(){
-  
-  // literal patch, writing PC relative displacement in instruction to literal pool
-  while(!literalPool.patches.empty()){
-    // get location to patch
-    bool instruction_alternative_used = false;
-    LiteralPool::LiteralPatch p = literalPool.patches.front();
-    literalPool.patches.pop_front();
-    
-    uint32_t displacement =   
-     LC - // end of pool
-     (p.location+4); // pc
-
-    if(literalPool.isUsingSymbol(p.location)){
-
-      SymbolTable::Entry* s =  symtab.getSymbol(&p.symbol_name);
-      if(SymbolTable::isDefined(s->flags)&&
-         s->ndx == symtab.current_section){ // definisan i u istoj sekciji
-        // check if symbol is reachable todo fix
-        
-        if(std::abs((long)(s->offset - (p.location+4))) > 0xfff){
-          std::cout << "Symbol too far." << std::endl;
-          continue;
-        }
-        std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;
-        memory.changeInstruction(p.alternative, p.location); // reg dir disp 
-        instruction_alternative_used = true;  
-        displacement = s->offset - (p.location+4); // offset to symbol in section
-       
-      }else {
-        std::cout << "Needs relocation." << std::endl;
-        // temporary
-        backpatch.push_back({LC, s, symtab.getCurrentSection()});
-      }
-    }
-
-    
-    // [CCCC][DDDD] [DDDD][DDDD]
-    //  ^rc  ^highDisp 
-    uint32_t loc_to_patch = p.location + 2  // get to offset
-    + symtab.getSectionStart(symtab.current_section); // absolute address
-
-    uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
-    uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
-    uint8_t rc_oo = (0xF0 &rc_highDisp);
-    // write a literal
-    if(!instruction_alternative_used){ // don't add literal to literal pool
-      memory.writeWord(p.literal);
-      LC += 4;
-    }
-
-    memory.changeByte( rc_oo | oo_highDisp,
-     loc_to_patch);
-    memory.changeByte(displacement, loc_to_patch+1);
-    
-  }
-
-
-
-  literalPool.usingSymbol.clear();
-  //literalPool.pool.clear();
-  //literalPool.literalpatch.clear();
-  // literal pool clear
-  //literalPool.literalBackpatch(&memory, end_of_section_addr);
-}
-
-void Assembler::closeSection(){
-  // close previous section 
-
-  if(!symtab.sectionOpened())return;
-  
-  literalBackpatch();
-
-  symtab.getCurrentSection()->size = LC;
-  LC = 0;
-
-}
-
+// Directives ----------
 void Assembler::handleSection(std::string* name){
 
   if(symtab.doesSectionExist(name)){ // section opened again
@@ -218,7 +142,6 @@ void Assembler::handleSection(std::string* name){
 
 };
 
-// Directives ----------
 void Assembler::handleLabel(std::string* name){
   
   if(!symtab.sectionOpened()){
@@ -340,7 +263,7 @@ void Assembler::handleWordSymbol(std::string* name){
   LC+=4;
 }
 // Instructions ----------
-
+// iret ret halt int
 void Assembler::handleZeroArgsInstructions(Instruction::OPCode op){
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
@@ -373,9 +296,9 @@ void Assembler::handleZeroArgsInstructions(Instruction::OPCode op){
   }
   LC += 4;
 }
-
 // call and jmp
 void Assembler::handleJustLiteralInstructions(Instruction::OPCode op, uint32_t value){
+  
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
@@ -397,8 +320,8 @@ void Assembler::handleJustLiteralInstructions(Instruction::OPCode op, uint32_t v
 
   LC+=4;
 }
-// call and jmp
 void Assembler::handleJustSymbolInstructions(Instruction::OPCode op, std::string* name){
+  
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
     return;
@@ -435,7 +358,7 @@ void Assembler::handleJustSymbolInstructions(Instruction::OPCode op, std::string
 
   LC+=4;
 }
-
+// alu
 void Assembler::handleGprInstructions(Instruction::OPCode op, uint8_t gprS, uint8_t gprD){
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
@@ -496,7 +419,7 @@ void Assembler::handleStackInstructions(Instruction::OPCode op, uint8_t reg){
   }
   LC += 4;
 }
-
+// branch
 void Assembler::handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, uint32_t value){
   
   if(!symtab.sectionOpened()){
@@ -524,7 +447,6 @@ void Assembler::handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t 
   LC+=4;
 
 }
-
 void Assembler::handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, std::string* name){
 
   if(!symtab.sectionOpened()){
@@ -571,8 +493,8 @@ void Assembler::handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t g
   LC+=4;
 }
 
+// load 
 void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint8_t gprD, uint8_t gprS  ){
-
   
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
@@ -617,7 +539,6 @@ void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint
 
 
 }
-
 void Assembler::handleLoadRegisters(Instruction::OPCode op,  uint8_t gprD, uint8_t gprS ){
 
   if(!symtab.sectionOpened()){
@@ -645,7 +566,6 @@ void Assembler::handleLoadRegisters(Instruction::OPCode op,  uint8_t gprD, uint8
 
 
 }
-
 void Assembler::handleLoadSymbol(Instruction::OPCode op,  std::string* name , uint8_t gprD, uint8_t gprS  ){
 if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
@@ -697,9 +617,8 @@ if(!symtab.sectionOpened()){
 
   LC+=4;
 }
-
+// store
 void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8_t gprData, uint8_t gprS){
-
 
   if(!symtab.sectionOpened()){
     std::cerr << "Undefined section." << std::endl;
@@ -734,7 +653,6 @@ void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8
   LC+=4;
 
 }
-
 void Assembler::handleStoreRegisters(Instruction::OPCode op, uint8_t gprData, uint8_t gprS){
 
   if(!symtab.sectionOpened()){
@@ -760,7 +678,6 @@ void Assembler::handleStoreRegisters(Instruction::OPCode op, uint8_t gprData, ui
 
   LC+=4;
 }
-
 void Assembler::handleStoreSymbol(Instruction::OPCode op,  std::string* name, uint8_t gprData){
 
   if(!symtab.sectionOpened()){
@@ -792,6 +709,87 @@ void Assembler::handleStoreSymbol(Instruction::OPCode op,  std::string* name, ui
 
 }
 
+
+
+void Assembler::literalBackpatch(){
+  
+  // literal patch, writing PC relative displacement in instruction to literal pool
+  while(!literalPool.patches.empty()){
+    // get location to patch
+    bool instruction_alternative_used = false;
+    LiteralPool::LiteralPatch p = literalPool.patches.front();
+    literalPool.patches.pop_front();
+    
+    uint32_t displacement =   
+     LC - // end of pool
+     (p.location+4); // pc
+
+    if(literalPool.isUsingSymbol(p.location)){
+
+      SymbolTable::Entry* s =  symtab.getSymbol(&p.symbol_name);
+      if(SymbolTable::isDefined(s->flags)&&
+         s->ndx == symtab.current_section){ // definisan i u istoj sekciji
+        // check if symbol is reachable todo fix
+        
+        if(std::abs((long)(s->offset - (p.location+4))) > 0xfff){
+          std::cout << "Symbol too far." << std::endl;
+          continue;
+        }
+        std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;
+        memory.changeInstruction(p.alternative, p.location); // reg dir disp 
+        instruction_alternative_used = true;  
+        displacement = s->offset - (p.location+4); // offset to symbol in section
+       
+      }else {
+        std::cout << "Needs relocation." << std::endl;
+        // temporary
+        //rel.put({0, s, symtab.getCurrentSection(), false});
+        backpatch.push_back({LC, s, symtab.getCurrentSection()});
+      }
+    }
+
+    
+    // [CCCC][DDDD] [DDDD][DDDD]
+    //  ^rc  ^highDisp 
+    uint32_t loc_to_patch = p.location + 2  // get to offset
+    + symtab.getSectionStart(symtab.current_section); // absolute address
+
+    uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
+    uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
+    uint8_t rc_oo = (0xF0 &rc_highDisp);
+    // write a literal
+    if(!instruction_alternative_used){ // don't add literal to literal pool
+      memory.writeWord(p.literal);
+      LC += 4;
+    }
+
+    memory.changeByte( rc_oo | oo_highDisp,
+     loc_to_patch);
+    memory.changeByte(displacement, loc_to_patch+1);
+    
+  }
+
+
+
+  literalPool.usingSymbol.clear();
+  //literalPool.pool.clear();
+  //literalPool.literalpatch.clear();
+  // literal pool clear
+  //literalPool.literalBackpatch(&memory, end_of_section_addr);
+}
+
+void Assembler::closeSection(){
+  // close previous section 
+
+  if(!symtab.sectionOpened())return;
+  
+  literalBackpatch();
+
+  symtab.getCurrentSection()->size = LC;
+  LC = 0;
+
+}
+
 void Assembler::symbolBackpatch(){
   // all values should be known except for extern symbols
   while(!backpatch.empty()){
@@ -807,7 +805,7 @@ void Assembler::symbolBackpatch(){
 
     if(SymbolTable::isExtern(p.symbol->flags)){
       std::cout << "Extern symbol -> reallocation (section, location) " << std::endl;
-
+      rel.put({p.location, p.symbol, p.section});
       continue;
     }
     if(!SymbolTable::isDefined(p.symbol->flags)){
@@ -818,6 +816,7 @@ void Assembler::symbolBackpatch(){
     std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;
     if(p.symbol->ndx != p.section->ndx){
       std::cout << ">>> Symbol in different section, needs relocation." << std::endl;
+      rel.put({p.location, p.symbol, p.section, p.symbol->bind == SymbolTable::Bind::GLOB});
     }
     
     memory.print(std::cout);
@@ -860,7 +859,7 @@ void Assembler::handleEnd(){
   closeSection();
   symbolBackpatch();
   printCode(std::cout);
-  
+  rel.print(std::cout, symtab);
   finished = true;
   
 };

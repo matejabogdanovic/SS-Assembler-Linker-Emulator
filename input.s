@@ -1,8 +1,8 @@
+.extern e
 .section a
-st  %r1, a
-.skip 2
-
+.skip 1
+call e
 .section b
-.skip 3
-a:
+.skip 2
+# e:
 .end
