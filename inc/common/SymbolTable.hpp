@@ -18,10 +18,11 @@ public:
     ABSOLUTE = 0b00000100
   } Flags;
   
-  SymbolTable();
+  SymbolTable(bool init = true);
 
   void printTable(std::ostream& stream);
-
+  void printTableBinary(std::ostream& os);
+  void loadTableFromFile(std::istream& is);
    typedef struct Entry {
     uint32_t offset;
     Bind bind;
@@ -94,6 +95,7 @@ public:
   static const char* bind_str[];
   
   void printTablePart(std::string* name, Entry* e, std::ostream& os) const;
+
 };
 
 // Num Value Size Type Bind Ndx Name

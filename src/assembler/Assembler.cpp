@@ -53,30 +53,53 @@ int Assembler::processing(){
   }
 
   symtab.printTable(std::cout);
-    
+
   std::ofstream outputFile(output); // otvara fajl za pisanje
 
-  symtab.printTable(outputFile);
-  rel.print(outputFile, &symtab);
-  //memory.print(outputFile);
-  printCode(outputFile);
   if (!outputFile.is_open()) {
         std::cerr << "assembler: error: can't open output file\n";
         return -1;
   }
 
+  symtab.printTable(outputFile);
+  rel.print(outputFile, &symtab);
+  printCode(outputFile);
+
+
   outputFile.close(); 
-    
-  // std::ofstream outputFileBinary(output, std::ios_base::binary); // otvara fajl za pisanje
+  // binary
+  const std::string BINARY_EXT = ".binary";
+  std::ofstream outputFileBinary(std::string(output)+BINARY_EXT, std::ios::binary); // otvara fajl za pisanje
 
+  if (!outputFileBinary.is_open()) {
+        std::cerr << "assembler: error: can't open output file\n";
+        return -1;
+  }
+
+  symtab.printTableBinary(outputFileBinary);
   // symtab.printTable(outputFileBinary);
+  // rel.print(outputFileBinary, &symtab);
+  // printCode(outputFileBinary);
 
-  // if (!outputFileBinary.is_open()) {
-  //       std::cerr << "assembler: error: can't open output file\n";
-  //       return -1;
-  // }
+  outputFileBinary.close(); 
 
-  // outputFileBinary.close(); 
+
+  // READ
+
+  std::ifstream inputBinary(std::string(output)+BINARY_EXT, std::ios::binary); // otvara fajl za pisanje
+
+  if (!inputBinary.is_open()) {
+        std::cerr << "assembler: error: can't open input file\n";
+        return -1;
+  }
+
+  symtab.loadTableFromFile(inputBinary);
+  // symtab.printTable(inputBinary);
+  // rel.print(inputBinary, &symtab);
+  // printCode(inputBinary);
+
+  inputBinary.close(); 
+  
   return 0;
 }
 
