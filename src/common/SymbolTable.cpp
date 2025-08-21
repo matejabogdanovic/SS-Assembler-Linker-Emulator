@@ -128,15 +128,13 @@ void SymbolTable::printTable(std::ostream& os){
     
   for(int i = 0; i < section_names.size(); i++){
     Entry* e =  &sections[section_names[i]];
-   // e->num = i;
-    //e->ndx = i;
+
     printTablePart(&section_names[i], e, os);
   }
 
   for(int i = 0; i < symbol_names.size(); i++){
     Entry* e =  &symbols[symbol_names[i]];
-    e->num = section_names.size() + i; // correct index (from sections)
-    // e->ndx = e->ndx+1;
+    //e->num = section_names.size() + i; // correct index (from sections)
     printTablePart(&symbol_names[i], e, os);
   }
 

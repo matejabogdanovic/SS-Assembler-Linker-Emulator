@@ -57,6 +57,7 @@ int Assembler::processing(){
   std::ofstream outputFile(output); // otvara fajl za pisanje
 
   symtab.printTable(outputFile);
+  rel.print(outputFile, &symtab);
   //memory.print(outputFile);
   printCode(outputFile);
   if (!outputFile.is_open()) {
@@ -712,7 +713,7 @@ void Assembler::handleStoreSymbol(Instruction::OPCode op,  std::string* name, ui
 
 
 void Assembler::literalBackpatch(){
-  
+  std::vector<std::pair<uint32_t, uint32_t> > final_locations; // LC, value
   // literal patch, writing PC relative displacement in instruction to literal pool
   while(!literalPool.patches.empty()){
     // get location to patch
@@ -723,6 +724,19 @@ void Assembler::literalBackpatch(){
     uint32_t displacement =   
      LC - // end of pool
      (p.location+4); // pc
+    bool aggregate = false;
+    if(!literalPool.isUsingSymbol(p.location)){ // only literals
+      int i = 0;
+      for(auto final_location: final_locations){
+        if(final_location.second == p.literal){
+            displacement = final_location.first - (p.location+4);
+            aggregate = true;
+            break;
+        }
+        i++;
+      }
+    }
+
 
     if(literalPool.isUsingSymbol(p.location)){
 
@@ -740,6 +754,7 @@ void Assembler::literalBackpatch(){
         instruction_alternative_used = true;  
         displacement = s->offset - (p.location+4); // offset to symbol in section
        
+        
       }else {
         std::cout << "Needs relocation." << std::endl;
         // temporary
@@ -757,12 +772,20 @@ void Assembler::literalBackpatch(){
     uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
     uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
     uint8_t rc_oo = (0xF0 &rc_highDisp);
-    // write a literal
-    if(!instruction_alternative_used){ // don't add literal to literal pool
+    
+    
+    if(!instruction_alternative_used && !aggregate){ 
+      // means, symbol is not defined in same section
+      // or literal is used  
+      if(!literalPool.isUsingSymbol(p.location)){
+        final_locations.push_back({LC, p.literal});
+      }
+      // !literalPool.isUsingSymbol(p.location) ?
+      // add literal
       memory.writeWord(p.literal);
       LC += 4;
     }
-
+    // put displacement
     memory.changeByte( rc_oo | oo_highDisp,
      loc_to_patch);
     memory.changeByte(displacement, loc_to_patch+1);
@@ -859,7 +882,7 @@ void Assembler::handleEnd(){
   closeSection();
   symbolBackpatch();
   printCode(std::cout);
-  rel.print(std::cout, symtab);
+  rel.print(std::cout, &symtab);
   finished = true;
   
 };

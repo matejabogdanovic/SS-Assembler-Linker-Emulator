@@ -32,7 +32,7 @@ public:
   
 
   void put(RelTable::Entry entry);
-  void print(std::ostream& os, SymbolTable& symtab);
+  void print(std::ostream& os, SymbolTable* symtab);
   std::vector<Entry> table; 
 private:
   static const char* relType_str[];

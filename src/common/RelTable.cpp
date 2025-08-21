@@ -9,7 +9,7 @@ void RelTable::put(RelTable::Entry entry){
 }
 
 
-void RelTable::print(std::ostream& os, SymbolTable& symtab){
+void RelTable::print(std::ostream& os, SymbolTable* symtab){
   os << "| Offset |"
   << " Type |"
   << " Symbol |"
@@ -23,10 +23,10 @@ void RelTable::print(std::ostream& os, SymbolTable& symtab){
        e->offset << " "
       << std::dec << std::left << std::uppercase << std::setw(6) << std::setfill(' ') << 
       relType_str[e->type] << " " << std::left << std::uppercase << std::setw(8) << std::setfill(' ')<<  
-      (e->symbol_global ? symtab.getSymbolName(e->symbol) : symtab.getSectionName(e->symbol) )<< " "
+      (e->symbol_global ? symtab->getSymbolName(e->symbol) : symtab->getSectionName(e->symbol) )<< " "
        << std::uppercase<< std::setw(15) << std::setfill(' ')<< 
       e->symbol_global << " "<< std::uppercase<< std::setw(9) << std::setfill(' ')<<
-      symtab.getSectionName(e->section) << " "
+      symtab->getSectionName(e->section) << " "
       << e->addend << " \n";
       
   }
