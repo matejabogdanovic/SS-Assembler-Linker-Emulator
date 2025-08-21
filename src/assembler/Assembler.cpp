@@ -713,46 +713,37 @@ void Assembler::handleStoreSymbol(Instruction::OPCode op,  std::string* name, ui
 
 
 void Assembler::literalBackpatch(){
-  std::vector<std::pair<uint32_t, uint32_t> > final_locations; // LC, value
+  std::vector<std::pair<uint32_t, uint32_t> > known_literals; // location in pool, value
   // literal patch, writing PC relative displacement in instruction to literal pool
   while(!literalPool.patches.empty()){
     // get location to patch
-    bool instruction_alternative_used = false;
     LiteralPool::LiteralPatch p = literalPool.patches.front();
     literalPool.patches.pop_front();
     
+    // displacement 
     uint32_t displacement =   
      LC - // end of pool
-     (p.location+4); // pc
+     (p.instr_location+4); // pc
+
     bool aggregate = false;
-    if(!literalPool.isUsingSymbol(p.location)){ // only literals
-      int i = 0;
-      for(auto final_location: final_locations){
-        if(final_location.second == p.literal){
-            displacement = final_location.first - (p.location+4);
-            aggregate = true;
-            break;
-        }
-        i++;
-      }
-    }
+    bool symbol_defined_in_this_section = false;
 
-
-    if(literalPool.isUsingSymbol(p.location)){
+    if(literalPool.isUsingSymbol(&p)){
 
       SymbolTable::Entry* s =  symtab.getSymbol(&p.symbol_name);
       if(SymbolTable::isDefined(s->flags)&&
-         s->ndx == symtab.current_section){ // definisan i u istoj sekciji
+         s->ndx == symtab.current_section){ // defined in this section
         // check if symbol is reachable todo fix
         
-        if(std::abs((long)(s->offset - (p.location+4))) > 0xfff){
+        if(std::abs((long)(s->offset - (p.instr_location+4))) > 0xfff){
           std::cout << "Symbol too far." << std::endl;
           continue;
         }
+        // write displacement in instruction
         std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;
-        memory.changeInstruction(p.alternative, p.location); // reg dir disp 
-        instruction_alternative_used = true;  
-        displacement = s->offset - (p.location+4); // offset to symbol in section
+        memory.changeInstruction(p.alternative, p.instr_location); // reg dir disp 
+        symbol_defined_in_this_section = true;  
+        displacement = s->offset - (p.instr_location+4); // offset to symbol in section
        
         
       }else {
@@ -761,44 +752,34 @@ void Assembler::literalBackpatch(){
         //rel.put({0, s, symtab.getCurrentSection(), false});
         backpatch.push_back({LC, s, symtab.getCurrentSection()});
       }
+    }else {
+      // try to find literal in pool that is same as p.literal
+      // to avoid repeating literals that linker won't patch
+      for(auto known_literal: known_literals){
+        if(known_literal.second == p.literal){
+            // displacement to literal in literal pool
+            displacement = known_literal.first - (p.instr_location+4);
+            aggregate = true;
+            break;
+        }
+      
+      }
+
+      known_literals.push_back({LC, p.literal});
     }
 
-    
-    // [CCCC][DDDD] [DDDD][DDDD]
-    //  ^rc  ^highDisp 
-    uint32_t loc_to_patch = p.location + 2  // get to offset
-    + symtab.getSectionStart(symtab.current_section); // absolute address
-
-    uint8_t rc_highDisp = memory.readByte(loc_to_patch); 
-    uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
-    uint8_t rc_oo = (0xF0 &rc_highDisp);
-    
-    
-    if(!instruction_alternative_used && !aggregate){ 
-      // means, symbol is not defined in same section
-      // or literal is used  
-      if(!literalPool.isUsingSymbol(p.location)){
-        final_locations.push_back({LC, p.literal});
-      }
-      // !literalPool.isUsingSymbol(p.location) ?
-      // add literal
+    if(!symbol_defined_in_this_section && !aggregate){ 
+      // add literal to pool
       memory.writeWord(p.literal);
       LC += 4;
     }
-    // put displacement
-    memory.changeByte( rc_oo | oo_highDisp,
-     loc_to_patch);
-    memory.changeByte(displacement, loc_to_patch+1);
-    
+
+    memory.changeInstructionDisplacement(
+      p.instr_location+symtab.getSectionStart(symtab.current_section),
+      displacement
+    );
   }
 
-
-
-  literalPool.usingSymbol.clear();
-  //literalPool.pool.clear();
-  //literalPool.literalpatch.clear();
-  // literal pool clear
-  //literalPool.literalBackpatch(&memory, end_of_section_addr);
 }
 
 void Assembler::closeSection(){

@@ -19,6 +19,20 @@ void Memory::changeInstruction(Instruction instruction, uint32_t location){
   changeByte((uint8_t)instruction.disp, location);
 }
 
+void Memory::changeInstructionDisplacement(uint32_t instr_location, uint16_t displacement){
+    // [CCCC][DDDD] [DDDD][DDDD]
+    //  ^rc  ^highDisp 
+
+
+    uint8_t rc_highDisp = readByte(instr_location+2); 
+    uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
+    uint8_t rc_oo = (0xF0 & rc_highDisp);
+
+    changeByte( rc_oo | oo_highDisp,
+     instr_location+2);
+    changeByte(displacement, instr_location+3);
+    
+}
 
 uint8_t Memory::readByte(uint32_t location) const{
   return memory[location];

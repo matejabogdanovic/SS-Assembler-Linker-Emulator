@@ -1,16 +1,17 @@
 #include "../../inc/assembler/LiteralPool.hpp"
 
 
-void LiteralPool::put(uint32_t value, uint32_t location_to_patch,
+void LiteralPool::put(uint32_t value, 
+  uint32_t instr_location,
   std::string* symbol_name,
   Instruction alternative){
 
-  if(symbol_name)usingSymbol[location_to_patch] = true;
-  patches.push_back({location_to_patch, value,  symbol_name?*symbol_name:"", alternative}); 
+ 
+  patches.push_back({instr_location, value,  symbol_name?*symbol_name:"", alternative}); 
 
 }
 
-bool LiteralPool::isUsingSymbol(uint32_t location){
+bool LiteralPool::isUsingSymbol(LiteralPatch* patch){
   
-  return usingSymbol.count(location) > 0 &&  usingSymbol[location] == true;
+  return patch->symbol_name != ""; 
 }

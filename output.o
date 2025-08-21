@@ -1,13 +1,17 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 21       1       d         a       
+ 1       SCTN     LOC      0x00000000 37       1       d         a       
  2       SCTN     LOC      0x00000000 2        2       d         b       
  0       NOTYP    GLOB     0x00000000 0        UND      e        e       
+ 1       NOTYP    LOC      0x00000002 0        2       d         b       
 | Offset | Type | Symbol | symbol_global | Section | Addend |
- 00000011 Type1  e        1               a         0 
+ 0000001D Type1  e        1               a         0 
+ 00000021 Type1  b        0               a         0 
 =================Section a===================
-0000: 00 21 F0 00 08 21 F0 00
-0008: 04 38 F0 00 04 01 00 00
-0010: 00 F1 FF FF FF
+0000: 00 21 F0 00 10 21 F0 00
+0008: 10 38 F0 00 10 39 F1 20
+0010: 04 21 F0 00 0C 01 00 00
+0018: 00 F1 FF FF FF F1 FF FF
+0020: FF 02 00 00 00
 =================Section b===================
-0015: 00 00
+0025: 00 00
