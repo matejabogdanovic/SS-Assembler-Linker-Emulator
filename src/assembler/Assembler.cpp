@@ -831,7 +831,7 @@ void Assembler::symbolBackpatch(){
       rel.put({p.location, p.symbol, p.section, p.symbol->bind == SymbolTable::Bind::GLOB});
     }
     
-    memory.print(std::cout);
+    //memory.print(std::cout);
 
     
     // write
@@ -846,8 +846,8 @@ void Assembler::symbolBackpatch(){
 
   }
 
-  std::cout << "====================================\n After patch: " << std::endl;
-  memory.print(std::cout);
+  // std::cout << "====================================\n After patch: " << std::endl;
+  // memory.print(std::cout);
 
 }
 

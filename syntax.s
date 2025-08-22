@@ -11,12 +11,12 @@
 .section section
 .section .
 .section ....
-
+symbol_or_literals: 
 .word 1
 .word symbol_or_literals
 .word sym1, a, b, 0x123, 2
 .word 1, 2, 3, symbols
-
+symbols:
 .skip 1 # literal only
 .skip 0x2
 
@@ -24,7 +24,7 @@
 # .ascii <string>
 # .equ <symbol>, <expression>
 
-.end
+
 
 label1:
 label2:
@@ -54,11 +54,13 @@ bgt %r1, %r3, label
 push %r11
 pop %r0
 
+symbol:
+
 ld $0x1, %r15
 ld $symbol, %r0
 
-st %sp, $15
-st %r11, $symbol
+# st %sp, $15
+# st %r11, $symbol
 
 ld 0x1, %r15
 ld symbol, %r0
@@ -75,8 +77,8 @@ ld [%r1], %r2
 st %r2, [%pc+1]
 ld [%r1+2], %r2
 
-st %r2, [%pc+label]
-ld [%r1+label], %r2
+# st %r2, [%pc+label]
+# ld [%r1+label], %r2
 
 add %r1, %pc
 sub %r1, %r2
@@ -94,3 +96,5 @@ csrrd %status, %sp
 csrwr %pc, %handler
 csrwr %pc, %cause
 
+label:
+.end
