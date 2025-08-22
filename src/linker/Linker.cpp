@@ -5,7 +5,7 @@ std::vector<std::string> Linker::file_names;
 
 int Linker::parseArguments(int argc, char* argv[]){
   for (size_t i = 1; i < argc; i++){
-    file_names.push_back(argv[i]);
+    file_names.push_back(std::string(argv[i])+std::string(".bin"));
   }
   return 0;
 }
@@ -18,13 +18,14 @@ int Linker::start(int argc, char* argv[]){
   };
   
 
-  if(processing() < 0)return -1;
+  if(loadData() < 0)return -2;
+  if(processing() < 0)return -3;
 
   return 0;
 
 }
 
-int Linker::processing(){
+int Linker::loadData(){
   for (size_t i = 0; i < file_names.size(); i++)
   {
     SymbolTable symtab(false);
@@ -54,6 +55,11 @@ int Linker::processing(){
     files[0].rel.print(std::cout, &symtab);
     files[0].memory.printCode(std::cout, &symtab);
 
-    }
+  }
+  return 0;
+}
+
+int Linker::processing(){
+  std::cout << "Start processing.\n";
   return 0;
 }

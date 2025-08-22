@@ -6,6 +6,8 @@
 #include "./SymbolTable.hpp"
 class Memory{
 public:
+
+
   void writeInstruction(Instruction instruction);
   void changeInstruction(Instruction instruction, uint32_t location);
   void changeInstructionDisplacement(uint32_t instr_location, uint16_t displacement);

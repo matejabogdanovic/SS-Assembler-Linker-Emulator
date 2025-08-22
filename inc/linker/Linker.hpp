@@ -19,4 +19,5 @@ public:
 private:
   static int parseArguments(int argc, char* argv[]);
   static int processing();
+  static int loadData();
 };
