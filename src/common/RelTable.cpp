@@ -8,6 +8,49 @@ void RelTable::put(RelTable::Entry entry){
   table.push_back(entry);
 }
 
+void RelTable::printBinary(std::ostream& os){
+  auto num_of_entries = table.size();
+ 
+  os.write(reinterpret_cast<const char*>(& num_of_entries), sizeof(num_of_entries));
+
+  for(int i = 0; i < num_of_entries; i++){
+    Entry* e = &table[i]; 
+    os.write(reinterpret_cast<char*>(&e->offset), sizeof(e->offset));
+    os.write(reinterpret_cast<char*>(&e->type), sizeof(e->type));
+    os.write(reinterpret_cast<char*>(&e->symbol->num), sizeof(e->symbol->num));
+    os.write(reinterpret_cast<char*>(&e->symbol_global), sizeof(e->symbol_global));
+    os.write(reinterpret_cast<char*>(&e->section->num), sizeof(e->section->num));
+    os.write(reinterpret_cast<char*>(&e->addend), sizeof(e->addend));
+  }
+
+}
+
+void RelTable::loadFromFile(std::istream& is, SymbolTable* symtab){
+  size_t num_of_entries;
+  is.read(reinterpret_cast<char*>(& num_of_entries), sizeof(num_of_entries));
+  
+  for(int i = 0; i < num_of_entries; i++){
+    Entry e = {0, nullptr, nullptr};
+    is.read(reinterpret_cast<char*>(&e.offset), sizeof(e.offset));
+    is.read(reinterpret_cast<char*>(&e.type), sizeof(e.type));
+
+    uint32_t sym_num;
+    is.read(reinterpret_cast<char*>(&sym_num), sizeof(SymbolTable::Entry::num));
+    e.symbol = symtab->getSymbol(&symtab->symbol_names[sym_num]);
+
+    is.read(reinterpret_cast<char*>(&e.symbol_global), sizeof(e.symbol_global));
+
+    uint32_t sect_num;
+    is.read(reinterpret_cast<char*>(&sect_num), sizeof(SymbolTable::Entry::num));
+    e.section = symtab->getSection(&symtab->section_names[sect_num]);
+
+    is.read(reinterpret_cast<char*>(&e.addend), sizeof(e.addend));
+    
+    put(e);
+  }
+
+}
+
 
 void RelTable::print(std::ostream& os, SymbolTable* symtab){
   os << "| Offset |"

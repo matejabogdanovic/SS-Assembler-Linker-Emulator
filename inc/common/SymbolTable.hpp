@@ -20,9 +20,9 @@ public:
   
   SymbolTable(bool init = true);
 
-  void printTable(std::ostream& stream);
-  void printTableBinary(std::ostream& os);
-  void loadTableFromFile(std::istream& is);
+  void print(std::ostream& stream);
+  void printBinary(std::ostream& os);
+  void loadFromFile(std::istream& is);
    typedef struct Entry {
     uint32_t offset;
     Bind bind;
@@ -94,8 +94,8 @@ public:
   static const char* type_str[];
   static const char* bind_str[];
   
-  void printTablePart(std::string* name, Entry* e, std::ostream& os) const;
-  void printTablePartBinary(std::string* name, Entry* e, std::ostream& os) const;
+  void printPart(std::string* name, Entry* e, std::ostream& os) const;
+  void printPartBinary(std::string* name, Entry* e, std::ostream& os) const;
 
 
 };

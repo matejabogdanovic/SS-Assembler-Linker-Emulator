@@ -111,7 +111,7 @@ SymbolTable::Entry* SymbolTable::getCurrentSection(){
 // --------------------------------------
 
 
-void SymbolTable::printTablePartBinary(std::string* name, Entry* e, std::ostream& os) const{
+void SymbolTable::printPartBinary(std::string* name, Entry* e, std::ostream& os) const{
     os.write(reinterpret_cast<const char*>(e), sizeof(Entry));
 
     auto namesz = name->size() +1;
@@ -123,13 +123,13 @@ void SymbolTable::printTablePartBinary(std::string* name, Entry* e, std::ostream
 
 
 
-void SymbolTable::printTableBinary(std::ostream& os){
+void SymbolTable::printBinary(std::ostream& os){
   auto num_of_sections = section_names.size();
  
   os.write(reinterpret_cast<const char*>(& num_of_sections), sizeof(num_of_sections));
   for(int i = 0; i < num_of_sections; i++){
     Entry* e =  &sections[section_names[i]];
-    printTablePartBinary(&section_names[i],  e, os) ;
+    printPartBinary(&section_names[i],  e, os) ;
   }
 
   auto num_of_symbols = symbol_names.size();
@@ -137,11 +137,11 @@ void SymbolTable::printTableBinary(std::ostream& os){
   os.write(reinterpret_cast<const char*>(& num_of_symbols), sizeof(num_of_symbols));
   for(int i = 0; i < num_of_symbols; i++){
     Entry* e =  &symbols[symbol_names[i]];
-    printTablePartBinary(&symbol_names[i],  e, os) ;
+    printPartBinary(&symbol_names[i],  e, os) ;
   }
 }
 
-void SymbolTable::loadTableFromFile(std::istream& is){
+void SymbolTable::loadFromFile(std::istream& is){
   // SymbolTable symtab(false);
   size_t num_of_sections;
   is.read(reinterpret_cast<char*>(& num_of_sections), sizeof(num_of_sections));
@@ -180,10 +180,9 @@ void SymbolTable::loadTableFromFile(std::istream& is){
     
   }
 
-  printTable(std::cout);
 }
 
-void SymbolTable::printTable(std::ostream& os){
+void SymbolTable::print(std::ostream& os){
   
   os << 
     "|  Num  " << 
@@ -200,19 +199,19 @@ void SymbolTable::printTable(std::ostream& os){
   for(int i = 0; i < section_names.size(); i++){
     Entry* e =  &sections[section_names[i]];
 
-    printTablePart(&section_names[i], e, os);
+    printPart(&section_names[i], e, os);
   }
 
   for(int i = 0; i < symbol_names.size(); i++){
     Entry* e =  &symbols[symbol_names[i]];
     //e->num = section_names.size() + i; // correct index (from sections)
-    printTablePart(&symbol_names[i], e, os);
+    printPart(&symbol_names[i], e, os);
   }
 
 }
 
 
-void SymbolTable::printTablePart(std::string* name, Entry* e, std::ostream& os) const {
+void SymbolTable::printPart(std::string* name, Entry* e, std::ostream& os) const {
   
       os<< 
     " " << std::left << std::setw(7) << std::setfill(' ') << e->num <<

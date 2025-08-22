@@ -52,7 +52,9 @@ int Assembler::processing(){
     
   }
 
-  symtab.printTable(std::cout);
+  symtab.print(std::cout);
+  rel.print(std::cout, &symtab);
+  printCode(std::cout);
 
   std::ofstream outputFile(std::string(output)+std::string(".txt")); // otvara fajl za pisanje
 
@@ -61,7 +63,7 @@ int Assembler::processing(){
         return -1;
   }
 
-  symtab.printTable(outputFile);
+  symtab.print(outputFile);
   rel.print(outputFile, &symtab);
   printCode(outputFile);
 
@@ -76,9 +78,9 @@ int Assembler::processing(){
         return -1;
   }
 
-  symtab.printTableBinary(outputFileBinary);
+  symtab.printBinary(outputFileBinary);
   // symtab.printTable(outputFileBinary);
-  // rel.print(outputFileBinary, &symtab);
+  rel.printBinary(outputFileBinary);
   // printCode(outputFileBinary);
 
   outputFileBinary.close(); 
@@ -869,8 +871,8 @@ void Assembler::printCode(std::ostream& os){
 void Assembler::handleEnd(){
   closeSection();
   symbolBackpatch();
-  printCode(std::cout);
-  rel.print(std::cout, &symtab);
+  // printCode(std::cout);
+  // rel.print(std::cout, &symtab);
   finished = true;
   
 };
