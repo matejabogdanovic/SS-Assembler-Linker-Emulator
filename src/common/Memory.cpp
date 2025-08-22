@@ -88,7 +88,47 @@ void Memory::changeWordVector(std::vector<uint32_t>* vector, uint32_t location, 
   }
 }
 
+void Memory::printCode(std::ostream& os, SymbolTable* symtab){
+  
+  uint32_t start = 0;
+  for (size_t i = 1; i < symtab->section_names.size(); i++){
+    SymbolTable::Entry* section = symtab->getSection(&symtab->section_names[i]);
+    
+    os << "=================Section " << symtab->section_names[i] << "===================\n";
+    if(section->size>0)print(os, start, section->size);
+    
+    start += section->size;
+    
+  }
+  
 
+}
+
+
+void Memory::loadFromFile(std::istream& is){
+  uint32_t num_of_entries;
+  is.read(reinterpret_cast<char*>(& num_of_entries), sizeof(num_of_entries));
+  
+  for(int i = 0; i < num_of_entries; i++){
+    uint8_t byte;
+    is.read(reinterpret_cast<char*>(& byte), sizeof(byte));
+    writeByte(byte);
+  }
+
+}
+
+void Memory::printBinary(std::ostream& os, uint32_t location, uint32_t n){
+  if(n==0){
+    n = memory.size();
+  }
+
+  os.write(reinterpret_cast<const char*>(&n), sizeof(n));
+  for(uint32_t i = location; i < location + n; i++){
+
+     os.write(reinterpret_cast<const char*>(&memory[i]), sizeof(memory[i]));
+  }
+
+}
 
 void Memory::print(std::ostream& os, uint32_t location, uint32_t n){
   if(n==0){

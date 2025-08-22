@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "./Instruction.hpp"
+#include "./SymbolTable.hpp"
 class Memory{
 public:
   void writeInstruction(Instruction instruction);
@@ -18,8 +19,11 @@ public:
   
   void writeWordVector(std::vector<uint32_t>* vector, uint32_t n=0);
   void changeWordVector(std::vector<uint32_t>* vector, uint32_t location, uint32_t n=0);
-
+  
+  void printCode(std::ostream& os, SymbolTable* symtab);
   void print(std::ostream& os, uint32_t location=0, uint32_t n=0);
+  void printBinary(std::ostream& os, uint32_t location=0, uint32_t n=0);
+  void loadFromFile(std::istream& is);
 private:
   std::vector<uint8_t> memory;
 

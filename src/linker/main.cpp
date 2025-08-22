@@ -1,5 +1,6 @@
 
 #include "../../inc/common/RelTable.hpp"
+#include "../../inc/common/Memory.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -9,6 +10,7 @@ int main(){
   // READ
   SymbolTable symtab(false);
   RelTable rel;
+  Memory memory;
   
   std::ifstream inputBinary("output.o", std::ios::binary); // otvara fajl za pisanje
 
@@ -21,9 +23,9 @@ int main(){
   symtab.print(std::cout);
   rel.loadFromFile(inputBinary, &symtab);
   rel.print(std::cout, &symtab);
+  memory.loadFromFile(inputBinary);
+  memory.printCode(std::cout, &symtab);
 
-  
-  // printCode(inputBinary);
 
   inputBinary.close(); 
 

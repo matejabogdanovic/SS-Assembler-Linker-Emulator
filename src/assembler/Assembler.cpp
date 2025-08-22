@@ -54,7 +54,7 @@ int Assembler::processing(){
 
   symtab.print(std::cout);
   rel.print(std::cout, &symtab);
-  printCode(std::cout);
+  memory.printCode(std::cout, &symtab);
 
   std::ofstream outputFile(std::string(output)+std::string(".txt")); // otvara fajl za pisanje
 
@@ -65,7 +65,7 @@ int Assembler::processing(){
 
   symtab.print(outputFile);
   rel.print(outputFile, &symtab);
-  printCode(outputFile);
+  memory.printCode(outputFile, &symtab);
 
 
   outputFile.close(); 
@@ -79,9 +79,8 @@ int Assembler::processing(){
   }
 
   symtab.printBinary(outputFileBinary);
-  // symtab.printTable(outputFileBinary);
   rel.printBinary(outputFileBinary);
-  // printCode(outputFileBinary);
+  memory.printBinary(outputFileBinary);
 
   outputFileBinary.close(); 
 
@@ -852,21 +851,7 @@ void Assembler::symbolBackpatch(){
 
 }
 
-void Assembler::printCode(std::ostream& os){
-  
-  uint32_t start = 0;
-  for (size_t i = 1; i < symtab.section_names.size(); i++){
-    SymbolTable::Entry* section = symtab.getSection(&symtab.section_names[i]);
-    
-    os << "=================Section " << symtab.section_names[i] << "===================\n";
-    if(section->size>0)memory.print(os, start, section->size);
-    
-    start += section->size;
-    
-  }
-  
 
-}
 
 void Assembler::handleEnd(){
   closeSection();

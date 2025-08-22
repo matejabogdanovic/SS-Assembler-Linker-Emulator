@@ -83,7 +83,6 @@ private:
   static int parseArguments(int argc, char* argv[]);
   static int processing();
 
-  static void printCode(std::ostream& os);
 
   static char* input; 
   static char* output;

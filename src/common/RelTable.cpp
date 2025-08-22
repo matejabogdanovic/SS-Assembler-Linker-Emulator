@@ -15,12 +15,12 @@ void RelTable::printBinary(std::ostream& os){
 
   for(int i = 0; i < num_of_entries; i++){
     Entry* e = &table[i]; 
-    os.write(reinterpret_cast<char*>(&e->offset), sizeof(e->offset));
-    os.write(reinterpret_cast<char*>(&e->type), sizeof(e->type));
-    os.write(reinterpret_cast<char*>(&e->symbol->num), sizeof(e->symbol->num));
-    os.write(reinterpret_cast<char*>(&e->symbol_global), sizeof(e->symbol_global));
-    os.write(reinterpret_cast<char*>(&e->section->num), sizeof(e->section->num));
-    os.write(reinterpret_cast<char*>(&e->addend), sizeof(e->addend));
+    os.write(reinterpret_cast<const char*>(&e->offset), sizeof(e->offset));
+    os.write(reinterpret_cast<const char*>(&e->type), sizeof(e->type));
+    os.write(reinterpret_cast<const char*>(&e->symbol->num), sizeof(e->symbol->num));
+    os.write(reinterpret_cast<const char*>(&e->symbol_global), sizeof(e->symbol_global));
+    os.write(reinterpret_cast<const char*>(&e->section->num), sizeof(e->section->num));
+    os.write(reinterpret_cast<const char*>(&e->addend), sizeof(e->addend));
   }
 
 }
