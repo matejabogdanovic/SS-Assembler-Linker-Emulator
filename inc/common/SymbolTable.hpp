@@ -95,6 +95,8 @@ public:
   static const char* bind_str[];
   
   void printTablePart(std::string* name, Entry* e, std::ostream& os) const;
+  void printTablePartBinary(std::string* name, Entry* e, std::ostream& os) const;
+
 
 };
 

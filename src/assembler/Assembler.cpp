@@ -54,7 +54,7 @@ int Assembler::processing(){
 
   symtab.printTable(std::cout);
 
-  std::ofstream outputFile(output); // otvara fajl za pisanje
+  std::ofstream outputFile(std::string(output)+std::string(".txt")); // otvara fajl za pisanje
 
   if (!outputFile.is_open()) {
         std::cerr << "assembler: error: can't open output file\n";
@@ -68,8 +68,8 @@ int Assembler::processing(){
 
   outputFile.close(); 
   // binary
-  const std::string BINARY_EXT = ".binary";
-  std::ofstream outputFileBinary(std::string(output)+BINARY_EXT, std::ios::binary); // otvara fajl za pisanje
+  
+  std::ofstream outputFileBinary(output, std::ios::binary); // otvara fajl za pisanje
 
   if (!outputFileBinary.is_open()) {
         std::cerr << "assembler: error: can't open output file\n";
@@ -84,22 +84,6 @@ int Assembler::processing(){
   outputFileBinary.close(); 
 
 
-  // READ
-
-  std::ifstream inputBinary(std::string(output)+BINARY_EXT, std::ios::binary); // otvara fajl za pisanje
-
-  if (!inputBinary.is_open()) {
-        std::cerr << "assembler: error: can't open input file\n";
-        return -1;
-  }
-
-  symtab.loadTableFromFile(inputBinary);
-  // symtab.printTable(inputBinary);
-  // rel.print(inputBinary, &symtab);
-  // printCode(inputBinary);
-
-  inputBinary.close(); 
-  
   return 0;
 }
 

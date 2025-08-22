@@ -110,52 +110,77 @@ SymbolTable::Entry* SymbolTable::getCurrentSection(){
 }
 // --------------------------------------
 
+
+void SymbolTable::printTablePartBinary(std::string* name, Entry* e, std::ostream& os) const{
+    os.write(reinterpret_cast<const char*>(e), sizeof(Entry));
+
+    auto namesz = name->size() +1;
+    os.write(reinterpret_cast<const char*>(&namesz), sizeof(namesz));
+
+    os.write(reinterpret_cast<const char*>(name->c_str()), namesz);
+
+}
+
+
+
 void SymbolTable::printTableBinary(std::ostream& os){
   auto num_of_sections = section_names.size();
  
   os.write(reinterpret_cast<const char*>(& num_of_sections), sizeof(num_of_sections));
-  for(int i = 0; i < section_names.size(); i++){
+  for(int i = 0; i < num_of_sections; i++){
     Entry* e =  &sections[section_names[i]];
+    printTablePartBinary(&section_names[i],  e, os) ;
+  }
 
-    os.write(reinterpret_cast<const char*>(&e->num ), sizeof(e->num ));
-    os.write(reinterpret_cast<const char*>(&e->type), sizeof(e->type));
-    os.write(reinterpret_cast<const char*>(&e->bind), sizeof(e->bind));
-    os.write(reinterpret_cast<const char*>(&e->offset), sizeof(e->offset));
-    os.write(reinterpret_cast<const char*>(&e->size), sizeof( e->size));
-    os.write(reinterpret_cast<const char*>(&e->ndx), sizeof(e->ndx));
-    os.write(reinterpret_cast<const char*>(&e->flags), sizeof(e->flags  ));
-    auto namesz = section_names[i].size() +1;
-
-    os.write(reinterpret_cast<const char*>(&namesz), sizeof(namesz));
-    os.write(reinterpret_cast<const char*>(section_names[i].c_str()), namesz);
-
+  auto num_of_symbols = symbol_names.size();
+ 
+  os.write(reinterpret_cast<const char*>(& num_of_symbols), sizeof(num_of_symbols));
+  for(int i = 0; i < num_of_symbols; i++){
+    Entry* e =  &symbols[symbol_names[i]];
+    printTablePartBinary(&symbol_names[i],  e, os) ;
   }
 }
 
 void SymbolTable::loadTableFromFile(std::istream& is){
-  SymbolTable symtab(false);
+  // SymbolTable symtab(false);
   size_t num_of_sections;
   is.read(reinterpret_cast<char*>(& num_of_sections), sizeof(num_of_sections));
+
   for(int i = 0; i < num_of_sections; i++){
     Entry e = {};
+    is.read(reinterpret_cast <char*> (&e), sizeof(Entry));
 
-    is.read(reinterpret_cast< char*>(&e.num ), sizeof(e.num ));
-    is.read(reinterpret_cast< char*>(&e.type), sizeof(e.type ));
-    is.read(reinterpret_cast< char*>(&e.bind), sizeof(e.bind));
-    is.read(reinterpret_cast< char*>(&e.offset), sizeof(e.offset));
-    is.read(reinterpret_cast< char*>(&e.size), sizeof( e.size));
-    is.read(reinterpret_cast< char*>(&e.ndx), sizeof(e.ndx));
-    is.read(reinterpret_cast< char*>(&e.flags), sizeof(e.flags  ));
     size_t namesz;
     is.read(reinterpret_cast< char*>(&namesz), sizeof(namesz ));
-  
+
     char section_name_char[namesz];
+
     is.read(reinterpret_cast< char*>(&section_name_char), namesz);
     std::string section_name = std::string(section_name_char);
-    symtab.addSection(&section_name, e);
+
+    addSection(&section_name, e);
     
   }
-  symtab.printTable(std::cout);
+
+
+  size_t num_of_symbols;
+  is.read(reinterpret_cast<char*>(& num_of_symbols), sizeof(num_of_symbols));
+  for(int i = 0; i < num_of_symbols; i++){
+    Entry e = {};
+    is.read(reinterpret_cast <char*> (&e), sizeof(Entry));
+
+    size_t namesz;
+    is.read(reinterpret_cast< char*>(&namesz), sizeof(namesz ));
+    char symbol_name_char[namesz];
+
+    is.read(reinterpret_cast< char*>(&symbol_name_char), namesz);
+    std::string symbol_name = std::string(symbol_name_char);
+
+    addSymbol(&symbol_name, e);
+    
+  }
+
+  printTable(std::cout);
 }
 
 void SymbolTable::printTable(std::ostream& os){
