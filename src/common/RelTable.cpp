@@ -51,7 +51,6 @@ void RelTable::loadFromFile(std::istream& is, SymbolTable* symtab){
 
 }
 
-
 void RelTable::print(std::ostream& os, SymbolTable* symtab){
   os << "| Offset |"
   << " Type |"

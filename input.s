@@ -1,5 +1,5 @@
-.extern e
 .section a
 call e
-b:
+e:
+
 .end
