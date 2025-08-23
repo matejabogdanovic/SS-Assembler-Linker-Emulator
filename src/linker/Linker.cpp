@@ -169,13 +169,11 @@ void Linker::createMap(){
 }
 
 void Linker::linking(){
-
-
+  std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+  std::cout << "LINKING\n";
   uint32_t addr = 0;
   for(SectionsUnion& sec_union: map){
-    
     int i = 0;
-   
     uint32_t offset = 0;
     for(Section& section: sec_union.sections){
       RelTable* rel =  sec_union.rels[i++]; // rel table for this section in section union
@@ -184,16 +182,20 @@ void Linker::linking(){
         // case for different rel types
         if(record.section->ndx == section.section->ndx){ 
           uint32_t addr_to_fix = sec_union.start_address + offset + record.offset;
-          std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
-          << " using rel to fix: 0x" << record.symbol->offset ;
-          std::cout<< " using address: 0x" << 
-          defined_syms[
+          uint32_t addr_to_put = defined_syms[
             section.symtab->symbol_names[record.symbol->num]
-          ]->offset
+          ]->offset;
+          std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
+          << " addr relative to fix: 0x" << record.offset ;
+          std::cout<< " using address: 0x" << 
+          addr_to_put
           <<std::dec << std::endl;
+          section.memory->changeWord(addr_to_put, record.offset);
         }
 
       }
+      if(section.section->ndx != 0)
+        section.memory->print(std::cout, section.section->offset, section.section->size);
       offset += section.section->size;
     }   
   } 
