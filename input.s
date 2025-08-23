@@ -1,5 +1,5 @@
+.extern sym
 .section a
-call e
-e:
-
+.skip 2
+call sym
 .end

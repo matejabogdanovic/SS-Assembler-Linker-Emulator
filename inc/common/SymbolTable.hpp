@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <cstdint>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 class SymbolTable {
@@ -79,7 +79,7 @@ public:
   void addSection(std::string* name, Entry e);
 
   
-  typedef std::unordered_map <std::string, Entry> Map;
+  typedef std::map <std::string, Entry> Map;
   Map symbols;
   Map sections;
 
@@ -89,12 +89,12 @@ public:
   std::vector <std::string> symbol_names;
   
 
-
+  void printEntry(std::string* name, Entry* e, std::ostream& os) const;
   private:
   static const char* type_str[];
   static const char* bind_str[];
   
-  void printPart(std::string* name, Entry* e, std::ostream& os) const;
+  
   void printPartBinary(std::string* name, Entry* e, std::ostream& os) const;
 
 

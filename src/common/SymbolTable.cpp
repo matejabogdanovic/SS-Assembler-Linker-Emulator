@@ -199,19 +199,19 @@ void SymbolTable::print(std::ostream& os){
   for(int i = 0; i < section_names.size(); i++){
     Entry* e =  &sections[section_names[i]];
 
-    printPart(&section_names[i], e, os);
+    printEntry(&section_names[i], e, os);
   }
 
   for(int i = 0; i < symbol_names.size(); i++){
     Entry* e =  &symbols[symbol_names[i]];
     //e->num = section_names.size() + i; // correct index (from sections)
-    printPart(&symbol_names[i], e, os);
+    printEntry(&symbol_names[i], e, os);
   }
 
 }
 
 
-void SymbolTable::printPart(std::string* name, Entry* e, std::ostream& os) const {
+void SymbolTable::printEntry(std::string* name, Entry* e, std::ostream& os) const {
   
       os<< 
     " " << std::left << std::setw(7) << std::setfill(' ') << e->num <<

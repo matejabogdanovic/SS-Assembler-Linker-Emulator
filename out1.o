@@ -1,0 +1,9 @@
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 10       1       d         a       
+ 0       NOTYP    GLOB     0x00000000 0        UND      e        sym     
+| Offset | Type | Symbol | symbol_global | Section | Addend |
+ 00000006 Type1  sym      1               a         0 
+=================Section a===================
+0000: 00 00 21 F0 00 00 F0 FF
+0008: FF FF
