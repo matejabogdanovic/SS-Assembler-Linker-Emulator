@@ -175,6 +175,7 @@ void Linker::linking(){
   for(SectionsUnion& sec_union: map){
     int i = 0;
     uint32_t offset = 0;
+    std::cout <<"Section union: " << sec_union.name << std::endl;
     for(Section& section: sec_union.sections){
       RelTable* rel =  sec_union.rels[i++]; // rel table for this section in section union
       
@@ -194,6 +195,7 @@ void Linker::linking(){
         }
 
       }
+     
       if(section.section->ndx != 0)
         section.memory->print(std::cout, section.section->offset, section.section->size);
       offset += section.section->size;
