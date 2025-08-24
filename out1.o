@@ -5,7 +5,7 @@
  0       NOTYP    GLOB     0x00000000 0        UND      e        sym     
  1       NOTYP    LOC      0x00000001 0        2       d         simbol  
 | Offset | Type | Symbol | symbol_global | Section | Addend |
- 00000006 Type1  b        0               a         0 
+ 00000006 Type1  b        0               a         1 
  00000005 Type1  sym      1               b         0 
 =================Section a===================
 0000: 00 00 21 F0 00 00 01 00

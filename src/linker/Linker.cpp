@@ -160,7 +160,8 @@ void Linker::linking(){
             addr_to_put = defined_syms[section.file->symtab.symbol_names[record.symbol->num]];
           }else{
             // symbol is section
-            addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]];
+            addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]]
+            + record.addend;
           }
 
 

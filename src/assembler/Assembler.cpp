@@ -829,7 +829,8 @@ void Assembler::symbolBackpatch(){
     std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;
     if(p.symbol->ndx != p.section->ndx){
       std::cout << ">>> Symbol in different section, needs relocation." << std::endl;
-      rel.put({p.location, p.symbol, p.section, p.symbol->bind == SymbolTable::Bind::GLOB});
+      rel.put({p.location, p.symbol, p.section, p.symbol->bind == SymbolTable::Bind::GLOB, 
+        (p.symbol->bind == SymbolTable::Bind::LOC)?p.symbol->offset:0});
     }
     
     //memory.print(std::cout);
