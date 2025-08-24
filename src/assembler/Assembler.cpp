@@ -247,7 +247,8 @@ void Assembler::handleWordLiteral(uint32_t value){
   }
   std::cout << std::hex << value << std::dec; // [] [] [] [] <= value
 
-  memory.writeByte(0, 4);
+  memory.writeWord(value);
+  
   LC+=4;
 }
 

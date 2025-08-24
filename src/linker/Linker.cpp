@@ -1,9 +1,10 @@
 #include "../../inc/linker/Linker.hpp"
-std::map<std::string, SymbolTable::Entry*> Linker::defined_syms;
+std::map<std::string, uint32_t> Linker::defined_syms;
 
-std::list<Linker::FileState> Linker::files;
+std::list<FileState> Linker::files;
 std::vector<std::string> Linker::file_names;
-std::list <Linker::SectionsUnion> Linker::map;
+Sections Linker::sections;
+
 int Linker::parseArguments(int argc, char* argv[]){
   for (size_t i = 1; i < argc; i++){
     file_names.push_back(std::string(argv[i])+std::string(".bin"));
@@ -29,10 +30,9 @@ int Linker::start(int argc, char* argv[]){
 int Linker::loadData(){
   for (size_t i = 0; i < file_names.size(); i++)
   {
-    SymbolTable symtab(false);
-    RelTable rel;
-    Memory memory;
-    
+    files.push_back({});
+    FileState& file = files.back();
+
     std::ifstream inputBinary(file_names[i], std::ios::binary); // otvara fajl za pisanje
 
     if (!inputBinary.is_open()) {
@@ -44,17 +44,17 @@ int Linker::loadData(){
 
     std::cout << "From file: " << file_names[i] << std::endl;
 
-    symtab.loadFromFile(inputBinary);
-    rel.loadFromFile(inputBinary, &symtab);
-    memory.loadFromFile(inputBinary);
+    file.symtab.loadFromFile(inputBinary);
+    file.rel.loadFromFile(inputBinary, &file.symtab);
+    file.memory.loadFromFile(inputBinary);
     
     inputBinary.close(); 
     
     // store data
-    files.push_back({symtab, rel, memory});
-    symtab.print(std::cout);
-    rel.print(std::cout, &symtab);
-    memory.printCode(std::cout, &symtab);
+    
+    file.symtab.print(std::cout);
+     file.rel.print(std::cout, &file.symtab);
+    file.memory.printCode(std::cout, &file.symtab);
 
   }
   return 0;
@@ -63,81 +63,35 @@ int Linker::loadData(){
 int Linker::processing(){
   std::cout << "Start processing.\n";
   createMap();
+  findDefinedSymbols();
   linking();
   return 0;
 }
 
-void Linker::createMap(){
+void Linker::findDefinedSymbols(){
   std::vector<std::string> extern_syms;
-  for(FileState& file: files){
-    
-    Memory* memory = &file.memory;
-    RelTable* rel = &file.rel;
-    SymbolTable* symtab = &file.symtab;
-    // go through sections
-    for (size_t i = 0; i < file.symtab.section_names.size(); i++){
-        uint32_t start_address = 0; // todo
-      
-        std::string* section_name = &symtab->section_names[i];
-        SymbolTable::Entry* section = symtab->getSection(section_name);
 
-        bool found = false;
-         
-  
-        for (SectionsUnion& sec_union: map){ // find your section union
-          if(sec_union.name == symtab->getSectionName(section)){
-            // check for size todo
-            found = true;
-            sec_union.size += section->size;
-            sec_union.sections.push_back({memory, section, symtab});
-            sec_union.rels.push_back(rel);
-
-            std::cout << "To union: " << sec_union.name
-            << " added new section: "; 
-            symtab->printEntry(section_name, section, std::cout);  
-            break;
-          }
-        }
-        
-        if(!found){
-          SectionsUnion sec_union;
-          //(*section_name, start_address, section->size)
-          sec_union.name = *section_name;
-          sec_union.start_address = start_address;
-          sec_union.size = section->size;
-          sec_union.sections.push_back({memory, section, symtab});
-          sec_union.rels.push_back(rel);
-
-          map.emplace_back(sec_union);
-
-          std::cout << "Created union: " << sec_union.name
-            << " added new section: "; 
-            symtab->printEntry(section_name, section, std::cout); 
-        }
-      }
-    
-    // 
-   
-  }
-   for (SectionsUnion& sec_union: map){ 
+  for (Sections::SectionsUnion& sec_union: sections.map){ 
     uint64_t curr_sz = 0;
-    for (Section& section: sec_union.sections){
-      SymbolTable* symtab = section.symtab;
+
+    for (Sections::Section& section: sec_union.sections){
+      SymbolTable* symtab = &section.file->symtab;
+
       for (size_t i = 0; i < symtab->symbol_names.size(); i++){
         std::string* sym_name = &symtab->symbol_names[i];
         SymbolTable::Entry* symbol = &symtab->symbols[*sym_name];
-        // symbol in this section
-        if(symtab->section_names[symbol->ndx] != sec_union.name ||
-          symbol->bind == SymbolTable::Bind::LOC)
-          continue;
+        
+        if(symbol->bind == SymbolTable::Bind::LOC ||
+          symtab->section_names[symbol->ndx] != sec_union.name)continue;
+
         if(SymbolTable::isDefined(symbol->flags)){
           if(defined_syms.count(*sym_name)>0){
             std::cerr << "linker: symbol already exported." << std::endl;
             return;
           }
           std::cout << "(+)d\n";
-          symbol->offset += sec_union.start_address + curr_sz;
-          defined_syms[*sym_name] = symbol;
+          // calculate final address
+          defined_syms[*sym_name] = symbol->offset + sec_union.start_address + curr_sz;
         }else if(SymbolTable::isExtern(symbol->flags)){
           std::cout << "(+)e\n";
           
@@ -158,11 +112,29 @@ void Linker::createMap(){
     }
   }
 
+}
+
+void Linker::createMap(){
+
+  for(FileState& file: files){
+    // go through sections and make section union
+    for (size_t i = 0; i < file.symtab.section_names.size(); i++){
+      uint32_t start_address = 0x0; // todo
+      std::string* section_name = &file.symtab.section_names[i];
+      SymbolTable::Entry* section = file.symtab.getSection(section_name);
+
+      if(sections.put(&file, section_name, section, start_address)){
+        // add new section to defined symbols
+        defined_syms[*section_name] = start_address;
+      }
+    }
+   
+  }
 
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-  for(SectionsUnion& sec_union: map){
+  for(Sections::SectionsUnion& sec_union: sections.map){
     std::cout << "Union: " << sec_union.name 
-    << " start: "<< sec_union.start_address
+    << std::hex<< " start: 0x"<< sec_union.start_address << std::dec
     << " size: " << sec_union.size
     << " " << sec_union.sections.size() << " section(s) included." << std::endl; 
   }
@@ -172,32 +144,44 @@ void Linker::linking(){
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
   std::cout << "LINKING\n";
   uint32_t addr = 0;
-  for(SectionsUnion& sec_union: map){
-    int i = 0;
+  for(Sections::SectionsUnion& sec_union: sections.map){
+
     uint32_t offset = 0;
     std::cout <<"Section union: " << sec_union.name << std::endl;
-    for(Section& section: sec_union.sections){
-      RelTable* rel =  sec_union.rels[i++]; // rel table for this section in section union
+    for(Sections::Section& section: sec_union.sections){
+      RelTable* rel =  &section.file->rel; // rel table for this section in section union
       
       for(RelTable::Entry& record: rel->table){
         // case for different rel types
         if(record.section->ndx == section.section->ndx){ 
           uint32_t addr_to_fix = sec_union.start_address + offset + record.offset;
-          uint32_t addr_to_put = defined_syms[
-            section.symtab->symbol_names[record.symbol->num]
-          ]->offset;
+          uint32_t addr_to_put;
+          if(record.symbol_global){
+            addr_to_put = defined_syms[section.file->symtab.symbol_names[record.symbol->num]];
+          }else{
+            // symbol is section
+            addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]];
+          }
+
+
           std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
           << " addr relative to fix: 0x" << record.offset ;
           std::cout<< " using address: 0x" << 
           addr_to_put
           <<std::dec << std::endl;
-          section.memory->changeWord(addr_to_put, record.offset);
+
+          section.file->memory.changeWord(
+            addr_to_put, 
+            
+            record.offset + section.file->symtab.getSectionStart(section.section->ndx));
         }
 
       }
      
-      if(section.section->ndx != 0)
-        section.memory->print(std::cout, section.section->offset, section.section->size);
+      if(section.section->size != 0)
+        section.file->memory.print(std::cout,
+           section.file->symtab.getSectionStart(section.section->ndx), 
+        section.section->size);
       offset += section.section->size;
     }   
   } 
