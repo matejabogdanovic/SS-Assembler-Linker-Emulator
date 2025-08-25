@@ -11,7 +11,7 @@ int Linker::parseArguments(int argc, char* argv[]){
   }
 
   section_starts["a"] = 0x30;
-  section_starts["b"] = 0x3f;
+  //section_starts["b"] = 0x3f;
   
 
   return 0;
@@ -79,10 +79,10 @@ int Linker::processing(){
 void Linker::findDefinedSymbols(){
   std::vector<std::string> extern_syms;
 
-  for (Sections::SectionsUnion& sec_union: sections.map){ 
+  for (const Sections::SectionsUnion& sec_union: sections.map){ 
     uint64_t curr_sz = 0;
 
-    for (Sections::Section& section: sec_union.sections){
+    for (const Sections::Section& section: sec_union.sections){
       SymbolTable* symtab = &section.file->symtab;
 
       for (size_t i = 0; i < symtab->symbol_names.size(); i++){
@@ -142,7 +142,7 @@ void Linker::createMap(){
   }
 
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-  for(Sections::SectionsUnion& sec_union: sections.map){
+  for(const Sections::SectionsUnion& sec_union: sections.map){
     std::cout << "Union: " << sec_union.name 
     << std::hex<< " start: 0x"<< sec_union.start_address << std::dec
     << " size: " << sec_union.size
@@ -154,11 +154,11 @@ void Linker::linking(){
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
   std::cout << "LINKING\n";
   uint32_t addr = 0;
-  for(Sections::SectionsUnion& sec_union: sections.map){
+  for(const Sections::SectionsUnion& sec_union: sections.map){
 
     uint32_t offset = 0;
     std::cout <<"Section union: " << sec_union.name << std::endl;
-    for(Sections::Section& section: sec_union.sections){
+    for(const Sections::Section& section: sec_union.sections){
       RelTable* rel =  &section.file->rel; // rel table for this section in section union
       
       for(RelTable::Entry& record: rel->table){

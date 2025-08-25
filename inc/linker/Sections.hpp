@@ -1,5 +1,5 @@
 #include "./FileState.hpp"
-#include <list>
+#include <set>
 
 class Sections{
 public:
@@ -15,8 +15,12 @@ public:
     uint64_t size = 0;
     std::vector <Section> sections; // aggregate    
   };
-
-  std::list <SectionsUnion> map;
+  struct SortedByStartAddress {
+    bool operator()(const SectionsUnion& a, const SectionsUnion& b) const {
+        return a.start_address < b.start_address;
+    }
+  };
+  std::set <SectionsUnion, SortedByStartAddress> map;
 
   // returns true if new section union is made
   bool put(FileState* file,std::string* section_name, SymbolTable::Entry* section,  uint32_t* start_address=nullptr);
