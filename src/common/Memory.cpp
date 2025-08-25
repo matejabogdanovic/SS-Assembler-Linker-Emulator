@@ -130,18 +130,18 @@ void Memory::printBinary(std::ostream& os, uint32_t location, uint32_t n){
 
 }
 
-void Memory::print(std::ostream& os, uint32_t location, uint32_t n){
+void Memory::print(std::ostream& os, uint32_t location, uint32_t n, uint32_t base_address){
   if(n==0){
     n = memory.size();
   }
-    if(location % 8 != 0){
+    if((location+base_address) % 8 != 0){
       os << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
-      location<< ":";
+      location+base_address<< ":";
     }
   for(uint32_t i = location; i < location + n; i++){
 
-     if(i%8==0)os << (i>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
-      i << ":";
+     if((i+base_address)%8==0)os << ((i+base_address)>0 ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
+      i+base_address << ":";
    os << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
    static_cast<int>(memory[i]);
   

@@ -23,7 +23,7 @@ public:
   void changeWordVector(std::vector<uint32_t>* vector, uint32_t location, uint32_t n=0);
   
   void printCode(std::ostream& os, SymbolTable* symtab);
-  void print(std::ostream& os, uint32_t location=0, uint32_t n=0);
+  void print(std::ostream& os, uint32_t location=0, uint32_t n=0, uint32_t base_address=0);
   void printBinary(std::ostream& os, uint32_t location=0, uint32_t n=0);
   void loadFromFile(std::istream& is);
 private:

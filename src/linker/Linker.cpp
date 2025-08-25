@@ -1,6 +1,6 @@
 #include "../../inc/linker/Linker.hpp"
 std::map<std::string, uint32_t> Linker::defined_syms;
-
+std::unordered_map<std::string, uint32_t> Linker::section_starts;
 std::list<FileState> Linker::files;
 std::vector<std::string> Linker::file_names;
 Sections Linker::sections;
@@ -9,6 +9,11 @@ int Linker::parseArguments(int argc, char* argv[]){
   for (size_t i = 1; i < argc; i++){
     file_names.push_back(std::string(argv[i])+std::string(".bin"));
   }
+
+  section_starts["a"] = 0x30;
+  section_starts["b"] = 0x3f;
+  
+
   return 0;
 }
 
@@ -22,6 +27,9 @@ int Linker::start(int argc, char* argv[]){
 
   if(loadData() < 0)return -2;
   if(processing() < 0)return -3;
+
+
+  
 
   return 0;
 
@@ -119,11 +127,13 @@ void Linker::createMap(){
   for(FileState& file: files){
     // go through sections and make section union
     for (size_t i = 0; i < file.symtab.section_names.size(); i++){
-      uint32_t start_address = 0x0; // todo
       std::string* section_name = &file.symtab.section_names[i];
+      bool section_fixed = section_starts.count(*section_name)>0;
+      uint32_t start_address = 
+      (section_fixed?section_starts[*section_name]:0); 
       SymbolTable::Entry* section = file.symtab.getSection(section_name);
 
-      if(sections.put(&file, section_name, section, start_address)){
+      if(sections.put(&file, section_name, section, section_fixed?&start_address:nullptr)){
         // add new section to defined symbols
         defined_syms[*section_name] = start_address;
       }
@@ -190,7 +200,8 @@ void Linker::linking(){
       if(section.section->size != 0)
         section.file->memory.print(std::cout,
            section.file->symtab.getSectionStart(section.section->ndx), 
-        section.section->size);
+        section.section->size, 
+        offset+sec_union.start_address-section.file->symtab.getSectionStart(section.section->ndx));
       offset += section.section->size;
     }   
   } 

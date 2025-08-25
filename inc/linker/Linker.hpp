@@ -4,7 +4,7 @@
 #include <iostream>
 #include <list>
 #include <map>
-
+#include <unordered_map>
 class Linker{  
 public:
 
@@ -12,6 +12,7 @@ public:
   static Sections sections;
 
   static std::map<std::string, uint32_t> defined_syms; // name, offset
+  static std::unordered_map<std::string, uint32_t> section_starts; // name, start address
   static std::list<FileState> files;
   static std::vector<std::string> file_names;
   static int start(int argc, char* argv[]);
