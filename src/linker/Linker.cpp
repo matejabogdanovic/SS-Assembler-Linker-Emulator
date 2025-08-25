@@ -10,7 +10,8 @@ int Linker::parseArguments(int argc, char* argv[]){
     file_names.push_back(std::string(argv[i])+std::string(".bin"));
   }
 
-  section_starts["a"] = 0x30;
+  section_starts["my_code"] = 0x40000000;
+  section_starts["math"] = 0xF0000000 ;
   //section_starts["b"] = 0x3f;
   
 
@@ -70,7 +71,7 @@ int Linker::loadData(){
 
 int Linker::processing(){
   std::cout << "Start processing.\n";
-  createMap();
+  createSectionOrder();
   findDefinedSymbols();
   linking();
   return 0;
@@ -81,6 +82,8 @@ void Linker::findDefinedSymbols(){
 
   for (const Sections::SectionsUnion& sec_union: sections.map){ 
     uint64_t curr_sz = 0;
+    // add section union to defined symbols
+    defined_syms[sec_union.name] = sec_union.start_address;
 
     for (const Sections::Section& section: sec_union.sections){
       SymbolTable* symtab = &section.file->symtab;
@@ -122,7 +125,7 @@ void Linker::findDefinedSymbols(){
 
 }
 
-void Linker::createMap(){
+void Linker::createSectionOrder(){
 
   for(FileState& file: files){
     // go through sections and make section union
@@ -133,16 +136,15 @@ void Linker::createMap(){
       (section_fixed?section_starts[*section_name]:0); 
       SymbolTable::Entry* section = file.symtab.getSection(section_name);
 
-      if(sections.put(&file, section_name, section, section_fixed?&start_address:nullptr)){
-        // add new section to defined symbols
-        defined_syms[*section_name] = start_address;
-      }
+      sections.put(&file, section_name, section, section_fixed?&start_address:nullptr);
+        
     }
    
   }
 
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
   for(const Sections::SectionsUnion& sec_union: sections.map){
+
     std::cout << "Union: " << sec_union.name 
     << std::hex<< " start: 0x"<< sec_union.start_address << std::dec
     << " size: " << sec_union.size
@@ -160,48 +162,43 @@ void Linker::linking(){
     std::cout <<"Section union: " << sec_union.name << std::endl;
     for(const Sections::Section& section: sec_union.sections){
       RelTable* rel =  &section.file->rel; // rel table for this section in section union
+      uint32_t section_start_in_file = section.file->symtab.getSectionStart(section.section->ndx);
       
       for(RelTable::Entry& record: rel->table){
         // case for different rel types
-        if(record.section->ndx == section.section->ndx){ 
-          uint32_t addr_to_fix = sec_union.start_address + offset + record.offset;
-          uint32_t addr_to_put;
-          switch (record.type)
-          {
-          case RelTable::T_GLOB:
-             addr_to_put = defined_syms[section.file->symtab.symbol_names[record.symbol->num]];
-          break;
-          case RelTable::T_LOC:
-           addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]]
-            + record.addend;
-          break;
-          default:
-            std::cerr << "Invalid relocation type." << std::endl;
-            return;  
+        if(record.section->ndx != section.section->ndx)continue;
 
-          }
-   
-
-
-          std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
-          << " addr relative to fix: 0x" << record.offset ;
-          std::cout<< " using address: 0x" << 
-          addr_to_put
-          <<std::dec << std::endl;
-
-          section.file->memory.changeWord(
-            addr_to_put, 
-            
-            record.offset + section.file->symtab.getSectionStart(section.section->ndx));
+        uint32_t addr_to_fix = sec_union.start_address + offset + record.offset;
+        uint32_t addr_to_put;
+        switch (record.type)
+        {
+        case RelTable::T_GLOB:
+           addr_to_put = defined_syms[section.file->symtab.symbol_names[record.symbol->num]];
+        break;
+        case RelTable::T_LOC:
+         addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]]
+          + record.addend;
+        break;
+        default:
+          std::cerr << "Invalid relocation type." << std::endl;
+          return;  
         }
+  
+        std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
+        << " addr relative to fix: 0x" << record.offset ;
+        std::cout<< " using address: 0x" << 
+        addr_to_put
+        <<std::dec << std::endl;  
+        section.file->memory.changeWord(
+          addr_to_put, 
+          record.offset + section_start_in_file);
 
       }
      
       if(section.section->size != 0)
-        section.file->memory.print(std::cout,
-           section.file->symtab.getSectionStart(section.section->ndx), 
-        section.section->size, 
-        offset+sec_union.start_address-section.file->symtab.getSectionStart(section.section->ndx));
+        section.file->memory.print(std::cout, section_start_in_file, section.section->size, 
+        offset+sec_union.start_address-section_start_in_file);
+
       offset += section.section->size;
     }   
   } 

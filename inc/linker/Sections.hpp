@@ -32,4 +32,5 @@ public:
 
 private:
 void reorderSections();
+uint32_t getFreeAddress(uint32_t section_sz);
 };

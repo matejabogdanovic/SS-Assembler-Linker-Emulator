@@ -21,7 +21,7 @@ private:
   static int processing();
   static int loadData();
 
-  static void createMap();
+  static void createSectionOrder();
   static void findDefinedSymbols();
 
   static void linking();

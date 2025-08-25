@@ -744,8 +744,9 @@ void Assembler::literalBackpatch(){
          s->ndx == symtab.current_section){ // defined in this section
         // check if symbol is reachable todo fix
         
-        if(std::abs((long)(s->offset - (p.instr_location+4))) > 0xfff){
-          std::cout << "Symbol too far." << std::endl;
+        if(std::abs((int)s->offset - ((int)p.instr_location+4)) > 0xfff){
+          std::cout << "Symbol too far." << s->num << std::endl;
+          literalPool.put(s->offset, p.instr_location); // CHECK DISPLACEMENT FOR
           continue;
         }
         // write displacement in instruction
