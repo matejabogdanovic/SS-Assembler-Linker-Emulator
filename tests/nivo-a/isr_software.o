@@ -1,0 +1,13 @@
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 40       1       d         isr     
+ 0       NOTYP    GLOB     0x00000000 0        UND      e        value1  
+ 1       NOTYP    GLOB     0x00000000 0        1       d         isr_software
+| Offset | Type | Symbol | Section | Addend |
+ 00000024 T_GLOB value1   isr       0 
+=================Section isr===================
+0000: 81 E0 1F FC 81 E0 2F FC
+0008: 92 1F 00 14 92 2F 00 14
+0010: 82 20 10 00 93 2E 00 04
+0018: 93 1E 00 04 93 FE 00 04
+0020: CD AB 00 00 D0 FF FF FF

@@ -1,0 +1,29 @@
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 100      1       d         my_handler
+ 0       NOTYP    GLOB     0x00000000 0        UND      e        isr_timer
+ 1       NOTYP    GLOB     0x00000000 0        UND      e        isr_terminal
+ 2       NOTYP    GLOB     0x00000000 0        UND      e        isr_software
+ 3       NOTYP    GLOB     0x00000000 0        1       d         handler 
+ 4       NOTYP    LOC      0x00000034 0        1       d         handle_timer
+ 5       NOTYP    LOC      0x0000003c 0        1       d         handle_terminal
+ 6       NOTYP    LOC      0x00000044 0        1       d         handle_software
+ 7       NOTYP    LOC      0x00000024 0        1       d         finish  
+| Offset | Type | Symbol | Section | Addend |
+ 00000058 T_GLOB isr_timer my_handler 0 
+ 0000005C T_GLOB isr_terminal my_handler 0 
+ 00000060 T_GLOB isr_software my_handler 0 
+=================Section my_handler===================
+0000: 81 E0 1F FC 81 E0 2F FC
+0008: 90 13 00 00 92 2F 00 3C
+0010: 31 F1 20 20 92 2F 00 38
+0018: 31 F1 20 20 92 2F 00 34
+0020: 31 F1 20 20 93 2E 00 04
+0028: 93 1E 00 04 93 FE 00 04
+0030: 97 1E 00 04 21 F0 00 20
+0038: 30 F0 0F E8 21 F0 00 1C
+0040: 30 F0 0F E0 21 F0 00 18
+0048: 30 F0 0F D8 02 00 00 00
+0050: 03 00 00 00 04 00 00 00
+0058: F0 FF FF FF F0 FF FF FF
+0060: F0 FF FF FF
