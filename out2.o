@@ -2,6 +2,6 @@
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 4        1       d         a       
  0       NOTYP    GLOB     0x00000004 0        1       d         sym     
-| Offset | Type | Symbol | symbol_global | Section | Addend |
+| Offset | Type | Symbol | Section | Addend |
 =================Section a===================
 0000: 69 00 00 00

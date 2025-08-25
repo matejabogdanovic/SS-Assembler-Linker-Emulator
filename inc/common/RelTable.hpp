@@ -4,27 +4,25 @@
 class RelTable{
 public:
   typedef enum RelType {
-    Type1=0x0
+    T_GLOB=0x0,
+    T_LOC=0x1
   }RelType;
 
   typedef struct Entry{
     uint32_t offset;
     RelType type;
     SymbolTable::Entry* symbol;
-    bool symbol_global;
     SymbolTable::Entry* section;
     uint32_t addend;
 
     Entry(uint32_t offset,
     SymbolTable::Entry* symbol,
     SymbolTable::Entry* section,
-    bool symbol_global = true,
-    uint32_t addend = 0,
-    RelType type = Type1
+    RelType type = T_GLOB,
+    uint32_t addend = 0
    ):
     offset(offset), symbol(symbol), section(section), 
-    symbol_global(symbol_global),
-     addend(addend), type(type)
+     type(type), addend(addend)
     {
 
     }

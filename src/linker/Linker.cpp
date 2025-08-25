@@ -156,13 +156,21 @@ void Linker::linking(){
         if(record.section->ndx == section.section->ndx){ 
           uint32_t addr_to_fix = sec_union.start_address + offset + record.offset;
           uint32_t addr_to_put;
-          if(record.symbol_global){
-            addr_to_put = defined_syms[section.file->symtab.symbol_names[record.symbol->num]];
-          }else{
-            // symbol is section
-            addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]]
+          switch (record.type)
+          {
+          case RelTable::T_GLOB:
+             addr_to_put = defined_syms[section.file->symtab.symbol_names[record.symbol->num]];
+          break;
+          case RelTable::T_LOC:
+           addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]]
             + record.addend;
+          break;
+          default:
+            std::cerr << "Invalid relocation type." << std::endl;
+            return;  
+
           }
+   
 
 
           std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
