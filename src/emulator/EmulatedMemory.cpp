@@ -1,7 +1,13 @@
 #include "../../inc/emulator/EmulatedMemory.hpp"
 
 EmulatedMemory::MemoryRegion* EmulatedMemory::findRegion(uint32_t address){
-
+  for(MemoryRegion& region: regions){
+    //0[]1[]2[]
+    // 2
+    if(region.saddr <= address && (region.saddr + region.size) > address ){
+      return &region;
+    }
+  }
   return nullptr;
 }
 

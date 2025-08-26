@@ -1,12 +1,6 @@
-.extern sym
-.section b
-.skip 1
-simbol:
-call sym
+.section my_code
+not %r1
+add %r1, %r1
 
-.section a
-.skip 2
-call simbol
-
-
+halt
 .end

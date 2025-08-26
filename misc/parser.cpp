@@ -1670,7 +1670,7 @@ yyreduce:
   case 44:
 #line 181 "misc/parser.y"
              {LOG(std::cout << "not %r" << (yyvsp[0].reg) << std::endl;); 
-        Assembler::handleGprInstructions(Instruction::OPCode::NOT, (yyvsp[0].reg), -1);
+        Assembler::handleGprInstructions(Instruction::OPCode::NOT, (yyvsp[0].reg), (yyvsp[0].reg));
     }
 #line 1676 "misc/parser.cpp"
     break;

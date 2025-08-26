@@ -179,7 +179,7 @@ gpr_instructions:
         Assembler::handleGprInstructions(Instruction::OPCode::DIV, $2, $4);
     }|
     NOT GPRX {LOG(std::cout << "not %r" << $2 << std::endl;); 
-        Assembler::handleGprInstructions(Instruction::OPCode::NOT, $2, -1);
+        Assembler::handleGprInstructions(Instruction::OPCode::NOT, $2, $2);
     }| 
     AND GPRX COMMA GPRX { LOG(std::cout << "and %r" << $2 << ", %r" << $4 << std::endl;); 
         Assembler::handleGprInstructions(Instruction::OPCode::AND, $2, $4);
