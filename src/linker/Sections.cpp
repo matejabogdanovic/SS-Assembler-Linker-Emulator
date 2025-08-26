@@ -144,16 +144,3 @@ void Sections::printBinary(std::ostream& os){
   }
 }
 
-void Sections::loadFromFile(std::istream& is){
-  uint32_t start_address;
-  uint32_t size;
- 
-  while(is.read(reinterpret_cast<char*>(&start_address), sizeof(start_address))){
-    std::cout << "REAL " << std::hex << start_address << std::dec << ": \n";
-    Memory mem;
-    mem.loadFromFile(is);
-    mem.print(std::cout, 0, 0, start_address);
-  }
-
-  
-}

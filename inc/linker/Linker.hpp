@@ -25,5 +25,5 @@ private:
   static void findDefinedSymbols();
 
   static void linking();
-
+  static std::string output;
 };

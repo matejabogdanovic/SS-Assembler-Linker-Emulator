@@ -6,7 +6,7 @@
  2       NOTYP    GLOB     0x00000030 0        1       d         mathMul 
  3       NOTYP    GLOB     0x00000048 0        1       d         mathDiv 
 | Offset | Type | Symbol | Section | Addend |
-=================Section math===================
+=================Section math=================
 0000: 81 E0 2F FC 92 1E 00 08
 0008: 92 2E 00 0C 50 11 20 00
 0010: 93 2E 00 04 93 FE 00 04

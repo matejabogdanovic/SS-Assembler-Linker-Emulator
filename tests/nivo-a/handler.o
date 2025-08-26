@@ -13,7 +13,7 @@
  00000058 T_GLOB isr_timer my_handler 0 
  0000005C T_GLOB isr_terminal my_handler 0 
  00000060 T_GLOB isr_software my_handler 0 
-=================Section my_handler===================
+=================Section my_handler=================
 0000: 81 E0 1F FC 81 E0 2F FC
 0008: 90 13 00 00 92 2F 00 3C
 0010: 31 F1 20 20 92 2F 00 38

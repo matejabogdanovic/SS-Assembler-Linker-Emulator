@@ -3,17 +3,49 @@ std::map<std::string, uint32_t> Linker::defined_syms;
 std::unordered_map<std::string, uint32_t> Linker::section_starts;
 std::list<FileState> Linker::files;
 std::vector<std::string> Linker::file_names;
+std::string Linker::output = "out.hex";
 Sections Linker::sections;
 
+
+#include <regex>
 int Linker::parseArguments(int argc, char* argv[]){
+  std::regex place_regex(R"(^-place=([\.a-zA-Z0-9_]+)@0x([0-9A-Fa-f]+)$)");
+  bool hex_defined = false;
+  bool options_end = false;
   for (size_t i = 1; i < argc; i++){
-    file_names.push_back(std::string(argv[i])+std::string(".bin"));
+    std::string command = argv[i];
+    std::smatch match;
+
+
+    if(!options_end && command == "-o"){
+      if(argc < i+1){
+        std::cerr << "No output file." << std::endl;
+        return -1;
+      }
+      output = std::string(argv[++i]);
+      std::cout << " output " << output << std::endl;
+    }else if(!options_end && command == "-hex"){
+      if(hex_defined){
+        std::cerr << "Option -hex already given.\n";
+        return -2;
+      }
+      hex_defined = true;
+
+    }else if(!options_end && std::regex_match(command, match ,place_regex)){
+      section_starts[match[1]] = std::stoul(match[2], nullptr, 16);
+    }else {
+      options_end = true;
+      file_names.push_back(std::string(argv[i])+std::string(".bin"));
+    }
+
+    
+
   }
-  // section_starts["my_handler"] = 0x1;
-  section_starts["my_code"] = 0x40000000;
-  section_starts["math"] = 0xF0000000 ;
-  //section_starts["b"] = 0x3f;
-  
+  if(!hex_defined){
+    std::cerr << "Option -hex not defined." << std::endl;
+    exit(0);
+  }
+
 
   return 0;
 }
@@ -77,7 +109,7 @@ int Linker::processing(){
 
   sections.printHex(std::cout);
 
-  std::ofstream outputFile(std::string("linker_out.hex"));
+  std::ofstream outputFile(output);
 
   if (!outputFile.is_open()) {
     std::cerr << "assembler: error: can't open output file\n";
@@ -88,7 +120,7 @@ int Linker::processing(){
 
   outputFile.close(); 
 
-  std::ofstream outputFileBinary(std::string("linker_out")+std::string(".bin"), std::ios::binary);
+  std::ofstream outputFileBinary(output+".bin", std::ios::binary);
 
   if (!outputFileBinary.is_open()) {
     std::cerr << "assembler: error: can't open output file\n";
@@ -98,18 +130,6 @@ int Linker::processing(){
   sections.printBinary(outputFileBinary);
 
   outputFileBinary.close(); 
-
-  std::cout << "READING FROM FILE";
-  std::ifstream inputFileBinary(std::string("linker_out")+std::string(".bin"), std::ios::binary);
-
-  if (!inputFileBinary.is_open()) {
-    std::cerr << "assembler: error: can't open output file\n";
-    return -1;
-  }
-
-  Sections::loadFromFile(inputFileBinary);
-
-  inputFileBinary.close(); 
 
 
 
