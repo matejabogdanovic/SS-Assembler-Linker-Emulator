@@ -25,4 +25,5 @@ private:
   static void findDefinedSymbols();
 
   static void linking();
+
 };

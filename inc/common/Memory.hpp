@@ -24,8 +24,11 @@ public:
   
   void printCode(std::ostream& os, SymbolTable* symtab);
   void print(std::ostream& os, uint32_t location=0, uint32_t n=0, uint32_t base_address=0);
-  void printBinary(std::ostream& os, uint32_t location=0, uint32_t n=0);
+  void printBinary(std::ostream& os, uint32_t location=0, uint32_t n=0, bool write_size=true);
   void loadFromFile(std::istream& is);
+
+
+   std::vector<uint8_t>*  getMemoryVector() ;
 private:
   std::vector<uint8_t> memory;
 

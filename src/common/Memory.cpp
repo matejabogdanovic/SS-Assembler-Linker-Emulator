@@ -94,7 +94,7 @@ void Memory::printCode(std::ostream& os, SymbolTable* symtab){
   for (size_t i = 1; i < symtab->section_names.size(); i++){
     SymbolTable::Entry* section = symtab->getSection(&symtab->section_names[i]);
     
-    os << "=================Section " << symtab->section_names[i] << "===================\n";
+    os << "=================Section " << symtab->section_names[i] << "=================\n";
     if(section->size>0)print(os, start, section->size);
     
     start += section->size;
@@ -117,12 +117,12 @@ void Memory::loadFromFile(std::istream& is){
 
 }
 
-void Memory::printBinary(std::ostream& os, uint32_t location, uint32_t n){
+void Memory::printBinary(std::ostream& os, uint32_t location, uint32_t n, bool write_size){
   if(n==0){
     n = memory.size();
   }
 
-  os.write(reinterpret_cast<const char*>(&n), sizeof(n));
+  if(write_size)os.write(reinterpret_cast<const char*>(&n), sizeof(n));
   for(uint32_t i = location; i < location + n; i++){
 
      os.write(reinterpret_cast<const char*>(&memory[i]), sizeof(memory[i]));
@@ -131,21 +131,30 @@ void Memory::printBinary(std::ostream& os, uint32_t location, uint32_t n){
 }
 
 void Memory::print(std::ostream& os, uint32_t location, uint32_t n, uint32_t base_address){
+ 
   if(n==0){
     n = memory.size();
   }
-    if( (location+base_address) % 8 != 0){
+
+  if( (location+base_address) % 8 != 0){
       os << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
       location+base_address<< ":";
-    }
+  }
   for(uint32_t i = location; i < location + n; i++){
 
-     if((i+base_address)%8==0)os << ((i>0 && i != location) ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
+     if((i+base_address)%8==0)
+      os << ((i != location) ? "\n":"") << std::right << std::uppercase << std::setw(4) << std::setfill('0') << std::hex <<  
       i+base_address << ":";
+
+
    os << " " <<  std::right << std::uppercase << std::setw(2) << std::setfill('0') << std::hex <<  
    static_cast<int>(memory[i]);
   
     
   }
-  os << std::dec << std::endl;
+   os << std::dec << std::endl;
+}
+
+ std::vector<uint8_t>*  Memory::getMemoryVector() {
+  return &memory;
 }

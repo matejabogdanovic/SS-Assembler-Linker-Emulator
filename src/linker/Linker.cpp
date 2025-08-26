@@ -9,7 +9,7 @@ int Linker::parseArguments(int argc, char* argv[]){
   for (size_t i = 1; i < argc; i++){
     file_names.push_back(std::string(argv[i])+std::string(".bin"));
   }
-
+  // section_starts["my_handler"] = 0x1;
   section_starts["my_code"] = 0x40000000;
   section_starts["math"] = 0xF0000000 ;
   //section_starts["b"] = 0x3f;
@@ -74,6 +74,45 @@ int Linker::processing(){
   createSectionOrder();
   findDefinedSymbols();
   linking();
+
+  sections.printHex(std::cout);
+
+  std::ofstream outputFile(std::string("linker_out.hex"));
+
+  if (!outputFile.is_open()) {
+    std::cerr << "assembler: error: can't open output file\n";
+    return -1;
+  }
+
+  sections.printHex(outputFile);
+
+  outputFile.close(); 
+
+  std::ofstream outputFileBinary(std::string("linker_out")+std::string(".bin"), std::ios::binary);
+
+  if (!outputFileBinary.is_open()) {
+    std::cerr << "assembler: error: can't open output file\n";
+    return -1;
+  }
+
+  sections.printBinary(outputFileBinary);
+
+  outputFileBinary.close(); 
+
+  std::cout << "READING FROM FILE";
+  std::ifstream inputFileBinary(std::string("linker_out")+std::string(".bin"), std::ios::binary);
+
+  if (!inputFileBinary.is_open()) {
+    std::cerr << "assembler: error: can't open output file\n";
+    return -1;
+  }
+
+  Sections::loadFromFile(inputFileBinary);
+
+  inputFileBinary.close(); 
+
+
+
   return 0;
 }
 
@@ -161,6 +200,7 @@ void Linker::linking(){
     uint32_t offset = 0;
     std::cout <<"Section union: " << sec_union.name << std::endl;
     for(const Sections::Section& section: sec_union.sections){
+
       RelTable* rel =  &section.file->rel; // rel table for this section in section union
       uint32_t section_start_in_file = section.file->symtab.getSectionStart(section.section->ndx);
       
@@ -194,10 +234,10 @@ void Linker::linking(){
           record.offset + section_start_in_file);
 
       }
-     
-      if(section.section->size != 0)
-        section.file->memory.print(std::cout, section_start_in_file, section.section->size, 
-        offset+sec_union.start_address-section_start_in_file);
+      if(sec_union.name != "")
+        section.file->memory.print(std::cout, section_start_in_file, section.section->size,
+      offset+sec_union.start_address-section_start_in_file);
+
 
       offset += section.section->size;
     }   
@@ -206,3 +246,5 @@ void Linker::linking(){
 
   
 }
+
+

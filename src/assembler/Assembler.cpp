@@ -71,11 +71,11 @@ int Assembler::processing(){
   outputFile.close(); 
   // binary
   
-  std::ofstream outputFileBinary(std::string(output)+std::string(".bin"), std::ios::binary); // otvara fajl za pisanje
+  std::ofstream outputFileBinary(std::string(output)+std::string(".bin"), std::ios::binary); 
 
   if (!outputFileBinary.is_open()) {
-        std::cerr << "assembler: error: can't open output file\n";
-        return -1;
+    std::cerr << "assembler: error: can't open output file\n";
+    return -1;
   }
 
   symtab.printBinary(outputFileBinary);

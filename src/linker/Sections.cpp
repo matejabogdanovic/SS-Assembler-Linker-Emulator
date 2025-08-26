@@ -30,13 +30,13 @@ bool Sections::put(FileState* file,std::string* section_name, SymbolTable::Entry
     sec_union.order = globalOrder++;
     if(!start_address)
       free_address = getFreeAddress(section->size);
+    sec_union.start_address = (start_address?*start_address:free_address);
+    sec_union.name = *section_name;
     
+    sec_union.fixed = start_address != nullptr; 
   }
 
 
-  sec_union.name = *section_name;
-  sec_union.start_address = (start_address?*start_address:free_address);
-  sec_union.fixed = start_address != nullptr; 
   sec_union.size += section->size;
   sec_union.sections.push_back({file, section});
   map.insert(sec_union);
@@ -69,7 +69,7 @@ uint32_t  Sections::getFreeAddress(uint32_t section_sz){
   
 
   
-  curr--;
+  curr = std::prev(curr);
   if(0xffffffff-(curr->start_address+curr->size)  >= section_sz)
       return curr->start_address+curr->size;
   else  
@@ -99,4 +99,61 @@ void Sections::reorderSections(){
     map.insert(updated);
     
   }
+}
+
+
+void Sections::printHex(std::ostream& os){
+  for(const Sections::SectionsUnion& sec_union: map){
+    uint32_t offset = 0;
+    os <<"=================Section " << sec_union.name <<" ("<<sec_union.sections.size()<<")=================\n";
+    if(sec_union.size == 0)continue;
+    // Memory section_union_memory;
+    // auto section_union_memory_vector = section_union_memory.getMemoryVector();
+    for(const Sections::Section& section: sec_union.sections){
+      uint32_t section_start_in_file = section.file->symtab.getSectionStart(section.section->ndx);
+      // auto memory = section.file->memory.getMemoryVector();
+       
+      //section_union_memory_vector.reserve(memory.size()); 
+      // section_union_memory_vector->insert(section_union_memory_vector->end(), 
+      // memory->begin()+section_start_in_file, 
+      // memory->begin()+section_start_in_file+section.section->size);
+ 
+
+      section.file->memory.print(os, section_start_in_file, section.section->size,
+      offset+sec_union.start_address-section_start_in_file);
+      
+      offset+=section.section->size;
+    }
+    // section_union_memory.print(std::cout, 0, 0, sec_union.start_address);
+    // section_union_memory_vector->empty();
+  }
+}
+
+
+void Sections::printBinary(std::ostream& os){
+  for(const Sections::SectionsUnion& sec_union: map){
+    if(sec_union.size == 0)continue;
+    os.write(reinterpret_cast<const char*>(&sec_union.start_address), sizeof(sec_union.start_address));
+    os.write(reinterpret_cast<const char*>(&sec_union.size), sizeof(sec_union.size));
+    for(const Sections::Section& section: sec_union.sections){
+      uint32_t section_start_in_file = section.file->symtab.getSectionStart(section.section->ndx);
+      section.file->memory.printBinary(os, 
+        section_start_in_file, 
+        section.section->size, false);
+    }
+  }
+}
+
+void Sections::loadFromFile(std::istream& is){
+  uint32_t start_address;
+  uint32_t size;
+ 
+  while(is.read(reinterpret_cast<char*>(&start_address), sizeof(start_address))){
+    std::cout << "REAL " << std::hex << start_address << std::dec << ": \n";
+    Memory mem;
+    mem.loadFromFile(is);
+    mem.print(std::cout, 0, 0, start_address);
+  }
+
+  
 }
