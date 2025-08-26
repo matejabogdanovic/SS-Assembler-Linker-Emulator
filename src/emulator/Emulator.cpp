@@ -15,7 +15,7 @@ int Emulator::start(int argc, char* argv[]){
 }
 
 int Emulator::processing(){
-  std::cout << "EMULATOR\n";
+  LOG(std::cout << "EMULATOR\n";)
   std::ifstream inputFileBinary(std::string(input)+".bin", std::ios::binary);
 
   if (!inputFileBinary.is_open()) {

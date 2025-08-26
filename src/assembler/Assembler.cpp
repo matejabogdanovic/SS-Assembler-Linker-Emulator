@@ -35,7 +35,7 @@ int Assembler::processing(){
   }
   // if file doesn't end with \n then append \n 
   if(((char)fgetc(inputFile))!='\n'){
-    std::cout << "asembler: warning: input file doesn't end with \\n. Inserting new line.\n";
+LOG(std::cout << "asembler: warning: input file doesn't end with \\n. Inserting new line.\n";)
     fseek(inputFile, 0, SEEK_END);
     fputc('\n', inputFile);
   }
@@ -52,9 +52,9 @@ int Assembler::processing(){
     
   }
 
-  symtab.print(std::cout);
-  rel.print(std::cout, &symtab);
-  memory.printCode(std::cout, &symtab);
+LOG(symtab.print(std::cout);)
+LOG(rel.print(std::cout, &symtab);)
+LOG(memory.printCode(std::cout, &symtab);)
 
   std::ofstream outputFile(output); // otvara fajl za pisanje
 
@@ -116,12 +116,12 @@ int Assembler::start(int argc, char* argv[]){
     return -1;
   };
   
-  std::cout << "Input file: " 
+  LOG(std::cout << "Input file: " 
             << (input ? input : "no input file.") 
-            << std::endl;
-  std::cout << "Output file: " 
+            << std::endl;)
+  LOG(std::cout << "Output file: " 
             << (output != nullptr ? output : "a.out") 
-            << std::endl;
+            << std::endl;)
 
   if(processing() < 0)return -1;
 
@@ -245,7 +245,7 @@ void Assembler::handleWordLiteral(uint32_t value){
     std::cerr << "Undefined section." << std::endl;
     return;
   }
-  std::cout << std::hex << value << std::dec; // [] [] [] [] <= value
+  LOG(std::cout << std::hex << value << std::dec;) // [] [] [] [] <= value
 
   memory.writeWord(value);
   
@@ -301,7 +301,7 @@ void Assembler::handleZeroArgsInstructions(Instruction::OPCode op){
     break;
 
   default:
-    std::cout << "Invalid handleZeroArgsInstructions call." << std::endl;
+LOG(std::cout << "Invalid handleZeroArgsInstructions call." << std::endl;)
     return;
   }
   LC += 4;
@@ -324,7 +324,7 @@ void Assembler::handleJustLiteralInstructions(Instruction::OPCode op, uint32_t v
 
 
   default:
-    std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;
+LOG(std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;)
     return;
   }
 
@@ -361,7 +361,7 @@ void Assembler::handleJustSymbolInstructions(Instruction::OPCode op, std::string
 
 
   default:
-    std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;
+LOG(std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;)
     return;
   }
 
@@ -400,7 +400,7 @@ void Assembler::handleGprInstructions(Instruction::OPCode op, uint8_t gprS, uint
 
  
   default:
-    std::cout << "Invalid handleGprInstructions call." << std::endl;
+LOG(std::cout << "Invalid handleGprInstructions call." << std::endl;)
     return;
   }
   LC += 4;
@@ -424,7 +424,7 @@ void Assembler::handleStackInstructions(Instruction::OPCode op, uint8_t reg){
     break;
 
   default:
-    std::cout << "Invalid handleStackInstructions call." << std::endl;
+LOG(std::cout << "Invalid handleStackInstructions call." << std::endl;)
     return;
   }
   LC += 4;
@@ -450,7 +450,7 @@ void Assembler::handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t 
 
 
   default:
-    std::cout << "Invalid handleBranchLiteralInstructions call." << std::endl;
+LOG(std::cout << "Invalid handleBranchLiteralInstructions call." << std::endl;)
     return;
   }
 
@@ -495,7 +495,7 @@ void Assembler::handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t g
     break;
 
   default:
-    std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;
+LOG(std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;)
     return;
   }
 
@@ -541,7 +541,7 @@ void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint
     break;
 
   default:
-    std::cout << "Invalid handleLoadLiteral call." << std::endl;
+LOG(std::cout << "Invalid handleLoadLiteral call." << std::endl;)
     return;
   }
 
@@ -568,7 +568,7 @@ void Assembler::handleLoadRegisters(Instruction::OPCode op,  uint8_t gprD, uint8
     break;
 
   default:
-    std::cout << "Invalid handleLoadRegisters call." << std::endl;
+LOG(std::cout << "Invalid handleLoadRegisters call." << std::endl;)
     return;
   }
 
@@ -620,7 +620,7 @@ if(!symtab.sectionOpened()){
 
     // break;
   default:
-    std::cout << "Invalid handleLoadSymbol call." << std::endl;
+LOG(std::cout << "Invalid handleLoadSymbol call." << std::endl;)
     return;
   }
 
@@ -656,7 +656,7 @@ void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8
   
 
   default:
-    std::cout << "Invalid handleStoreLiteral call." << std::endl;
+LOG(std::cout << "Invalid handleStoreLiteral call." << std::endl;)
     return;
   }
 
@@ -682,7 +682,7 @@ void Assembler::handleStoreRegisters(Instruction::OPCode op, uint8_t gprData, ui
     break;
 
   default:
-    std::cout << "Invalid handleStoreRegisters call." << std::endl;
+LOG(std::cout << "Invalid handleStoreRegisters call." << std::endl;)
     return;
   }
 
@@ -711,7 +711,7 @@ void Assembler::handleStoreSymbol(Instruction::OPCode op,  std::string* name, ui
     break;
 
   default:
-    std::cout << "Invalid handleStoreRegisters call." << std::endl;
+LOG(std::cout << "Invalid handleStoreRegisters call." << std::endl;)
     return;
   }
 
@@ -745,19 +745,19 @@ void Assembler::literalBackpatch(){
         // check if symbol is reachable todo fix
         
         if(std::abs((int)s->offset - ((int)p.instr_location+4)) > 0xfff){
-          std::cout << "Symbol too far." << s->num << std::endl;
+LOG(std::cout << "Symbol too far." << s->num << std::endl;)
           literalPool.put(s->offset, p.instr_location); // CHECK DISPLACEMENT FOR
           continue;
         }
         // write displacement in instruction
-        std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;
+LOG(std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;)
         memory.changeInstruction(p.alternative, p.instr_location); // reg dir disp 
         symbol_defined_in_this_section = true;  
         displacement = s->offset - (p.instr_location+4); // offset to symbol in section
        
         
       }else {
-        std::cout << "Needs relocation." << std::endl;
+LOG(std::cout << "Needs relocation." << std::endl;)
         // temporary
         //rel.put({0, s, symtab.getCurrentSection(), false});
         backpatch.push_back({LC, s, symtab.getCurrentSection()});
@@ -810,15 +810,15 @@ void Assembler::symbolBackpatch(){
     Backpatch p = backpatch.front();
     backpatch.pop_front();
 
-    std::cout << 
+    LOG(std::cout << 
     "====================================\n Backpatching symbol "  <<
      symtab.getSymbolName(p.symbol) << 
     " in section " << p.section->ndx <<
      " location 0x" << std::hex << p.location << std::dec << 
-    std::endl;
+    std::endl;)
 
     if(SymbolTable::isExtern(p.symbol->flags)){
-      std::cout << "Extern symbol -> reallocation (section, location) " << std::endl;
+LOG(std::cout << "Extern symbol -> reallocation (section, location) " << std::endl;)
       rel.put({p.location, p.symbol, p.section});
       continue;
     }
@@ -827,9 +827,9 @@ void Assembler::symbolBackpatch(){
       return;
     }
 
-    std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;
+LOG(std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;)
     if(p.symbol->ndx != p.section->ndx){
-      std::cout << ">>> Symbol in different section, needs relocation." << std::endl;
+LOG(std::cout << ">>> Symbol in different section, needs relocation." << std::endl;)
       rel.put({p.location, p.symbol, p.section, 
         p.symbol->bind == SymbolTable::Bind::GLOB ? RelTable::T_GLOB : RelTable::T_LOC, 
         (p.symbol->bind == SymbolTable::Bind::LOC)?p.symbol->offset:0});
@@ -841,8 +841,8 @@ void Assembler::symbolBackpatch(){
     // write
     uint32_t loc_to_patch = p.location + symtab.getSectionStart(p.section->ndx);
 
-    std::cout << std::hex << "(abs) 0x" << loc_to_patch << 
-    " (rel) 0x" << p.location << std::dec << std::endl;
+    LOG(std::cout << std::hex << "(abs) 0x" << loc_to_patch << 
+    " (rel) 0x" << p.location << std::dec << std::endl;)
 
     uint32_t value = p.symbol->offset; 
     memory.changeWord(value, loc_to_patch);

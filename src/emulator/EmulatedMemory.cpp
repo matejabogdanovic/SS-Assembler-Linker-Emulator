@@ -39,11 +39,11 @@ void EmulatedMemory::loadFromFile(std::istream& is){
       curr_region->memory.writeByte(byte);
     }
 
-    curr_region->memory.print(std::cout, curr_region->size, sz, curr_region->saddr);
+LOG(curr_region->memory.print(std::cout, curr_region->size, sz, curr_region->saddr);)
     curr_region->size += sz;
     prev_region = curr_region;
     
   }
   
-  std::cout << "Region count: " << regions.size() << std::endl;
+LOG(std::cout << "Region count: " << regions.size() << std::endl;)
 }

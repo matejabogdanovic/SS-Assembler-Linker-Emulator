@@ -23,7 +23,7 @@ int Linker::parseArguments(int argc, char* argv[]){
         return -1;
       }
       output = std::string(argv[++i]);
-      std::cout << " output " << output << std::endl;
+LOG(std::cout << " output " << output << std::endl;)
     }else if(!options_end && command == "-hex"){
       if(hex_defined){
         std::cerr << "Option -hex already given.\n";
@@ -81,9 +81,9 @@ int Linker::loadData(){
       return -1;
     }
     // read data
-    std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+LOG(std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";)
 
-    std::cout << "From file: " << file_names[i] << std::endl;
+LOG(std::cout << "From file: " << file_names[i] << std::endl;)
 
     file.symtab.loadFromFile(inputBinary);
     file.rel.loadFromFile(inputBinary, &file.symtab);
@@ -93,21 +93,21 @@ int Linker::loadData(){
     
     // store data
     
-    file.symtab.print(std::cout);
-     file.rel.print(std::cout, &file.symtab);
-    file.memory.printCode(std::cout, &file.symtab);
+LOG(file.symtab.print(std::cout);)
+LOG(file.rel.print(std::cout, &file.symtab);)
+LOG(file.memory.printCode(std::cout, &file.symtab);)
 
   }
   return 0;
 }
 
 int Linker::processing(){
-  std::cout << "Start processing.\n";
+LOG(std::cout << "Start processing.\n";)
   createSectionOrder();
   findDefinedSymbols();
   linking();
 
-  sections.printHex(std::cout);
+LOG(sections.printHex(std::cout);)
 
   std::ofstream outputFile(output);
 
@@ -159,11 +159,11 @@ void Linker::findDefinedSymbols(){
             std::cerr << "linker: symbol already exported." << std::endl;
             return;
           }
-          std::cout << "(+)d\n";
+LOG(std::cout << "(+)d\n";)
           // calculate final address
           defined_syms[*sym_name] = symbol->offset + sec_union.start_address + curr_sz;
         }else if(SymbolTable::isExtern(symbol->flags)){
-          std::cout << "(+)e\n";
+LOG(std::cout << "(+)e\n";)
           
           extern_syms.push_back(*sym_name);
         } // if absolute todo
@@ -201,7 +201,7 @@ void Linker::createSectionOrder(){
    
   }
 
-  std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+LOG(std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
   for(const Sections::SectionsUnion& sec_union: sections.map){
 
     std::cout << "Union: " << sec_union.name 
@@ -209,16 +209,17 @@ void Linker::createSectionOrder(){
     << " size: " << sec_union.size
     << " " << sec_union.sections.size() << " section(s) included." << std::endl; 
   }
+)
 }
 
 void Linker::linking(){
-  std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-  std::cout << "LINKING\n";
+LOG(std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";)
+LOG(std::cout << "LINKING\n";)
   uint32_t addr = 0;
   for(const Sections::SectionsUnion& sec_union: sections.map){
 
     uint32_t offset = 0;
-    std::cout <<"Section union: " << sec_union.name << std::endl;
+LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
     for(const Sections::Section& section: sec_union.sections){
 
       RelTable* rel =  &section.file->rel; // rel table for this section in section union
@@ -244,19 +245,19 @@ void Linker::linking(){
           return;  
         }
   
-        std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
-        << " addr relative to fix: 0x" << record.offset ;
-        std::cout<< " using address: 0x" << 
+        LOG(std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
+        << " addr relative to fix: 0x" << record.offset ;)
+        LOG(std::cout<< " using address: 0x" << 
         addr_to_put
         <<std::dec << std::endl;  
         section.file->memory.changeWord(
           addr_to_put, 
-          record.offset + section_start_in_file);
+          record.offset + section_start_in_file);)
 
       }
-      if(sec_union.name != "")
+      LOG(if(sec_union.name != "")
         section.file->memory.print(std::cout, section_start_in_file, section.section->size,
-      offset+sec_union.start_address-section_start_in_file);
+      offset+sec_union.start_address-section_start_in_file);)
 
 
       offset += section.section->size;

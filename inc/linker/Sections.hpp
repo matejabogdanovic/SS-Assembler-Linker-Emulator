@@ -1,4 +1,5 @@
 #include "./FileState.hpp"
+#include "../common/Macros.hpp"
 #include <set>
 
 class Sections{

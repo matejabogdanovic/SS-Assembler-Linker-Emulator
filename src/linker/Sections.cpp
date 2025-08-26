@@ -18,9 +18,9 @@ bool Sections::put(FileState* file,std::string* section_name, SymbolTable::Entry
         sec_union = *iter;
         map.erase(iter);
 
-        std::cout << "To union: " << sec_union.name
-        << " adding new section: "; 
-        symtab->printEntry(section_name, section, std::cout);  
+        LOG(std::cout << "To union: " << sec_union.name
+        << " adding new section: "; )
+LOG(symtab->printEntry(section_name, section, std::cout);)
         break;
     }
     
@@ -43,9 +43,9 @@ bool Sections::put(FileState* file,std::string* section_name, SymbolTable::Entry
 
   if(!found){
     //defined_syms[*section_name] = start_address;
-    std::cout << "Created union: " << sec_union.name
-      << " added new section: "; 
-      symtab->printEntry(section_name, section, std::cout); 
+   LOG( std::cout << "Created union: " << sec_union.name
+      << " added new section: "; )
+LOG(symtab->printEntry(section_name, section, std::cout);)
   }
     
 
