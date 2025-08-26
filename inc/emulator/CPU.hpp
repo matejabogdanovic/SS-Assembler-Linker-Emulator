@@ -23,15 +23,15 @@ public:
     return regfile[gpr];
   }
   static inline GPR A(uint8_t xx){
-    return (GPR)(xx & GPRA);
+    return (GPR)((xx >> 4)&0x0f);
   }
 
   static inline  GPR B(uint8_t xx){
-    return (GPR)(xx & GPRB);
+    return (GPR)(xx & 0x0f);
   }
 
   static inline  GPR C(uint8_t xx){
-    return (GPR)(xx & GPRC);
+    return A(xx);
   }
 
   inline void nextPC(){
@@ -43,19 +43,12 @@ public:
   }
 
 
-  static void i_not(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo);
-  static void i_add(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo);
-  static void i_halt(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo);
 
   void print();
 
 
-  typedef  void(*InstructionPointer)(CPU&, uint8_t, uint8_t, uint8_t);
-  static std::map<uint8_t, InstructionPointer> instructions;
 private:
-  static const uint8_t GPRA = 0x0f; 
-  static const uint8_t GPRB = 0xf0;
-  static const uint8_t GPRC = 0x0f; 
+
  
 
   uint32_t regfile[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x40000000};

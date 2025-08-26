@@ -36,6 +36,30 @@ int Emulator::processing(){
 }
 
 
+std::map<uint8_t,Emulator::InstructionPointer> 
+    Emulator::instructions = {
+      {Instruction::OPCode::NOT, &Emulator::i_not},
+      {Instruction::OPCode::HALT, &Emulator::i_halt},
+      {Instruction::OPCode::ADD, &Emulator::i_add},};
+
+// todo set psw
+void Emulator::i_not(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
+  CPU::GPR regA = CPU::A(ab), regB = CPU::B(ab);
+  std::cout << "not";
+  cpu.writeGpr(regA, ~cpu.readGpr(regB));
+}
+
+void Emulator::i_halt(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
+  std::cout << "halt";
+}
+
+void Emulator::i_add(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
+  CPU::GPR regA = CPU::A(ab), regB = CPU::B(ab), regC = CPU::C(co);
+  std::cout << "add";
+  cpu.writeGpr(regA, cpu.readGpr(regB) + cpu.readGpr(regC));
+}
+
+
 int Emulator::emulation(){
     
   uint8_t op = 1;
@@ -48,12 +72,12 @@ int Emulator::emulation(){
     co = memory.readByte(cpu.getPC()+2);
     oo = memory.readByte(cpu.getPC()+3);
     cpu.nextPC();
-    if(cpu.instructions.count(op) == 0){
+    if(instructions.count(op) == 0){
       std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
       exit(-1);
     }
 
-    CPU::instructions[op](cpu, ab, co, oo);
+    instructions[op](cpu, ab, co, oo);
     switch (op){
       case Instruction::HALT:
         std::cout << "HALT"<<std::endl;
