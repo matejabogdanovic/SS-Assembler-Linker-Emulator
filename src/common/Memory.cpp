@@ -114,7 +114,7 @@ void Memory::loadFromFile(std::istream& is){
     is.read(reinterpret_cast<char*>(& byte), sizeof(byte));
     writeByte(byte);
   }
-
+  
 }
 
 void Memory::printBinary(std::ostream& os, uint32_t location, uint32_t n, bool write_size){

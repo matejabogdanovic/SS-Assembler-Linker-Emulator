@@ -6,7 +6,9 @@
 #include "./SymbolTable.hpp"
 class Memory{
 public:
-
+  inline size_t size()const{
+    return memory.size();
+  }  
 
   void writeInstruction(Instruction instruction);
   void changeInstruction(Instruction instruction, uint32_t location);
