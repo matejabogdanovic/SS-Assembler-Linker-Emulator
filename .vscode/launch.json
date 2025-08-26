@@ -1,0 +1,61 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    
+    {
+      "name": "B&D assembler",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/asembler",
+      "args": [ "-o", "out.o", "input.s"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "C/C++: g++ build assembler (make)",
+      "miDebuggerPath": "/usr/bin/gdb"
+    },
+    {
+      "name": "B&D linker",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/linker",
+      "args": [ "handler.o", "math.o", "main.o" ,"isr_terminal.o", "isr_timer.o" ,"isr_software.o"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/tests/nivo-a/",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "C/C++: g++ build linker (make)",
+      "miDebuggerPath": "/usr/bin/gdb"
+    }
+  ]
+}

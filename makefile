@@ -41,7 +41,7 @@ emulator: $(COMMON_FILES) $(EMULATOR_FILES)
 	g++ -std=c++11 -fdiagnostics-color=always -g -o ${@} ${^}
 	
 clean:
-	rm -f asembler linker $(PARSER_CPP) $(LEXER_CPP) $(PARSER_HPP) $(LEXER_HPP)
+	rm -f asembler linker emulator $(PARSER_CPP) $(LEXER_CPP) $(PARSER_HPP) $(LEXER_HPP)
 
 
 

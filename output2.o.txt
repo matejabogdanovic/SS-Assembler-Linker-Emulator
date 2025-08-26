@@ -1,7 +1,0 @@
-|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
- 0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 4        1       d         a       
- 0       NOTYP    LOC      0x00000004 0        1       d         e       
-| Offset | Type | Symbol | symbol_global | Section | Addend |
-=================Section a===================
-0000: 20 F0 00 00
