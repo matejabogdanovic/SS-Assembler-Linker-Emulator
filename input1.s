@@ -1,3 +1,4 @@
+.extern data
 .section my_code
     # inicijalno: svi registri = 0
     
@@ -9,9 +10,8 @@
     pop %r1
     pop %r1
     st %sp, data
-    halt
-.section my_data
-.skip 8
-data:
-.skip 4
+    csrwr %sp, %status
+    csrrd %status, %r5
+    
+
 .end
