@@ -2,15 +2,16 @@
     # inicijalno: svi registri = 0
     
     ld $0x1, %r1
+    ld $data, %sp
+    push %r1
     ld $0x2, %r2
-    ld $0x3, %r3
-    csrwr %r1, %status
-    csrrd %status, %r10 
-    csrwr %r2, %handler
-    csrrd %handler, %r11
-    csrwr %r3, %cause
-    csrrd %cause, %r12 
-   
+    push %r2
+    pop %r1
+    pop %r1
+    st %sp, data
     halt
-
+.section my_data
+.skip 8
+data:
+.skip 4
 .end

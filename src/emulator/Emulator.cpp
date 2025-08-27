@@ -120,13 +120,19 @@ void Emulator::handleGprInstructions(uint8_t ocm,  CPU::GPR gprA, CPU::GPR gprB,
 void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp){
   switch (ocm){
     case Instruction::OPCode::ST_MEM_DIR:
-      
+      LOG(std::cout << "ST_MEM_DIR";)
+      memory.changeWord(cpu.readGpr(gprC), cpu.readGpr(gprA) + cpu.readGpr(gprB) + disp);
     break;
 
     case Instruction::OPCode::ST_MEM_IND:
+      LOG(std::cout << "ST_MEM_IND";)
+      memory.changeWord(cpu.readGpr(gprC) ,memory.readWord(cpu.readGpr(gprA) + cpu.readGpr(gprB) + disp));
     break;
-
     case Instruction::OPCode::PUSH:
+      LOG(std::cout << "PUSH";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprA)+disp);
+      memory.changeWord(cpu.readGpr(gprC), cpu.readGpr(gprA));
+
     break;
 
     case Instruction::OPCode::CSRRD:
@@ -145,6 +151,10 @@ void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gpr
     break;
 
     case Instruction::OPCode::POP:
+      LOG(std::cout << "POP";)
+      cpu.writeGpr(gprA, memory.readWord(cpu.readGpr(gprB)));
+      cpu.writeGpr(gprB, cpu.readGpr(gprB) + disp);
+
     break;
 
     case Instruction::OPCode::CSRWR:
@@ -153,6 +163,9 @@ void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gpr
     break;
 
     case Instruction::OPCode::POP_CSR:
+      LOG(std::cout << "POP_CSR";)
+      cpu.writeCsr(cpu.csr_A(ab), memory.readWord(cpu.readGpr(gprB)));
+      cpu.writeGpr(gprB, cpu.readGpr(gprB) + disp);
 
     break;
 
@@ -177,7 +190,7 @@ int Emulator::emulation(){
     cd = memory.readByte(cpu.getPC()+2);
     dd = memory.readByte(cpu.getPC()+3);
     cpu.nextPC();
-
+    cpu.print();
     CPU::GPR gprA = CPU::A(ab), gprB = CPU::B(ab), gprC = CPU::C(cd);
     int32_t disp = CPU::disp(cd, dd);
     std::cout << "disp: " << std::dec << disp;

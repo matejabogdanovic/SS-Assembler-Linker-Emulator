@@ -33,6 +33,14 @@ public:
     }
     return region->memory.readWord(address-region->saddr);
   }
+  inline void changeWord(uint32_t data , uint32_t address ){
+    auto region = findRegion(address);
+    if(!region){
+      std::cerr << "Segmentation fault :)"<< std::endl;
+      exit(-1);
+    }
+    region->memory.changeWord(data, address-region->saddr);
+  }
 private:
   MemoryRegion* findRegion(uint32_t address);
   std::list<MemoryRegion> regions;

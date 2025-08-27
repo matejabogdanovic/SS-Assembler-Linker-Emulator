@@ -830,8 +830,10 @@ LOG(std::cout << "Extern symbol -> reallocation (section, location) " << std::en
 LOG(std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;)
     if(p.symbol->ndx != p.section->ndx){
 LOG(std::cout << ">>> Symbol in different section, needs relocation." << std::endl;)
-      rel.put({p.location, p.symbol, p.section, 
-        p.symbol->bind == SymbolTable::Bind::GLOB ? RelTable::T_GLOB : RelTable::T_LOC, 
+      rel.put({p.location, 
+         (p.symbol->bind == SymbolTable::Bind::LOC)?symtab.getSection(&symtab.section_names[p.symbol->ndx]):p.symbol,
+         p.section, 
+        (p.symbol->bind == SymbolTable::Bind::GLOB) ? RelTable::T_GLOB : RelTable::T_LOC, 
         (p.symbol->bind == SymbolTable::Bind::LOC)?p.symbol->offset:0});
     }
     
