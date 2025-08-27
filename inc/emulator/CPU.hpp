@@ -2,6 +2,8 @@
 #include "../common/Instruction.hpp"
 #include <cstdint>
 #include <map>
+#include <iomanip>
+#include <iostream>
 
 class CPU {
 
@@ -14,6 +16,11 @@ public:
     SP = R14,
     PC = R15
   };
+  enum CSR : uint8_t{
+    STATUS = 0, 
+    HANDLER = 1,
+    CAUSE = 2
+  };
   
   inline void writeGpr(GPR gpr, uint32_t value){
     if(gpr!=R0)
@@ -22,18 +29,45 @@ public:
   inline uint32_t readGpr(GPR gpr){
     return regfile[gpr];
   }
+
+  inline void writeCsr(CSR csr, uint32_t value){
+    csrfile[csr] = value;
+  }
+  inline uint32_t readCsr(CSR csr){
+    return csrfile[csr];
+  }//0 0 0 f
+  static inline int32_t disp(uint8_t cd, uint8_t dd){
+    int32_t sd__ = ((int16_t)(((int16_t)(cd & 0x0f))<<12)>>4) ;
+    int32_t __dd = 0x0000 | dd; 
+    return (int32_t)(sd__ | __dd);
+  }
+  
   static inline GPR A(uint8_t xx){
     return (GPR)((xx >> 4)&0x0f);
   }
-
-  static inline  GPR B(uint8_t xx){
+  static inline GPR B(uint8_t xx){
     return (GPR)(xx & 0x0f);
   }
-
-  static inline  GPR C(uint8_t xx){
+  static inline GPR C(uint8_t xx){
     return A(xx);
   }
-
+  static inline CSR csr_A(uint8_t xx){
+    uint8_t a = ((xx >> 4)&0x0f) - 1;
+    if(a < 0 || a > 2){
+      std::cerr << "Invalid CSR register." << std::endl;
+      exit(-1);
+    }
+    return (CSR)a;
+  }
+  static inline CSR csr_B(uint8_t xx){
+    uint8_t b = (xx & 0x0f) - 1;
+    if(b < 0 || b > 2){
+      std::cerr << "Invalid CSR register." << std::endl;
+      exit(-1);
+    }
+    return (CSR)b;
+  }
+  
   inline void nextPC(){
     regfile[PC] += WORD_SZ;
   }
@@ -49,8 +83,8 @@ public:
 
 private:
 
- 
 
+  uint32_t csrfile [3] = {0, 0, 0};
   uint32_t regfile[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x40000000};
 };
 

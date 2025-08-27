@@ -1,6 +1,4 @@
 #include "../../inc/emulator/CPU.hpp"
-#include <iomanip>
-#include <iostream>
 
 
 void CPU::print(){

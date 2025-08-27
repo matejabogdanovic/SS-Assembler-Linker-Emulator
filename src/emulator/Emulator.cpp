@@ -36,54 +36,140 @@ int Emulator::processing(){
 }
 
 
-std::map<uint8_t,Emulator::InstructionPointer> 
-    Emulator::instructions = {
-      {Instruction::OPCode::NOT, &Emulator::i_not},
-      {Instruction::OPCode::HALT, &Emulator::i_halt},
-      {Instruction::OPCode::ADD, &Emulator::i_add},};
 
 // todo set psw
-void Emulator::i_not(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
-  CPU::GPR regA = CPU::A(ab), regB = CPU::B(ab);
-  std::cout << "not";
-  cpu.writeGpr(regA, ~cpu.readGpr(regB));
+// void Emulator::i_not(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
+//   CPU::GPR regA = CPU::A(ab), regB = CPU::B(ab);
+//   std::cout << "not";
+//   cpu.writeGpr(regA, ~cpu.readGpr(regB));
+// }
+
+// void Emulator::i_halt(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
+
+// }
+
+// void Emulator::i_add(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
+//   CPU::GPR regA = CPU::A(ab), regB = CPU::B(ab), regC = CPU::C(co);
+//   std::cout << "add";
+//   cpu.writeGpr(regA, cpu.readGpr(regB) + cpu.readGpr(regC));
+// }
+
+void Emulator::handleGprInstructions(uint8_t ocm,  CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC){
+  uint32_t temp = 0;
+  switch (ocm)
+  {
+    case Instruction::OPCode::XCHG: // has 2 destinations
+      LOG(std::cout << "XCHG";)
+      temp  = cpu.readGpr(gprB);
+      cpu.writeGpr(gprB, cpu.readGpr(gprC));
+      cpu.writeGpr(gprC, temp);
+      break;
+    case Instruction::OPCode::ADD:
+      LOG(std::cout << "ADD";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) + cpu.readGpr(gprC));
+      break;
+    case Instruction::OPCode::SUB:
+      LOG(std::cout << "SUB";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) - cpu.readGpr(gprC));
+      break;
+    case Instruction::OPCode::MUL:
+      LOG(std::cout << "MUL";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) * cpu.readGpr(gprC));
+      break;
+    case Instruction::OPCode::DIV:
+      LOG(std::cout << "DIV";)
+      temp  =  cpu.readGpr(gprC);
+      cpu.writeGpr(gprA, temp == 0?UINT32_MAX:cpu.readGpr(gprB) / temp);
+      break;
+    case Instruction::OPCode::NOT:
+      LOG(std::cout << "NOT";)
+      cpu.writeGpr(gprA, ~cpu.readGpr(gprB));
+      break;
+    case Instruction::OPCode::AND:
+      LOG(std::cout << "AND";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) / cpu.readGpr(gprC));
+      break;
+    case Instruction::OPCode::OR:
+      LOG(std::cout << "OR";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) | cpu.readGpr(gprC));
+      break;
+    case Instruction::OPCode::XOR:
+      LOG(std::cout << "XOR";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) ^ cpu.readGpr(gprC));
+      break;
+    case Instruction::OPCode::SHL:
+      LOG(std::cout << "SHL";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) << cpu.readGpr(gprC));
+      break;
+    case Instruction::OPCode::SHR:
+      LOG(std::cout << "SHR";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) >> cpu.readGpr(gprC));
+      break;
+    break;
+    case Instruction::OPCode::CSRRD:
+      LOG(std::cout << "CSRRD";)
+
+      break;
+    case Instruction::OPCode::CSRWR:
+      LOG(std::cout << "CSRWR";)
+    break;
+
+
+ 
+  default:
+    std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
+    exit(-1);
+  }
+
+  LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " \n";)
+
 }
 
-void Emulator::i_halt(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
-  std::cout << "halt";
-}
-
-void Emulator::i_add(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
-  CPU::GPR regA = CPU::A(ab), regB = CPU::B(ab), regC = CPU::C(co);
-  std::cout << "add";
-  cpu.writeGpr(regA, cpu.readGpr(regB) + cpu.readGpr(regC));
-}
 
 
 int Emulator::emulation(){
     
-  uint8_t op = 1;
+  uint8_t ocm = 1; // oc + mod
+  uint8_t oc; // just oc
   uint8_t ab = 2;
-  uint8_t co = 3;
-  uint8_t oo = 4;
-  while(op!=Instruction::HALT){
-    op = memory.readByte(cpu.getPC());
+  uint8_t cd = 3;
+  uint8_t dd = 4;
+  while(ocm!=Instruction::HALT){
+    ocm = memory.readByte(cpu.getPC());
+    oc = (ocm>>4)&0x0f;
     ab = memory.readByte(cpu.getPC()+1);
-    co = memory.readByte(cpu.getPC()+2);
-    oo = memory.readByte(cpu.getPC()+3);
+    cd = memory.readByte(cpu.getPC()+2);
+    dd = memory.readByte(cpu.getPC()+3);
     cpu.nextPC();
-    if(instructions.count(op) == 0){
-      std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
-      exit(-1);
-    }
 
-    instructions[op](cpu, ab, co, oo);
-    switch (op){
-      case Instruction::HALT:
-        std::cout << "HALT"<<std::endl;
-        break;
+    CPU::GPR gprA = CPU::A(ab), gprB = CPU::B(ab), gprC = CPU::C(cd);
+    int32_t disp = CPU::disp(cd, dd);
+    std::cout << "disp: " << std::dec << disp;
+    switch (oc){
+      case Instruction::OC::HALT_T:
+          LOG(std::cout << "halt " << gprA << " " << gprB << " " << gprC << " \n" ;)
+      break;
+      case Instruction::OC::INT_T:
+          LOG(std::cout << "int\n" << gprA << " " << gprB << " " << gprC << " \n" ;)
+      break;
+      case Instruction::OC::CALL_T: 
+      case Instruction::OC::JUMPS_T: 
+        LOG(std::cout << "jmps\n" << gprA << " " << gprB << " " << gprC << " \n" ;)
+      break;
+      // without csr, csr is in load/store
+      case Instruction::OC::XCHG_T:
+      case Instruction::OC::ARIT_T:
+      case Instruction::OC::LOG_T:
+      case Instruction::OC::SH_T:
+        handleGprInstructions(ocm, gprA, gprB, gprC);
+      break;
+      case Instruction::OC::ST_T:
+      case Instruction::OC::LD_T:
+        LOG(std::cout << "memory\n" << gprA << " " << gprB << " " << gprC << " \n" ;)
       default:
-        break;
+        std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
+        exit(-1);
+      break;
     }
   }
   cpu.print();

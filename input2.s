@@ -1,6 +1,4 @@
 .section my_code
-not %r2
-add %r1, %r2
-
+    div %r0, %r13
 halt
 .end

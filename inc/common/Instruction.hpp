@@ -13,7 +13,20 @@ typedef struct Instruction{ // 4B = 32b
   // status = 1;
   // handler = 2;
   // cause = 3;
+  enum OC : uint8_t {
+    HALT_T = 0x0,
+    INT_T = 0x1,
+    CALL_T = 0x2,
+    JUMPS_T = 0x3,
 
+    XCHG_T = 0x4,
+    ARIT_T = 0x5,
+    LOG_T = 0x6,
+    SH_T = 0x7,
+
+    ST_T = 0x8,
+    LD_T = 0x9
+  };
   enum OPCode : uint8_t{
     HALT = 0x00,
     INT = 0x10,
