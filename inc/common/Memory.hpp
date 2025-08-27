@@ -18,6 +18,7 @@ public:
   void writeByte(uint8_t data, uint32_t n = 1);
   void changeByte(uint8_t data, uint32_t location);
   
+  uint32_t readWord(uint32_t location);
   void writeWord(uint32_t data, uint32_t n = 1);
   void changeWord(uint32_t data, uint32_t location);
   

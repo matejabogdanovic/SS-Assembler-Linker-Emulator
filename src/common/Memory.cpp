@@ -47,6 +47,18 @@ void Memory::changeByte(uint8_t data, uint32_t location){
   memory[location] = (uint8_t)data;
 }
 
+uint32_t Memory::readWord(uint32_t location){
+  uint32_t data = 0;
+  uint8_t byte;
+  for (size_t i = 0; i < 4; i++)
+  {
+    byte = readByte(location+i);
+    data = data | ((uint32_t)byte << (8 * i)); 
+  }
+  
+  return data;
+
+}
 
 void Memory::writeWord(uint32_t data, uint32_t n){
   for(int i = 0; i < n; i++){

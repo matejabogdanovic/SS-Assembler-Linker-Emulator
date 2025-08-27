@@ -54,6 +54,7 @@ int Emulator::processing(){
 //   cpu.writeGpr(regA, cpu.readGpr(regB) + cpu.readGpr(regC));
 // }
 
+
 void Emulator::handleGprInstructions(uint8_t ocm,  CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC){
   uint32_t temp = 0;
   switch (ocm)
@@ -105,17 +106,8 @@ void Emulator::handleGprInstructions(uint8_t ocm,  CPU::GPR gprA, CPU::GPR gprB,
       LOG(std::cout << "SHR";)
       cpu.writeGpr(gprA, cpu.readGpr(gprB) >> cpu.readGpr(gprC));
       break;
-    break;
-    case Instruction::OPCode::CSRRD:
-      LOG(std::cout << "CSRRD";)
+  
 
-      break;
-    case Instruction::OPCode::CSRWR:
-      LOG(std::cout << "CSRWR";)
-    break;
-
-
- 
   default:
     std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
     exit(-1);
@@ -125,8 +117,52 @@ void Emulator::handleGprInstructions(uint8_t ocm,  CPU::GPR gprA, CPU::GPR gprB,
 
 }
 
+void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp){
+  switch (ocm){
+    case Instruction::OPCode::ST_MEM_DIR:
+      
+    break;
 
+    case Instruction::OPCode::ST_MEM_IND:
+    break;
 
+    case Instruction::OPCode::PUSH:
+    break;
+
+    case Instruction::OPCode::CSRRD:
+      LOG(std::cout << "CSRRD";)
+      cpu.writeGpr(gprA, cpu.readCsr(CPU::csr_B(ab)));
+    break;
+
+    case Instruction::OPCode::LD_TO_GPR_REG_DIR_DISP:
+      LOG(std::cout << "LD_TO_GPR_REG_DIR_DISP";)
+      cpu.writeGpr(gprA, cpu.readGpr(gprB) + cpu.readGpr(gprC) + disp);
+    break;
+
+    case Instruction::OPCode::LD_TO_GPR_REG_IND_DISP:
+      LOG(std::cout << "LD_TO_GPR_REG_IND_DISP";)
+      cpu.writeGpr(gprA, memory.readWord(cpu.readGpr(gprB) + cpu.readGpr(gprC) + disp));
+    break;
+
+    case Instruction::OPCode::POP:
+    break;
+
+    case Instruction::OPCode::CSRWR:
+      LOG(std::cout << "CSRWR";)
+      cpu.writeCsr(CPU::csr_A(ab), cpu.readGpr(gprB));
+    break;
+
+    case Instruction::OPCode::POP_CSR:
+
+    break;
+
+  default:
+    std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
+    exit(-1);
+  }
+
+  LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " "<< disp << " \n";)
+}
 int Emulator::emulation(){
     
   uint8_t ocm = 1; // oc + mod
@@ -166,6 +202,8 @@ int Emulator::emulation(){
       case Instruction::OC::ST_T:
       case Instruction::OC::LD_T:
         LOG(std::cout << "memory\n" << gprA << " " << gprB << " " << gprC << " \n" ;)
+        handleLoadStoreInstructions(ocm, ab, gprA, gprB, gprC, disp);
+      break;
       default:
         std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
         exit(-1);
