@@ -1,7 +1,7 @@
 #include "../../inc/emulator/CPU.hpp"
 
 
-void CPU::print(){
+void CPU::printGpr(){
   std::cout << "-----------------------------------------------------------------\n"<<
     "Emulated processor executed halt instruction\n"<<
     "Emulated processor state:\n";
@@ -13,4 +13,18 @@ void CPU::print(){
       regfile[i] << std::dec;
   }
   std::cout << std::endl;
+}
+void CPU::printCsr(){
+
+
+  std::cout << " " << "STATUS" << "=0x" <<
+      std::right << std::uppercase << std::setw(8) << std::setfill('0') << std::hex <<
+      csrfile[STATUS] << std::dec;
+  std::cout << " " << "HANDLER"<< "=0x" <<
+      std::right << std::uppercase << std::setw(8) << std::setfill('0') << std::hex <<
+      csrfile[HANDLER] << std::dec;
+    std::cout << " " << "CAUSE" << "=0x" <<
+      std::right << std::uppercase << std::setw(8) << std::setfill('0') << std::hex <<
+      csrfile[CAUSE] << std::dec;
+      std::cout << std::endl;
 }

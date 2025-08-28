@@ -78,8 +78,8 @@ public:
 
 
 
-  void print();
-
+  void printGpr();
+  void printCsr();
 
 private:
 
