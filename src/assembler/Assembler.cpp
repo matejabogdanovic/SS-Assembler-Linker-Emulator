@@ -800,10 +800,16 @@ LOG(std::cout << "Needs relocation." << std::endl;)
   if(can_use_relative_jump){
     memory.changeInstruction({Instruction::OPCode::JMP_REG_DIR_DISP, PC, 0, 0, (uint16_t)(LC-literal_pool_start)}, literal_pool_start-4);
   }else{
-     memory.changeInstruction({Instruction::OPCode::JMP_REG_IND_DISP, PC, 0, 0, 0}, literal_pool_start-8);
-     memory.changeWord(LC, literal_pool_start-4);
+    memory.changeInstruction({Instruction::OPCode::JMP_REG_IND_DISP, PC, 0, 0, 0}, literal_pool_start-8);
+    memory.changeWord(LC, literal_pool_start-4);
+    rel.put({literal_pool_start-4, 
+      symtab.getCurrentSection(),
+      symtab.getCurrentSection(),
+      RelTable::T_LOC,
+      LC
+    });    
   }
-  
+
 }
 
 void Assembler::closeSection(){

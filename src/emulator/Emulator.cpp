@@ -177,6 +177,58 @@ void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gpr
   LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " "<< disp << " \n";)
 }
 
+
+void Emulator::handleJumpInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp){
+
+switch (ocm){
+    case Instruction::OPCode::JMP_REG_DIR_DISP:
+      LOG(std::cout << "JMP_REG_DIR_DISP";)
+      cpu.writeGpr(CPU::GPR::PC, cpu.readGpr(gprA)+disp);
+    break;
+
+    case Instruction::OPCode::BEQ_REG_DIR_DISP:
+      LOG(std::cout << "BEQ_REG_DIR_DISP";)
+      if(cpu.readGpr(gprB) == cpu.readGpr(gprC))cpu.writeGpr(CPU::GPR::PC, cpu.readGpr(gprA)+disp);
+    break;
+    case Instruction::OPCode::BNE_REG_DIR_DISP:
+      LOG(std::cout << "BNE_REG_DIR_DISP";)
+      if(cpu.readGpr(gprB) != cpu.readGpr(gprC))cpu.writeGpr(CPU::GPR::PC, cpu.readGpr(gprA)+disp);
+    break;
+
+    case Instruction::OPCode::BGT_REG_DIR_DISP:
+      LOG(std::cout << "BGT_REG_DIR_DISP";)
+      if((int32_t)(cpu.readGpr(gprB)) > (int32_t)(cpu.readGpr(gprC)))
+        cpu.writeGpr(CPU::GPR::PC, cpu.readGpr(gprA)+disp);
+    break;
+
+    case Instruction::OPCode::JMP_REG_IND_DISP:
+      LOG(std::cout << "JMP_REG_IND_DISP";)
+      cpu.writeGpr(CPU::GPR::PC, memory.readWord(cpu.readGpr(gprA)+disp));
+    break;
+
+    case Instruction::OPCode::BEQ_REG_IND_DISP:
+      LOG(std::cout << "BEQ_REG_IND_DISP";)
+       if(cpu.readGpr(gprB) == cpu.readGpr(gprC))cpu.writeGpr(CPU::GPR::PC, memory.readWord(cpu.readGpr(gprA)+disp));
+    break;
+
+    case Instruction::OPCode::BNE_REG_IND_DISP:
+      LOG(std::cout << "BNE_REG_IND_DISP";)
+       if(cpu.readGpr(gprB) != cpu.readGpr(gprC))cpu.writeGpr(CPU::GPR::PC, memory.readWord(cpu.readGpr(gprA)+disp));
+    break;
+
+    case Instruction::OPCode::BGT_REG_IND_DISP:
+      LOG(std::cout << "BGT_REG_IND_DISP";)
+      if((int32_t)(cpu.readGpr(gprB)) > (int32_t)(cpu.readGpr(gprC)))
+        cpu.writeGpr(CPU::GPR::PC, memory.readWord(cpu.readGpr(gprA)+disp));
+    break;
+
+  default:
+    std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
+    exit(-1);
+  }
+
+  LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " "<< disp << " \n";)
+}
 int Emulator::emulation(){
     
   uint8_t ocm = 1; // oc + mod
@@ -203,8 +255,10 @@ int Emulator::emulation(){
           LOG(std::cout << "int\n" << gprA << " " << gprB << " " << gprC << " \n" ;)
       break;
       case Instruction::OC::CALL_T: 
+      break;
       case Instruction::OC::JUMPS_T: 
-        LOG(std::cout << "jmps\n" << gprA << " " << gprB << " " << gprC << " \n" ;)
+        
+        handleJumpInstructions(ocm, ab, gprA, gprB, gprC, disp);
       break;
       // without csr, csr is in load/store
       case Instruction::OC::XCHG_T:
@@ -215,9 +269,10 @@ int Emulator::emulation(){
       break;
       case Instruction::OC::ST_T:
       case Instruction::OC::LD_T:
-        LOG(std::cout << "memory\n" << gprA << " " << gprB << " " << gprC << " \n" ;)
+       
         handleLoadStoreInstructions(ocm, ab, gprA, gprB, gprC, disp);
       break;
+
       default:
         std::cerr << "Invalid instruction: PC = 0x" << std::hex <<  cpu.getPC();
         exit(-1);
