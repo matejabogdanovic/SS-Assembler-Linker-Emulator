@@ -722,6 +722,7 @@ LOG(std::cout << "Invalid handleStoreRegisters call." << std::endl;)
 
 
 void Assembler::literalBackpatch(){
+   if(literalPool.patches.empty())return;
   std::vector<std::pair<uint32_t, uint32_t> > known_literals; // location in pool, value
   // literal patch, writing PC relative displacement in instruction to literal pool
 
