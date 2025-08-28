@@ -11,9 +11,12 @@ public:
   
 private:
   static void handleGprInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC);
+  // ab used for csr
   static void handleLoadStoreInstructions(uint8_t ocm, uint8_t ab,  CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp);
-  static void handleJumpInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp);
+  static void handleJumpInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp);
+  static void handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,  int32_t disp);
 
+  
   
   // static void i_not(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo);
   // static void i_add(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo);

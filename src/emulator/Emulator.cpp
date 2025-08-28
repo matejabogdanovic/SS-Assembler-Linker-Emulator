@@ -179,7 +179,7 @@ void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gpr
   LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " " << disp << " \n";)
 }
 
-void Emulator::handleJumpInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp)
+void Emulator::handleJumpInstructions(uint8_t ocm,  CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp)
 {
 
   switch (ocm)
@@ -236,6 +236,33 @@ void Emulator::handleJumpInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gprA, CP
 
   LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " " << disp << " \n";)
 }
+
+
+void Emulator::handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,  int32_t disp){
+
+  switch (ocm)
+  {
+    case Instruction::OPCode::CALL_REG:
+    // push pc
+      handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
+      cpu.writeGpr(CPU::PC, cpu.readGpr(gprA) + cpu.readGpr(gprB) + disp);
+    break;
+
+    case Instruction::OPCode::CALL_IND:
+      handleLoadStoreInstructions(Instruction::OPCode::PUSH, 0, CPU::SP, CPU::R0, CPU::PC, -4 );
+      cpu.writeGpr(CPU::PC, memory.readWord(cpu.readGpr(gprA) + cpu.readGpr(gprB) + disp));
+    break;
+
+    default:
+      std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
+      exit(-1);
+    }
+  
+
+}
+
+
+
 int Emulator::emulation()
 {
 
@@ -266,10 +293,11 @@ int Emulator::emulation()
                     << gprA << " " << gprB << " " << gprC << " \n";)
       break;
     case Instruction::OC::CALL_T:
+        handleCallInstructions(ocm,  gprA, gprB,  disp);
       break;
     case Instruction::OC::JUMPS_T:
 
-      handleJumpInstructions(ocm, ab, gprA, gprB, gprC, disp);
+      handleJumpInstructions(ocm,  gprA, gprB, gprC, disp);
       break;
     // without csr, csr is in load/store
     case Instruction::OC::XCHG_T:
@@ -278,6 +306,7 @@ int Emulator::emulation()
     case Instruction::OC::SH_T:
       handleGprInstructions(ocm, gprA, gprB, gprC);
       break;
+    // push pop pop status, implicit - iret and ret
     case Instruction::OC::ST_T:
     case Instruction::OC::LD_T:
 
