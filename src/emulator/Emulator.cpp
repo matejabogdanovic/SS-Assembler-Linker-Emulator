@@ -291,6 +291,18 @@ int Emulator::emulation()
     case Instruction::OC::INT_T:
       LOG(std::cout << "int\n"
                     << gprA << " " << gprB << " " << gprC << " \n";)
+      // handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
+      // push status
+      cpu.writeGpr(CPU::SP, cpu.readGpr(CPU::SP) - 4);
+      memory.changeWord(cpu.readCsr(CPU::STATUS), cpu.readGpr(CPU::SP));
+      // push pc
+      handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
+      // cause <= 4
+      cpu.writeCsr(CPU::CSR::CAUSE, 0x4);
+      // status <= status & (~0x1)
+      cpu.writeCsr(CPU::STATUS, cpu.readCsr(CPU::STATUS) & (~0x1));
+      // pc <= handle
+      cpu.writeGpr(CPU::PC, cpu.readCsr(CPU::HANDLER));
       break;
     case Instruction::OC::CALL_T:
         handleCallInstructions(ocm,  gprA, gprB,  disp);

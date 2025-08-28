@@ -1,11 +1,17 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 28       1       d         my_code 
+ 1       SCTN     LOC      0x00000000 64       1       d         my_code 
  0       NOTYP    GLOB     0x00000000 0        UND      e        addRegs 
+ 1       NOTYP    GLOB     0x00000000 0        UND      e        handler 
 | Offset | Type | Symbol | Section | Addend |
- 00000018 T_GLOB addRegs  my_code   0 
+ 00000038 T_GLOB addRegs  my_code   0 
+ 0000003C T_GLOB handler  my_code   0 
 =================Section my_code=================
-0000: 92 1F 00 0C 92 2F 00 0C
-0008: 21 F0 00 0C 30 F0 00 0C
-0010: 01 00 00 00 02 00 00 00
-0018: F0 FF FF FF
+0000: 92 5F 00 24 92 1F 00 24
+0008: 92 2F 00 24 92 EF 00 24
+0010: 21 F0 00 24 92 1F 00 24
+0018: 94 21 00 00 10 00 00 00
+0020: 00 00 00 00 30 F0 00 18
+0028: 05 00 00 00 01 00 00 00
+0030: 02 00 00 00 FE FE FF FF
+0038: F0 FF FF FF D0 FF FF FF
