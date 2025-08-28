@@ -724,6 +724,12 @@ LOG(std::cout << "Invalid handleStoreRegisters call." << std::endl;)
 void Assembler::literalBackpatch(){
   std::vector<std::pair<uint32_t, uint32_t> > known_literals; // location in pool, value
   // literal patch, writing PC relative displacement in instruction to literal pool
+
+  bool can_use_relative_jump = literalPool.patches.size()*4 <= 0xfff;
+  
+  handleWordLiteral(0); // make space for jump instruction
+  if(!can_use_relative_jump)handleWordLiteral(0); // space to read where to jump
+  auto literal_pool_start = LC;
   while(!literalPool.patches.empty()){
     // get location to patch
     LiteralPool::LiteralPatch p = literalPool.patches.front();
@@ -790,6 +796,14 @@ LOG(std::cout << "Needs relocation." << std::endl;)
     );
   }
 
+  
+  if(can_use_relative_jump){
+    memory.changeInstruction({Instruction::OPCode::JMP_REG_DIR_DISP, PC, 0, 0, (uint16_t)(LC-literal_pool_start)}, literal_pool_start-4);
+  }else{
+     memory.changeInstruction({Instruction::OPCode::JMP_REG_IND_DISP, PC, 0, 0, 0}, literal_pool_start-8);
+     memory.changeWord(LC, literal_pool_start-4);
+  }
+  
 }
 
 void Assembler::closeSection(){

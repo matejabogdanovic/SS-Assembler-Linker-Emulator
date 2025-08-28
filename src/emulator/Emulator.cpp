@@ -176,6 +176,7 @@ void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gpr
 
   LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " "<< disp << " \n";)
 }
+
 int Emulator::emulation(){
     
   uint8_t ocm = 1; // oc + mod
@@ -190,7 +191,7 @@ int Emulator::emulation(){
     cd = memory.readByte(cpu.getPC()+2);
     dd = memory.readByte(cpu.getPC()+3);
     cpu.nextPC();
-    cpu.print();
+    // cpu.print();
     CPU::GPR gprA = CPU::A(ab), gprB = CPU::B(ab), gprC = CPU::C(cd);
     int32_t disp = CPU::disp(cd, dd);
     std::cout << "disp: " << std::dec << disp;

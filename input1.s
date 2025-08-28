@@ -1,4 +1,4 @@
-.extern data
+ .extern data
 .section my_code
     # inicijalno: svi registri = 0
     
@@ -12,6 +12,6 @@
     st %sp, data
     csrwr %sp, %status
     csrrd %status, %r5
-    
+    ld $0x1, %r1
 
 .end
