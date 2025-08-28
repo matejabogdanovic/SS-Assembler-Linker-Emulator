@@ -282,11 +282,14 @@ void Assembler::handleZeroArgsInstructions(Instruction::OPCode op){
   switch (op)
   {
     case Instruction::OPCode::IRET:
-      handleStackInstructions(Instruction::OPCode::POP, PC);
-      handleStackInstructions(Instruction::OPCode::POP_CSR, STATUS);
+      // handleStackInstructions(Instruction::OPCode::POP, PC);
+      // handleStackInstructions(Instruction::OPCode::POP_CSR, STATUS);
+
+      memory.writeInstruction({Instruction::OPCode::LD_TO_CSR_REG_IND_DISP, STATUS, SP, 0, 4});
+      memory.writeInstruction({Instruction::OPCode::POP, PC, SP, 0, 8}); // pop pc
       //memory.writeInstruction({op}); // pop pc, pop status
       //memory.writeInstruction({op}); // pop pc, pop status
-      //LC += 4*2;
+      LC += 2*4;
       return; 
     break;
     case Instruction::OPCode::RET:
@@ -673,11 +676,11 @@ void Assembler::handleStoreRegisters(Instruction::OPCode op, uint8_t gprData, ui
   {
 
     case Instruction::OPCode::ST_REG:
-       memory.writeInstruction({Instruction::OPCode::ST_MEM_DIR, 
-        gprS, 0, gprData, 0});
+      // switch places for soruce and dest
+      handleLoadRegisters(Instruction::OPCode::LD_REG, gprS, gprData);
     break;
     case Instruction::OPCode::ST_IND_REG:
-    memory.writeInstruction({Instruction::OPCode::ST_MEM_IND, 
+    memory.writeInstruction({Instruction::OPCode::ST_MEM_DIR, 
         gprS, 0, gprData, 0});
     break;
 

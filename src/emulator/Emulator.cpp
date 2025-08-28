@@ -171,6 +171,11 @@ void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gpr
 
     break;
 
+  case Instruction::OPCode::LD_TO_CSR_REG_IND_DISP:
+    LOG(std::cout << "LD_TO_CSR_REG_IND_DISP";)
+    cpu.writeCsr(cpu.csr_A(ab), memory.readWord(cpu.readGpr(gprB)+cpu.readGpr(gprC)+disp));
+
+  break;
   default:
     std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
     exit(-1);
@@ -244,11 +249,13 @@ void Emulator::handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,
   {
     case Instruction::OPCode::CALL_REG:
     // push pc
+      LOG(std::cout << "CALL_REG";)
       handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
       cpu.writeGpr(CPU::PC, cpu.readGpr(gprA) + cpu.readGpr(gprB) + disp);
     break;
 
     case Instruction::OPCode::CALL_IND:
+    LOG(std::cout << "CALL_IND";)
       handleLoadStoreInstructions(Instruction::OPCode::PUSH, 0, CPU::SP, CPU::R0, CPU::PC, -4 );
       cpu.writeGpr(CPU::PC, memory.readWord(cpu.readGpr(gprA) + cpu.readGpr(gprB) + disp));
     break;
@@ -257,7 +264,7 @@ void Emulator::handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,
       std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
       exit(-1);
     }
-  
+  LOG(std::cout << " \n";)
 
 }
 
@@ -282,7 +289,7 @@ int Emulator::emulation()
     // cpu.print();
     CPU::GPR gprA = CPU::A(ab), gprB = CPU::B(ab), gprC = CPU::C(cd);
     int32_t disp = CPU::disp(cd, dd);
-    std::cout << "disp: " << std::dec << disp;
+
     switch (oc)
     {
     case Instruction::OC::HALT_T:
@@ -303,6 +310,7 @@ int Emulator::emulation()
       cpu.writeCsr(CPU::STATUS, cpu.readCsr(CPU::STATUS) & (~0x1));
       // pc <= handle
       cpu.writeGpr(CPU::PC, cpu.readCsr(CPU::HANDLER));
+
       break;
     case Instruction::OC::CALL_T:
         handleCallInstructions(ocm,  gprA, gprB,  disp);

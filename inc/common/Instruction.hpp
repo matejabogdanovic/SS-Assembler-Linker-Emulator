@@ -47,6 +47,7 @@ typedef struct Instruction{ // 4B = 32b
     PUSH = 0x81,
     POP = 0x93,
     POP_CSR = 0x97,
+    LD_TO_CSR_REG_IND_DISP = 0x96, // 
     XCHG = 0x40,
     ADD = 0x50, 
     SUB = 0x51, 

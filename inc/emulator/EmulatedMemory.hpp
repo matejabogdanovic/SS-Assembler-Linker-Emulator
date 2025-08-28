@@ -33,6 +33,7 @@ public:
     //   exit(-1);
     // }
     // return region->memory.readWord(address-region->saddr);
+    LOG(std::cout <<  "\tReading word from: "<<std::hex << address <<std::dec ;)
     uint32_t data = 0;
     uint8_t byte;
     for (size_t i = 0; i < 4; i++)
@@ -40,7 +41,7 @@ public:
       byte = map[address+i];
       data = data | ((uint32_t)byte << (8 * i)); 
     }
-    
+    LOG(std::cout <<  "\tData is: "<<std::hex << data <<std::dec << std::endl;)
     return data;
   }
   inline void changeWord(uint32_t data , uint32_t address ){
@@ -50,7 +51,8 @@ public:
     //   exit(-1);
     // }
     // region->memory.changeWord(data, address-region->saddr);
-     
+    LOG(std::cout <<  "\tWriting word to: "<<std::hex << address <<std::dec;)
+    LOG(std::cout <<  "\tData is: "<<std::hex << data <<std::dec << std::endl;)
     for (int i = 0; i < 4; i++){
       map[address+i] = (uint8_t)data;
 
