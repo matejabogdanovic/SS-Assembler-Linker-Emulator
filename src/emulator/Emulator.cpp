@@ -300,6 +300,8 @@ int Emulator::emulation()
     case Instruction::OC::INT_T:
       LOG(std::cout << "int\n"
                     << gprA << " " << gprB << " " << gprC << " \n";)
+
+      if((cpu.readCsr(CPU::CSR::STATUS) & 0x04))break; // masked
       // handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
       // push status
       cpu.writeGpr(CPU::SP, cpu.readGpr(CPU::SP) - 4);
@@ -309,7 +311,7 @@ int Emulator::emulation()
       // cause <= 4
       cpu.writeCsr(CPU::CSR::CAUSE, 0x4);
       // status <= status & (~0x1)
-      cpu.writeCsr(CPU::STATUS, cpu.readCsr(CPU::STATUS) & (~0x1));
+      cpu.writeCsr(CPU::STATUS, cpu.readCsr(CPU::STATUS) & (~0x1)); // 0b000 & 0b110 timer enable?
       // pc <= handle
       cpu.writeGpr(CPU::PC, cpu.readCsr(CPU::HANDLER));
       LOG(cpu.printCsr();)
@@ -339,6 +341,14 @@ int Emulator::emulation()
       std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
       exit(-1);
       break;
+    }
+
+    // check interrupts
+    uint32_t status = cpu.readCsr(CPU::CSR::STATUS);
+    bool global_interrupts_masked = status & 0x04; // 0b011
+    if(!global_interrupts_masked){ // mask global interrupts
+      LOG(std::cout<<"Global interrupts masked."<<std::endl);
+      cpu.writeCsr(CPU::CSR::STATUS, CPU::CSR::STATUS | (0x04));
     }
   }
   cpu.printGpr();
