@@ -146,7 +146,7 @@ void Linker::findDefinedSymbols(){
 
     for (const Sections::Section& section: sec_union.sections){
       SymbolTable* symtab = &section.file->symtab;
-
+      
       for (size_t i = 0; i < symtab->symbol_names.size(); i++){
         std::string* sym_name = &symtab->symbol_names[i];
         SymbolTable::Entry* symbol = &symtab->symbols[*sym_name];
@@ -221,7 +221,7 @@ LOG(std::cout << "LINKING\n";)
     uint32_t offset = 0;
 LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
     for(const Sections::Section& section: sec_union.sections){
-
+      uint32_t offs_inside_union = 0;
       RelTable* rel =  &section.file->rel; // rel table for this section in section union
       uint32_t section_start_in_file = section.file->symtab.getSectionStart(section.section->ndx);
       
@@ -237,8 +237,17 @@ LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
            addr_to_put = defined_syms[section.file->symtab.symbol_names[record.symbol->num]];
         break;
         case RelTable::T_LOC:
+        // NEED TO CHANGE IN SPECIFIC SUBSECTION, NOT JUST IN SECTION UNION BECAUSE ADDEND IS LOCAL
+        // todo, fix this 
+        for(const Sections::SectionsUnion& sec_union2: sections.map){
+          if(sec_union2.name != section.file->symtab.section_names[record.symbol->num])continue;
+          for(const Sections::Section& section2: sec_union2.sections){
+            if(section2.file == section.file)break;
+            offs_inside_union += section2.section->size;
+          }
+        }
          addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]]
-          + record.addend;
+          + record.addend + offs_inside_union;
         break;
         default:
           std::cerr << "Invalid relocation type." << std::endl;
