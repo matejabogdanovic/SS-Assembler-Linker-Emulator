@@ -1,14 +1,22 @@
 #include "../../inc/emulator/Emulator.hpp"
+#include <sstream>
+
 char *Emulator::input;
 CPU Emulator::cpu;
 EmulatedMemory Emulator::memory;
+
+std::string Emulator::toHex(uint32_t value) {
+    std::stringstream ss;
+    ss << "0x" << std::uppercase << std::hex << value;
+    return ss.str();
+}
+
 int Emulator::start(int argc, char *argv[])
 {
   // parse arguments
   if (argc < 2)
   {
-    std::cerr << "No arguments." << std::endl;
-    return -1;
+    throw EmulatorException("invalid arguments");
   }
   input = argv[1];
 
@@ -25,8 +33,7 @@ int Emulator::processing()
 
   if (!inputFileBinary.is_open())
   {
-    std::cerr << "assembler: error: can't open output file\n";
-    return -1;
+    throw EmulatorException("can't open input file");
   }
 
   memory.loadFromFile(inputFileBinary);
@@ -94,9 +101,8 @@ void Emulator::handleGprInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB, 
     break;
 
   default:
-    std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
     handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
-    exit(-1);
+    throw EmulatorException("invalid instruction -> PC=" + toHex(cpu.getPC()));
   }
 
   LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " \n";)
@@ -165,9 +171,8 @@ void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gpr
     LOG(cpu.printCsr();)
   break;
   default:
-    std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
     handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
-    exit(-1);
+    throw EmulatorException("invalid instruction -> PC=" + toHex(cpu.getPC()));
   }
 
   LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " " << disp << " \n";)
@@ -224,9 +229,9 @@ void Emulator::handleJumpInstructions(uint8_t ocm,  CPU::GPR gprA, CPU::GPR gprB
     break;
 
   default:
-    std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
+    
     handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
-    exit(-1);
+    throw EmulatorException("invalid instruction -> PC=" + toHex(cpu.getPC()));
   }
 
   LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " " << disp << " \n";)
@@ -251,8 +256,7 @@ void Emulator::handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,
 
     default:
       handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
-      std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
-      exit(-1);
+      throw EmulatorException("invalid instruction -> PC=" + toHex(cpu.getPC()));
     }
   LOG(std::cout << " \n";)
 
@@ -330,12 +334,10 @@ int Emulator::emulation()
       handleLoadStoreInstructions(ocm, ab, gprA, gprB, gprC, disp);
       break;
 
-    default:
-      std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
+    default:  
       handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
-      
-      exit(-1);
-      break;
+      throw EmulatorException("invalid instruction -> PC=" + toHex(cpu.getPC()));
+
     }
     
     interrupt_t = cpu.isInterrupted();

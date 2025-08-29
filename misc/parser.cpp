@@ -2161,7 +2161,7 @@ yyreturn:
 #line 324 "misc/parser.y"
 
 void yyerror(const char* s) {
-  std::cerr << "Greška: " << s << std::endl;
+
   Assembler::handleSyntaxError();
 }
 

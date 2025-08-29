@@ -74,8 +74,9 @@ uint32_t  Sections::getFreeAddress(uint32_t section_sz){
       return curr->start_address+curr->size;
   else  
     {
-        std::cerr << "No more space for new section." << std::endl;
-        exit(-1);
+  
+      throw LinkerException("no space");
+        
     }
   
   
@@ -90,8 +91,7 @@ void Sections::reorderSections(){
       continue;
     // this section needs to move
     if(curr->fixed){ // can't move sorry
-      std::cerr << "Sections "<< prev->name << " and " << curr->name  <<" are overlapping." << std::endl;
-      exit(-1);
+      throw LinkerException("sections " + prev->name + " and " + curr->name  +" are overlapping");
     }
     SectionsUnion updated = *curr;
     updated.start_address = prev->start_address + prev->size;

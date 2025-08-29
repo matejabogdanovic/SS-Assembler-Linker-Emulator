@@ -1,5 +1,5 @@
 #include "../../inc/emulator/EmulatedMemory.hpp"
-
+#include "../../inc/emulator/EmulatorException.hpp"
 // EmulatedMemory::MemoryRegion* EmulatedMemory::findRegion(uint32_t address){
 //   for(MemoryRegion& region: regions){
 //     //0[]1[]2[]
@@ -24,8 +24,8 @@ void EmulatedMemory::loadFromFile(std::istream& is){
 
     is.read(reinterpret_cast<char*>(& sz), sizeof(sz));
     if((uint64_t)(this->size + sz > 0x100000000)){
-      std::cerr << "Not enough memory space." << std::endl;
-      exit(-1);
+      throw EmulatorException("not enough memory");
+
     }
     this->size += sz;
 

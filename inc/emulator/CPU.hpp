@@ -1,9 +1,12 @@
 #pragma once
 #include "../common/Instruction.hpp"
+#include "../emulator/EmulatorException.hpp"
 #include <cstdint>
 #include <map>
 #include <iomanip>
 #include <iostream>
+
+
 
 class CPU {
 
@@ -79,16 +82,14 @@ public:
   static inline CSR csr_A(uint8_t xx){
     uint8_t a = ((xx >> 4)&0x0f) - 1;
     if(a < 0 || a > 2){
-      std::cerr << "Invalid CSR register." << std::endl;
-      exit(-1);
+      throw EmulatorException("invalid CSR register");
     }
     return (CSR)a;
   }
   static inline CSR csr_B(uint8_t xx){
     uint8_t b = (xx & 0x0f) - 1;
     if(b < 0 || b > 2){
-      std::cerr << "Invalid CSR register." << std::endl;
-      exit(-1);
+      throw EmulatorException("invalid CSR register");
     }
     return (CSR)b;
   }

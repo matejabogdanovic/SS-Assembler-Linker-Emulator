@@ -1,5 +1,6 @@
 #include "./FileState.hpp"
 #include "../common/Macros.hpp"
+#include "./LinkerException.hpp"
 #include <set>
 
 class Sections{

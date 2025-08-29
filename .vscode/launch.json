@@ -10,7 +10,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/asembler",
-      "args": [ "-o", "out.o", "input.s"],
+      "args": [ "-o", "out1.o", "input1.s"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
@@ -36,9 +36,36 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/linker",
-      "args": [ "handler.o", "math.o", "main.o" ,"isr_terminal.o", "isr_timer.o" ,"isr_software.o"],
+      "args": [ "-hex" ,"-place=my_code@0x40000000" ,"-place=my_data@0xf0000000" ,"-o" ,"program.hex" 
+      ,"out1.o"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}/tests/nivo-a/",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "C/C++: g++ build linker (make)",
+      "miDebuggerPath": "/usr/bin/gdb"
+    },
+    {
+      "name": "B&D emulator",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/emulator",
+      "args": [ "program.hex"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",

@@ -517,7 +517,7 @@ void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint
     
     case Instruction::OPCode::LD_IND_REG_LIT: // gprD <= mem32[gprS+disp]
       if(value > 0xfff){ // std::abs((int)value) >= (1 << 13)
-        throw AssemblerException("invalid displacement -> LC=" + LC);
+        throw AssemblerException("invalid displacement -> LC=" + std::to_string(LC));
       }
       memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
         gprD, gprS, 0, (uint16_t)value});
@@ -627,7 +627,7 @@ void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8
     case Instruction::OPCode::ST_IND_REG_LIT:
     // mem32[gprS+0+Disp] <= gprData
       if(value > 0xfff){ // std::abs((int)value) >= (1 << 13)
-        throw AssemblerException("invalid displacement -> LC=" + LC);
+        throw AssemblerException("invalid displacement -> LC=" + std::to_string(LC));
       }
 
       memory.writeInstruction({Instruction::OPCode::ST_MEM_DIR, 
@@ -793,7 +793,7 @@ LOG(std::cout << "Needs relocation." << std::endl;)
 }
 
 void Assembler::handleSyntaxError(){
-  throw AssemblerException("syntax error -> LC="+LC);
+  throw AssemblerException("syntax error -> LC="+std::to_string(LC));
   
 }
 void Assembler::closeSection(){

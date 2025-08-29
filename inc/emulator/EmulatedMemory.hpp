@@ -1,6 +1,7 @@
 #pragma once
 #include "../common/Memory.hpp"
 #include "../common/Macros.hpp"
+
 #include <unordered_map>
 #include <cstdint>
 class EmulatedMemory{

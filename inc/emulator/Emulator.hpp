@@ -1,7 +1,6 @@
 #pragma once
 #include "./EmulatedMemory.hpp"
 #include "./CPU.hpp"
-
 #include <fstream>
 #include <iostream>
 class Emulator{
@@ -10,6 +9,7 @@ public:
   static int start(int argc, char* argv[]);
   
 private:
+  static std::string toHex(uint32_t value);
   static void handleGprInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC);
   // ab used for csr
   static void handleLoadStoreInstructions(uint8_t ocm, uint8_t ab,  CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp);

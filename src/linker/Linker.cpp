@@ -19,15 +19,13 @@ int Linker::parseArguments(int argc, char* argv[]){
 
     if(!options_end && command == "-o"){
       if(argc < i+1){
-        std::cerr << "No output file." << std::endl;
-        return -1;
+        throw LinkerException("no output file");
       }
       output = std::string(argv[++i]);
 LOG(std::cout << " output " << output << std::endl;)
     }else if(!options_end && command == "-hex"){
       if(hex_defined){
-        std::cerr << "Option -hex already given.\n";
-        return -2;
+        throw LinkerException("option -hex repeated");
       }
       hex_defined = true;
 
@@ -42,8 +40,8 @@ LOG(std::cout << " output " << output << std::endl;)
 
   }
   if(!hex_defined){
-    std::cerr << "Option -hex not defined." << std::endl;
-    exit(0);
+    throw LinkerException("option -hex not given");
+    
   }
 
 
@@ -53,8 +51,8 @@ LOG(std::cout << " output " << output << std::endl;)
 int Linker::start(int argc, char* argv[]){
   
   if(parseArguments(argc, argv)<0){
-    std::cerr << "linker: error: invalid arguments.\n";
-    return -1;
+    throw LinkerException("invalid arguments");
+    // return -1;
   };
   
 
@@ -77,8 +75,7 @@ int Linker::loadData(){
     std::ifstream inputBinary(file_names[i], std::ios::binary); // otvara fajl za pisanje
 
     if (!inputBinary.is_open()) {
-      std::cerr << "assembler: error: can't open input file\n";
-      return -1;
+      throw LinkerException("can't open input file -> " + file_names[i]);
     }
     // read data
 LOG(std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";)
@@ -112,7 +109,7 @@ LOG(sections.printHex(std::cout);)
   std::ofstream outputFile(output);
 
   if (!outputFile.is_open()) {
-    std::cerr << "assembler: error: can't open output file\n";
+    throw LinkerException("can't open output file");
     return -1;
   }
 
@@ -123,7 +120,7 @@ LOG(sections.printHex(std::cout);)
   std::ofstream outputFileBinary(output+".bin", std::ios::binary);
 
   if (!outputFileBinary.is_open()) {
-    std::cerr << "assembler: error: can't open output file\n";
+    throw LinkerException("can't open binary output file");
     return -1;
   }
 
@@ -156,8 +153,7 @@ void Linker::findDefinedSymbols(){
 
         if(SymbolTable::isDefined(symbol->flags)){
           if(defined_syms.count(*sym_name)>0){
-            std::cerr << "linker: symbol already exported." << std::endl;
-            return;
+            throw LinkerException("multiple symbol definition -> " + *sym_name);
           }
 LOG(std::cout << "(+)d\n";)
           // calculate final address
@@ -177,8 +173,7 @@ LOG(std::cout << "(+)e\n";)
 
   for(std::string extern_sym_name: extern_syms){
     if(defined_syms.count(extern_sym_name) == 0){
-      std::cerr << "linker: symbol '" << extern_sym_name << "' not defined in input files." << std::endl;
-      return;
+      throw LinkerException("unresolved symbol -> " + extern_sym_name);
     }
   }
 
@@ -250,8 +245,8 @@ LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
           + record.addend + offs_inside_union;
         break;
         default:
-          std::cerr << "Invalid relocation type." << std::endl;
-          return;  
+          throw LinkerException("invalid relocation type");
+
         }
   
         LOG(std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
