@@ -68,12 +68,22 @@ public:
   std::string getUndefinedSectionName() const;
   Entry* getCurrentSection();
   uint32_t getSectionStart(uint32_t ndx);
+  inline size_t getNumOfSections(){
+    return section_names.size();
+  }
+  inline size_t getNumOfSymbols(){
+    return symbol_names.size();
+  }
 
   Entry* getSection(std::string* name);
   Entry* getSymbol(std::string* name);
+  Entry* getSection(uint32_t num_or_ndx);
+  Entry* getSymbol(uint32_t num);
+
   std::string getSymbolName(Entry* e) const;
   std::string getSectionName(Entry* e) const;
-
+  std::string getSymbolName(uint32_t num) const;
+  std::string getSectionName(uint32_t num_or_ndx) const;
   
   void addSymbol(std::string* name, Entry e);
   void addSection(std::string* name, Entry e);
@@ -85,8 +95,7 @@ public:
 
   uint32_t current_section = 0;
   static const uint32_t UNDEFINED_SECTION = 0;
-  std::vector <std::string> section_names;
-  std::vector <std::string> symbol_names;
+
   
 
   void printEntry(std::string* name, Entry* e, std::ostream& os) const;
@@ -97,6 +106,9 @@ public:
   
   void printPartBinary(std::string* name, Entry* e, std::ostream& os) const;
 
+  private:
+    std::vector <std::string> section_names;
+  std::vector <std::string> symbol_names;
 
 };
 

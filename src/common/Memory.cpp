@@ -107,10 +107,10 @@ void Memory::changeWordVector(std::vector<uint32_t>* vector, uint32_t location, 
 void Memory::printCode(std::ostream& os, SymbolTable* symtab){
   
   uint32_t start = 0;
-  for (size_t i = 1; i < symtab->section_names.size(); i++){
-    SymbolTable::Entry* section = symtab->getSection(&symtab->section_names[i]);
+  for (size_t i = 1; i < symtab->getNumOfSections(); i++){
+    SymbolTable::Entry* section = symtab->getSection(i);
     
-    os << "=================Section " << symtab->section_names[i] << "=================\n";
+    os << "=================Section " << symtab->getSectionName(i) << "=================\n";
     if(section->size>0)print(os, start, section->size);
     
     start += section->size;

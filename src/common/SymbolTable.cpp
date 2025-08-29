@@ -67,6 +67,16 @@ SymbolTable::Entry* SymbolTable::getSection(std::string* name){
   return &sections[*name];
 }
 
+SymbolTable::Entry* SymbolTable::getSection(uint32_t num_or_ndx){
+  return &sections[section_names[num_or_ndx]];
+}
+
+SymbolTable::Entry* SymbolTable::getSymbol(uint32_t num){
+  return &symbols[symbol_names[num]];
+}
+
+
+
 std::string SymbolTable::getSymbolName(Entry* e) const{
   return symbol_names[e->num];
 }
@@ -74,6 +84,16 @@ std::string SymbolTable::getSymbolName(Entry* e) const{
 std::string SymbolTable::getSectionName(Entry* e) const{
   return section_names[e->ndx];
 }
+
+std::string SymbolTable::getSymbolName(uint32_t num) const{
+
+  return symbol_names[num];
+}
+std::string SymbolTable::getSectionName(uint32_t num_or_ndx) const{
+
+  return section_names[num_or_ndx];
+}
+
 
 uint32_t SymbolTable::getSectionStart(uint32_t ndx){
   

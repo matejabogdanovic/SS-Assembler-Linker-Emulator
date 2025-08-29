@@ -36,12 +36,12 @@ void RelTable::loadFromFile(std::istream& is, SymbolTable* symtab){
     uint32_t sym_num;
     is.read(reinterpret_cast<char*>(&sym_num), sizeof(SymbolTable::Entry::num));
 
-    if(e.type != T_LOC)    e.symbol = symtab->getSymbol(&symtab->symbol_names[sym_num]);
-    else e.symbol = symtab->getSection(&symtab->section_names[sym_num]);
+    if(e.type != T_LOC)    e.symbol = symtab->getSymbol(sym_num);
+    else e.symbol = symtab->getSection(sym_num);
 
     uint32_t sect_num;
     is.read(reinterpret_cast<char*>(&sect_num), sizeof(SymbolTable::Entry::num));
-    e.section = symtab->getSection(&symtab->section_names[sect_num]);
+    e.section = symtab->getSection(sect_num);
 
     is.read(reinterpret_cast<char*>(&e.addend), sizeof(e.addend));
     

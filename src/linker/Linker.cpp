@@ -144,24 +144,24 @@ void Linker::findDefinedSymbols(){
     for (const Sections::Section& section: sec_union.sections){
       SymbolTable* symtab = &section.file->symtab;
       
-      for (size_t i = 0; i < symtab->symbol_names.size(); i++){
-        std::string* sym_name = &symtab->symbol_names[i];
-        SymbolTable::Entry* symbol = &symtab->symbols[*sym_name];
+      for (size_t i = 0; i < symtab->getNumOfSymbols(); i++){
+        std::string sym_name = symtab->getSymbolName(i);
+        SymbolTable::Entry* symbol = symtab->getSymbol(&sym_name);
         
         if(symbol->bind == SymbolTable::Bind::LOC ||
-          symtab->section_names[symbol->ndx] != sec_union.name)continue;
+          symtab->getSectionName(symbol->ndx) != sec_union.name)continue;
 
         if(SymbolTable::isDefined(symbol->flags)){
-          if(defined_syms.count(*sym_name)>0){
-            throw LinkerException("multiple symbol definition -> " + *sym_name);
+          if(defined_syms.count(sym_name)>0){
+            throw LinkerException("multiple symbol definition -> " + sym_name);
           }
 LOG(std::cout << "(+)d\n";)
           // calculate final address
-          defined_syms[*sym_name] = symbol->offset + sec_union.start_address + curr_sz;
+          defined_syms[sym_name] = symbol->offset + sec_union.start_address + curr_sz;
         }else if(SymbolTable::isExtern(symbol->flags)){
 LOG(std::cout << "(+)e\n";)
           
-          extern_syms.push_back(*sym_name);
+          extern_syms.push_back(sym_name);
         } // if absolute todo
           
       }
@@ -183,14 +183,14 @@ void Linker::createSectionOrder(){
 
   for(FileState& file: files){
     // go through sections and make section union
-    for (size_t i = 0; i < file.symtab.section_names.size(); i++){
-      std::string* section_name = &file.symtab.section_names[i];
-      bool section_fixed = section_starts.count(*section_name)>0;
+    for (size_t i = 0; i < file.symtab.getNumOfSections(); i++){
+      std::string section_name = file.symtab.getSectionName(i);
+      bool section_fixed = section_starts.count(section_name)>0;
       uint32_t start_address = 
-      (section_fixed?section_starts[*section_name]:0); 
-      SymbolTable::Entry* section = file.symtab.getSection(section_name);
+      (section_fixed?section_starts[section_name]:0); 
+      SymbolTable::Entry* section = file.symtab.getSection(&section_name);
 
-      sections.put(&file, section_name, section, section_fixed?&start_address:nullptr);
+      sections.put(&file, &section_name, section, section_fixed?&start_address:nullptr);
         
     }
    
@@ -229,19 +229,19 @@ LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
         switch (record.type)
         {
         case RelTable::T_GLOB:
-           addr_to_put = defined_syms[section.file->symtab.symbol_names[record.symbol->num]];
+           addr_to_put = defined_syms[section.file->symtab.getSymbolName(record.symbol->num)];
         break;
         case RelTable::T_LOC:
         // NEED TO CHANGE IN SPECIFIC SUBSECTION, NOT JUST IN SECTION UNION BECAUSE ADDEND IS LOCAL
         // todo, fix this 
         for(const Sections::SectionsUnion& sec_union2: sections.map){
-          if(sec_union2.name != section.file->symtab.section_names[record.symbol->num])continue;
+          if(sec_union2.name != section.file->symtab.getSectionName(record.symbol->num))continue;
           for(const Sections::Section& section2: sec_union2.sections){
             if(section2.file == section.file)break;
             offs_inside_union += section2.section->size;
           }
         }
-         addr_to_put = defined_syms[section.file->symtab.section_names[record.symbol->num]]
+         addr_to_put = defined_syms[section.file->symtab.getSectionName(record.symbol->num)]
           + record.addend + offs_inside_union;
         break;
         default:
