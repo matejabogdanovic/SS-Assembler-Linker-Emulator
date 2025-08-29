@@ -2,35 +2,39 @@
 
 #include <iomanip>
 void Memory::writeInstruction(Instruction instruction){
-  
-  memory.push_back(instruction.oc);
+  memory.push_back((uint8_t)instruction.disp);
+  memory.push_back(((instruction.disp>>8)&0x0F)|(instruction.rc << 4));
   memory.push_back((instruction.ra << 4)|instruction.rb);
+  memory.push_back(instruction.oc);
+
   // [] [c] | [] [d] [d] [d]
   //[] [c]  | [] [] [] [d]
-  memory.push_back(((instruction.disp>>8)&0x0F)|(instruction.rc << 4));
-  memory.push_back((uint8_t)instruction.disp);
+  
+
 }
 
 void Memory::changeInstruction(Instruction instruction, uint32_t location){
-  
-  changeByte(instruction.oc, location++);
-  changeByte((instruction.ra << 4)|instruction.rb, location++);
+  changeByte((uint8_t)instruction.disp, location++);
   changeByte(((instruction.disp>>8)&0x0F)|(instruction.rc << 4), location++);
-  changeByte((uint8_t)instruction.disp, location);
+  changeByte((instruction.ra << 4)|instruction.rb, location++);
+  changeByte(instruction.oc, location);
+  
+ 
+  
 }
 
 void Memory::changeInstructionDisplacement(uint32_t instr_location, uint16_t displacement){
     // [CCCC][DDDD] [DDDD][DDDD]
     //  ^rc  ^highDisp 
+  // instr location->[dd][cd][ab][ocm]
 
-
-    uint8_t rc_highDisp = readByte(instr_location+2); 
+    uint8_t rc_highDisp = readByte(instr_location+1); 
     uint8_t oo_highDisp = (uint8_t)(0x0F & (displacement >> 8));
     uint8_t rc_oo = (0xF0 & rc_highDisp);
 
     changeByte( rc_oo | oo_highDisp,
-     instr_location+2);
-    changeByte(displacement, instr_location+3);
+     instr_location+1);
+    changeByte(displacement, instr_location);
     
 }
 

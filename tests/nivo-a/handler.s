@@ -5,11 +5,8 @@
 handler:
     push %r1
     push %r2
-    # csrrd %cause, %r1
-    ld $handle_terminal, %r1
-    csrwr %r1, %handler
-    int # 
     csrrd %cause, %r1
+
     ld $2, %r2
     beq %r1, %r2, handle_timer
     ld $3, %r2
@@ -27,8 +24,7 @@ handle_timer:
 # obrada prekida od terminala
 handle_terminal:
     call isr_terminal
-    # jmp finish
-    iret
+    jmp finish
 # obrada softverskog prekida
 handle_software:
     call isr_software

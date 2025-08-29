@@ -4,4 +4,4 @@
  0       NOTYP    GLOB     0x00000000 0        1       d         isr_terminal
 | Offset | Type | Symbol | Section | Addend |
 =================Section isr=================
-0000: 93 FE 00 04
+0000: 04 00 FE 93

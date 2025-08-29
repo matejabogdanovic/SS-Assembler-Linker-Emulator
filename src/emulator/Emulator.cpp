@@ -289,11 +289,11 @@ int Emulator::emulation()
   CPU::Interrupt_T interrupt_t = CPU::Interrupt_T::NOT_INTERRUPTED;
   while (ocm != Instruction::HALT)
   {
-    ocm = memory.readByte(cpu.getPC());
+    ocm = memory.readByte(cpu.getPC()+3);
     oc = (ocm >> 4) & 0x0f;
-    ab = memory.readByte(cpu.getPC() + 1);
-    cd = memory.readByte(cpu.getPC() + 2);
-    dd = memory.readByte(cpu.getPC() + 3);
+    ab = memory.readByte(cpu.getPC() + 2);
+    cd = memory.readByte(cpu.getPC() + 1);
+    dd = memory.readByte(cpu.getPC());
     cpu.nextPC();
     // cpu.print();
     CPU::GPR gprA = CPU::A(ab), gprB = CPU::B(ab), gprC = CPU::C(cd);
