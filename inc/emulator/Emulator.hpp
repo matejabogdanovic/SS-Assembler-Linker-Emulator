@@ -16,7 +16,7 @@ private:
   static void handleJumpInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC, int32_t disp);
   static void handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,  int32_t disp);
 
-  
+  static void handleInterrupt(CPU::Interrupt_T interrupt_t);
   
   // static void i_not(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo);
   // static void i_add(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo);

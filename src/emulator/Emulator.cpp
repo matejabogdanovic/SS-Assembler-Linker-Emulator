@@ -38,22 +38,7 @@ int Emulator::processing()
   return 0;
 }
 
-// todo set psw
-// void Emulator::i_not(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
-//   CPU::GPR regA = CPU::A(ab), regB = CPU::B(ab);
-//   std::cout << "not";
-//   cpu.writeGpr(regA, ~cpu.readGpr(regB));
-// }
 
-// void Emulator::i_halt(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
-
-// }
-
-// void Emulator::i_add(CPU& cpu, uint8_t ab, uint8_t co, uint8_t oo){
-//   CPU::GPR regA = CPU::A(ab), regB = CPU::B(ab), regC = CPU::C(co);
-//   std::cout << "add";
-//   cpu.writeGpr(regA, cpu.readGpr(regB) + cpu.readGpr(regC));
-// }
 
 void Emulator::handleGprInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB, CPU::GPR gprC)
 {
@@ -110,6 +95,7 @@ void Emulator::handleGprInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB, 
 
   default:
     std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
+    handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
     exit(-1);
   }
 
@@ -180,6 +166,7 @@ void Emulator::handleLoadStoreInstructions(uint8_t ocm, uint8_t ab, CPU::GPR gpr
   break;
   default:
     std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
+    handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
     exit(-1);
   }
 
@@ -238,12 +225,12 @@ void Emulator::handleJumpInstructions(uint8_t ocm,  CPU::GPR gprA, CPU::GPR gprB
 
   default:
     std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
+    handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
     exit(-1);
   }
 
   LOG(std::cout << " " << gprA << " " << gprB << " " << gprC << " " << disp << " \n";)
 }
-
 
 void Emulator::handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,  int32_t disp){
 
@@ -263,6 +250,7 @@ void Emulator::handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,
     break;
 
     default:
+      handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
       std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
       exit(-1);
     }
@@ -271,6 +259,24 @@ void Emulator::handleCallInstructions(uint8_t ocm, CPU::GPR gprA, CPU::GPR gprB,
 }
 
 
+void Emulator::handleInterrupt(CPU::Interrupt_T interrupt_t){
+
+  // push status
+  cpu.writeGpr(CPU::SP, cpu.readGpr(CPU::SP) - 4);
+  memory.changeWord(cpu.readCsr(CPU::STATUS), cpu.readGpr(CPU::SP));
+  // push pc
+  handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
+  // cause <= 4
+  cpu.writeCsr(CPU::CSR::CAUSE, interrupt_t);
+  // status <= status & (~0x1)
+  cpu.writeCsr(CPU::STATUS, cpu.readCsr(CPU::STATUS) & (~0x1)); // 0b000 & 0b110 timer enable?
+  // pc <= handle
+  cpu.writeGpr(CPU::PC, cpu.readCsr(CPU::HANDLER));
+
+  // MASK GLOBAL INTERRUPTS
+  cpu.maskInterrupt(CPU::InterruptMask::GLOBAL_MASK);
+  LOG(cpu.printCsr();)
+}
 
 int Emulator::emulation()
 {
@@ -280,6 +286,7 @@ int Emulator::emulation()
   uint8_t ab = 2;
   uint8_t cd = 3;
   uint8_t dd = 4;
+  CPU::Interrupt_T interrupt_t = CPU::Interrupt_T::NOT_INTERRUPTED;
   while (ocm != Instruction::HALT)
   {
     ocm = memory.readByte(cpu.getPC());
@@ -300,21 +307,7 @@ int Emulator::emulation()
     case Instruction::OC::INT_T:
       LOG(std::cout << "int\n"
                     << gprA << " " << gprB << " " << gprC << " \n";)
-
-      if((cpu.readCsr(CPU::CSR::STATUS) & 0x04))break; // masked
-      // handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
-      // push status
-      cpu.writeGpr(CPU::SP, cpu.readGpr(CPU::SP) - 4);
-      memory.changeWord(cpu.readCsr(CPU::STATUS), cpu.readGpr(CPU::SP));
-      // push pc
-      handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
-      // cause <= 4
-      cpu.writeCsr(CPU::CSR::CAUSE, 0x4);
-      // status <= status & (~0x1)
-      cpu.writeCsr(CPU::STATUS, cpu.readCsr(CPU::STATUS) & (~0x1)); // 0b000 & 0b110 timer enable?
-      // pc <= handle
-      cpu.writeGpr(CPU::PC, cpu.readCsr(CPU::HANDLER));
-      LOG(cpu.printCsr();)
+      handleInterrupt(CPU::Interrupt_T::SOFTWARE);
       break;
     case Instruction::OC::CALL_T:
         handleCallInstructions(ocm,  gprA, gprB,  disp);
@@ -339,17 +332,15 @@ int Emulator::emulation()
 
     default:
       std::cerr << "Invalid instruction: PC = 0x" << std::hex << cpu.getPC();
+      handleInterrupt(CPU::Interrupt_T::INVALID_INSTRUCTION);
+      
       exit(-1);
       break;
     }
+    
+    interrupt_t = cpu.isInterrupted();
+    if(interrupt_t != CPU::Interrupt_T::NOT_INTERRUPTED)handleInterrupt(interrupt_t);
 
-    // check interrupts
-    uint32_t status = cpu.readCsr(CPU::CSR::STATUS);
-    bool global_interrupts_masked = status & 0x04; // 0b011
-    if(!global_interrupts_masked){ // mask global interrupts
-      LOG(std::cout<<"Global interrupts masked."<<std::endl);
-      cpu.writeCsr(CPU::CSR::STATUS, CPU::CSR::STATUS | (0x04));
-    }
   }
   cpu.printGpr();
   LOG(cpu.printCsr();)

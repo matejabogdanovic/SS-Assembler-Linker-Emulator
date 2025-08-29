@@ -21,7 +21,32 @@ public:
     HANDLER = 1,
     CAUSE = 2
   };
-  
+  enum Interrupt_T : uint8_t{
+    NOT_INTERRUPTED = 0x0,
+    INVALID_INSTRUCTION = 0x1,
+    TIMER = 0x2,
+    TERMINAL = 0x3,
+    SOFTWARE = 0x4
+  };
+  enum InterruptMask : uint8_t{
+    TIMER_MASK = 0x1,
+    TERMINAL_MASK = 0x2, 
+    GLOBAL_MASK = 0x4
+  };
+  // 1 => masked
+  inline void maskInterrupt(InterruptMask mask){
+    this->writeCsr(STATUS, this->readCsr(STATUS) | mask);
+  }
+  inline bool isMaskedInterrupt(InterruptMask mask){
+    return this->readCsr(STATUS) & mask;
+  }
+  inline Interrupt_T isInterrupted(){
+    if(this->isMaskedInterrupt(GLOBAL_MASK))return NOT_INTERRUPTED;
+    // check for timer, terminal
+    // check prioritys, change them dinamically
+    return NOT_INTERRUPTED; // when timer and terminal are implemented
+  }
+
   inline void writeGpr(GPR gpr, uint32_t value){
     if(gpr!=R0)
       regfile[gpr] = value;
