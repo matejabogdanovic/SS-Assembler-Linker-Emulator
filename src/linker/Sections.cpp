@@ -90,13 +90,21 @@ void Sections::reorderSections(){
     if(prev->start_address + prev->size <= curr->start_address)
       continue;
     // this section needs to move
-    if(curr->fixed){ // can't move sorry
+    if(curr->fixed && prev->fixed){ // can't move sorry
       throw LinkerException("sections " + prev->name + " and " + curr->name  +" are overlapping");
     }
-    SectionsUnion updated = *curr;
-    updated.start_address = prev->start_address + prev->size;
-    map.erase(curr);
-    map.insert(updated);
+    if(!curr->fixed){ // curr not fixed or both not fixed
+      SectionsUnion updated = *curr;
+      updated.start_address = prev->start_address + prev->size;
+      map.erase(curr);
+      map.insert(updated);
+    }else { //if(!prev->fixed) // curr is fixed but previous is not 
+      SectionsUnion updated = *prev;
+      updated.start_address = curr->start_address + curr->size;
+      map.erase(prev);
+      map.insert(updated);
+    }
+
     
   }
 }
