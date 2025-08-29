@@ -258,10 +258,11 @@ LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
         << " addr relative to fix: 0x" << record.offset ;)
         LOG(std::cout<< " using address: 0x" << 
         addr_to_put
-        <<std::dec << std::endl;  
+        <<std::dec << std::endl; ) 
+        
         section.file->memory.changeWord(
           addr_to_put, 
-          record.offset + section_start_in_file);)
+          record.offset + section_start_in_file);
 
       }
       LOG(if(sec_union.name != "")

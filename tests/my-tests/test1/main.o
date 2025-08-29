@@ -1,21 +1,15 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 52       1       d         my_code 
- 2       SCTN     LOC      0x00000000 8        2       d         my_data 
- 0       NOTYP    GLOB     0x00000000 0        UND      e        lhandler
- 1       NOTYP    LOC      0x00000000 0        2       d         data1   
- 2       NOTYP    LOC      0x00000004 0        2       d         data2   
+ 1       SCTN     LOC      0x00000000 36       1       d         my_code 
+ 0       NOTYP    GLOB     0x00000000 0        UND      e        data1   
+ 1       NOTYP    GLOB     0x00000000 0        UND      e        lhandler
+ 2       NOTYP    GLOB     0x00000000 0        UND      e        bibl    
 | Offset | Type | Symbol | Section | Addend |
- 00000028 T_LOC  my_data  my_code   0 
- 0000002C T_GLOB lhandler my_code   0 
+ 0000001C T_GLOB data1    my_code   0 
+ 00000020 T_GLOB bibl     my_code   0 
 =================Section my_code=================
-0000: 20 00 EF 92 20 00 AF 92
-0008: 00 00 AA 92 1C 00 1F 92
-0010: 00 00 21 94 00 00 00 10
-0018: 14 00 1F 92 00 00 00 00
-0020: 10 00 F0 30 00 00 00 F0
-0028: 00 00 00 00 D0 FF FF FF
-0030: 69 00 00 00
-=================Section my_data=================
-0034: 01 00 00 00
-0038: 02 00 00 00
+0000: 14 00 EF 92 14 00 1F 92
+0008: 00 00 11 92 10 00 F0 21
+0010: 00 00 00 00 0C 00 F0 30
+0018: 00 00 00 F0 D0 FF FF FF
+0020: F0 FF FF FF

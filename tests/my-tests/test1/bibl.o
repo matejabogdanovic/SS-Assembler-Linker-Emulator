@@ -1,0 +1,10 @@
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 12       1       d         bibl    
+ 0       NOTYP    GLOB     0x00000004 0        1       d         data1   
+ 1       NOTYP    GLOB     0x00000000 0        1       d         function
+ 2       NOTYP    LOC      0x00000008 0        1       d         data2   
+| Offset | Type | Symbol | Section | Addend |
+=================Section bibl=================
+0000: 04 00 FE 93 01 00 00 00
+0008: 02 00 00 00

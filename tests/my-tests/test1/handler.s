@@ -8,8 +8,8 @@ iret
 
 .section my_data
 data1:
-.word 0x3
+.word 0xff1
 data2:
-.word 0x4
+.word 0xff2
 
 .end

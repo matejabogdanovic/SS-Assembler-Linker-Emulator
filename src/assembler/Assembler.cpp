@@ -1,9 +1,10 @@
 #include "../../inc/assembler/Assembler.hpp"
+
 #include <iostream>
 #include <string.h>
 #include <iomanip>
 #include <fstream>
-
+#include <exception>
 
 bool Assembler::finished = false;
 char* Assembler::input; 
@@ -24,18 +25,16 @@ extern FILE* yyin; // input file
 int Assembler::processing(){
   FILE* inputFile = fopen(input, "rw+");
   if(!inputFile){
-    std::cerr << "asembler: error: input file doesn't exist.\n";
-  	return -1;
+    throw AssemblerException("can't open input file");
   }
   // check if file ends with \n
   if (fseek(inputFile, -1, SEEK_END) != 0) {
-    std::cerr <<"asembler: error: fseek";
     fclose(inputFile);
-    return -1;
+    throw AssemblerException("can't read from file");
   }
   // if file doesn't end with \n then append \n 
   if(((char)fgetc(inputFile))!='\n'){
-LOG(std::cout << "asembler: warning: input file doesn't end with \\n. Inserting new line.\n";)
+    std::cout << "asembler: warning: input file doesn't end with \\n. Inserting new line.\n";
     fseek(inputFile, 0, SEEK_END);
     fputc('\n', inputFile);
   }
@@ -48,19 +47,18 @@ LOG(std::cout << "asembler: warning: input file doesn't end with \\n. Inserting 
   fclose(inputFile);
 
   if(!finished){
-    std::cerr << "No end directive." << std::endl;
-    
+
+    throw AssemblerException("no .end directive");
   }
 
-LOG(symtab.print(std::cout);)
-LOG(rel.print(std::cout, &symtab);)
-LOG(memory.printCode(std::cout, &symtab);)
+  LOG(symtab.print(std::cout);)
+  LOG(rel.print(std::cout, &symtab);)
+  LOG(memory.printCode(std::cout, &symtab);)
 
   std::ofstream outputFile(output); // otvara fajl za pisanje
 
   if (!outputFile.is_open()) {
-    std::cerr << "assembler: error: can't open output file\n";
-    return -1;
+     throw AssemblerException("can't open output file");
   }
 
   symtab.print(outputFile);
@@ -74,7 +72,7 @@ LOG(memory.printCode(std::cout, &symtab);)
   std::ofstream outputFileBinary(std::string(output)+std::string(".bin"), std::ios::binary); 
 
   if (!outputFileBinary.is_open()) {
-    std::cerr << "assembler: error: can't open output file\n";
+    throw AssemblerException("can't open binary output file");
     return -1;
   }
 
@@ -112,8 +110,7 @@ int Assembler::parseArguments(int argc, char* argv[]){
 
 int Assembler::start(int argc, char* argv[]){
   if(parseArguments(argc, argv)<0){
-    std::cerr << "asembler: error: invalid arguments.\n";
-    return -1;
+    throw AssemblerException("invalid arguments");
   };
   
   LOG(std::cout << "Input file: " 
@@ -133,8 +130,7 @@ int Assembler::start(int argc, char* argv[]){
 void Assembler::handleSection(std::string* name){
 
   if(symtab.doesSectionExist(name)){ // section opened again
-    std::cerr << "Multiple section definitions." << std::endl;
-    return;  
+    throw AssemblerException("multiple section definition -> " + *name);
   }
   // close previous section
   closeSection();
@@ -154,14 +150,13 @@ void Assembler::handleSection(std::string* name){
 void Assembler::handleLabel(std::string* name){
   
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("undefined section");
   }
 
   if(symtab.doesSymbolExist(name)){
     SymbolTable::Entry* s = symtab.getSymbol(name);
     if(SymbolTable::isDefined(s->flags) || SymbolTable::isExtern(s->flags)){
-      std::cerr << "Symbol redeclaration." << std::endl;
+      throw AssemblerException("symbol redeclaration -> " + *name);
     } 
 
     s->offset = LC;
@@ -183,8 +178,7 @@ void Assembler::handleGlobal(std::string* name){
     SymbolTable::Entry* s = symtab.getSymbol(name);
 
     if(SymbolTable::isExtern(s->flags)){
-      std::cerr << "Symbol is flagged as extern, can't be global." << std::endl;
-      return;
+      throw AssemblerException("symbol flagged as extern, now global -> " + *name);
     }
 
     s->bind = SymbolTable::Bind::GLOB;
@@ -205,8 +199,7 @@ void Assembler::handleExtern(std::string* name){
     SymbolTable::Entry* s = symtab.getSymbol(name);
 
     if(SymbolTable::isDefined(s->flags)){
-      std::cerr << "Symbol can't be defined and extern." << std::endl;
-      return;
+      throw AssemblerException("symbol can't be defined and extern -> " + *name);
     }
 
     s->flags |= SymbolTable::Flags::EXTERN;
@@ -226,8 +219,7 @@ void Assembler::handleExtern(std::string* name){
 void Assembler::handleSkip(uint32_t size){
 
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
   
   // populate memory with zeros
@@ -242,8 +234,7 @@ void Assembler::handleSkip(uint32_t size){
 void Assembler::handleWordLiteral(uint32_t value){
   
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
   LOG(std::cout << std::hex << value << std::dec;) // [] [] [] [] <= value
 
@@ -255,8 +246,7 @@ void Assembler::handleWordLiteral(uint32_t value){
 void Assembler::handleWordSymbol(std::string* name){
   // [] [] [] [] <= value of name (address)
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
 
   if(!symtab.doesSymbolExist(name)){
@@ -276,8 +266,7 @@ void Assembler::handleWordSymbol(std::string* name){
 // iret ret halt int
 void Assembler::handleZeroArgsInstructions(Instruction::OPCode op){
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
   switch (op)
   {
@@ -313,8 +302,7 @@ LOG(std::cout << "Invalid handleZeroArgsInstructions call." << std::endl;)
 void Assembler::handleJustLiteralInstructions(Instruction::OPCode op, uint32_t value){
   
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
    switch (op)
   {
@@ -336,8 +324,7 @@ LOG(std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;)
 void Assembler::handleJustSymbolInstructions(Instruction::OPCode op, std::string* name){
   
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
 
   if(!symtab.doesSymbolExist(name)){
@@ -374,8 +361,7 @@ LOG(std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;)
 // alu
 void Assembler::handleGprInstructions(Instruction::OPCode op, uint8_t gprS, uint8_t gprD){
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
   switch (op)
   {
@@ -411,8 +397,7 @@ LOG(std::cout << "Invalid handleGprInstructions call." << std::endl;)
 // push and pop
 void Assembler::handleStackInstructions(Instruction::OPCode op, uint8_t reg){
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
   switch (op)
   {
@@ -436,8 +421,7 @@ LOG(std::cout << "Invalid handleStackInstructions call." << std::endl;)
 void Assembler::handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, uint32_t value){
   
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
    switch (op)
   {
@@ -463,8 +447,7 @@ LOG(std::cout << "Invalid handleBranchLiteralInstructions call." << std::endl;)
 void Assembler::handleBranchSymbolInstructions(Instruction::OPCode op, uint8_t gpr1, uint8_t gpr2, std::string* name){
 
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
 
   if(!symtab.doesSymbolExist(name)){
@@ -510,8 +493,7 @@ LOG(std::cout << "Invalid handleJustLiteralInstructions call." << std::endl;)
 void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint8_t gprD, uint8_t gprS  ){
   
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
    switch (op)
   {
@@ -535,8 +517,7 @@ void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint
     
     case Instruction::OPCode::LD_IND_REG_LIT: // gprD <= mem32[gprS+disp]
       if(value > 0xfff){ // std::abs((int)value) >= (1 << 13)
-        std::cerr << "Invalid displacement." << std::endl;
-        return;
+        throw AssemblerException("invalid displacement -> LC=" + LC);
       }
       memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
         gprD, gprS, 0, (uint16_t)value});
@@ -555,8 +536,7 @@ LOG(std::cout << "Invalid handleLoadLiteral call." << std::endl;)
 void Assembler::handleLoadRegisters(Instruction::OPCode op,  uint8_t gprD, uint8_t gprS ){
 
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
    switch (op)
   {
@@ -581,8 +561,7 @@ LOG(std::cout << "Invalid handleLoadRegisters call." << std::endl;)
 }
 void Assembler::handleLoadSymbol(Instruction::OPCode op,  std::string* name , uint8_t gprD, uint8_t gprS  ){
 if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
 
   if(!symtab.doesSymbolExist(name)){
@@ -634,8 +613,7 @@ LOG(std::cout << "Invalid handleLoadSymbol call." << std::endl;)
 void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8_t gprData, uint8_t gprS){
 
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
    switch (op)
   {
@@ -649,8 +627,7 @@ void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8
     case Instruction::OPCode::ST_IND_REG_LIT:
     // mem32[gprS+0+Disp] <= gprData
       if(value > 0xfff){ // std::abs((int)value) >= (1 << 13)
-        std::cerr << "Invalid displacement." << std::endl;
-        return;
+        throw AssemblerException("invalid displacement -> LC=" + LC);
       }
 
       memory.writeInstruction({Instruction::OPCode::ST_MEM_DIR, 
@@ -669,8 +646,7 @@ LOG(std::cout << "Invalid handleStoreLiteral call." << std::endl;)
 void Assembler::handleStoreRegisters(Instruction::OPCode op, uint8_t gprData, uint8_t gprS){
 
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
    switch (op)
   {
@@ -694,8 +670,7 @@ LOG(std::cout << "Invalid handleStoreRegisters call." << std::endl;)
 void Assembler::handleStoreSymbol(Instruction::OPCode op,  std::string* name, uint8_t gprData){
 
   if(!symtab.sectionOpened()){
-    std::cerr << "Undefined section." << std::endl;
-    return;
+    throw AssemblerException("section not opened");
   }
   if(!symtab.doesSymbolExist(name)){
     symtab.addSymbol(name, SymbolTable::Entry{
@@ -755,7 +730,8 @@ void Assembler::literalBackpatch(){
         // check if symbol is reachable todo fix
         
         if(std::abs((int)s->offset - ((int)p.instr_location+4)) > 0xfff){
-LOG(std::cout << "Symbol too far." << s->num << std::endl;)
+          // LOG(std::cout << "Symbol too far." << s->num << std::endl;)
+          throw AssemblerException("symbol too far");
           literalPool.put(s->offset, p.instr_location); // CHECK DISPLACEMENT FOR
           continue;
         }
@@ -816,6 +792,10 @@ LOG(std::cout << "Needs relocation." << std::endl;)
 
 }
 
+void Assembler::handleSyntaxError(){
+  throw AssemblerException("syntax error -> LC="+LC);
+  
+}
 void Assembler::closeSection(){
   // close previous section 
 
@@ -847,8 +827,7 @@ LOG(std::cout << "Extern symbol -> reallocation (section, location) " << std::en
       continue;
     }
     if(!SymbolTable::isDefined(p.symbol->flags)){
-      std::cerr << "Symbol not defined." << std::endl;
-      return;
+      throw AssemblerException("undefined symbol -> " + symtab.symbol_names[p.symbol->num]);
     }
 
 LOG(std::cout << "Symbol defined and global/local. Assembler can patch." << std::endl;)
@@ -886,8 +865,6 @@ LOG(std::cout << ">>> Symbol in different section, needs relocation." << std::en
 void Assembler::handleEnd(){
   closeSection();
   symbolBackpatch();
-  // printCode(std::cout);
-  // rel.print(std::cout, &symtab);
   finished = true;
   
 };

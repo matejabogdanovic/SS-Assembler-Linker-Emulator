@@ -3,7 +3,7 @@
 #include "../../inc/common/Memory.hpp"
 #include "../../inc/common/Macros.hpp"
 #include "../../inc/assembler/LiteralPool.hpp"
-
+#include "../../inc/assembler/AssemblerException.hpp"
 #include <list>
 
 
@@ -45,7 +45,7 @@ public:
     ERROR
   } Status;
 
-
+  static void handleSyntaxError();
 
 private:
   typedef struct Backpatch{

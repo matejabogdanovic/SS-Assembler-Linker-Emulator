@@ -3,5 +3,15 @@
 
 int main(int argc, char* argv[]){
 
-  return Assembler::start(argc, argv);
+  int ret = 0;
+  try{
+   ret = Assembler::start(argc, argv);
+  }
+  catch(const AssemblerException& e)
+  {
+    std::cout << e.what() << '\n';
+    return -1;
+  }
+  
+  return ret;
 }

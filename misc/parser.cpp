@@ -2162,5 +2162,6 @@ yyreturn:
 
 void yyerror(const char* s) {
   std::cerr << "Greška: " << s << std::endl;
+  Assembler::handleSyntaxError();
 }
 
