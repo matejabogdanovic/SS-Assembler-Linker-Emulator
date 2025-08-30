@@ -545,6 +545,11 @@ void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint
     case Instruction::OPCode::LD_LIT: 
       // gprD <= value of literal
       // gprD <= mem32[gprD] (mem32[literal])
+     if(in12bSigned(value)){ 
+        memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
+        gprD, 0, 0, (uint16_t)value});
+        break;
+      }
       handleLoadLiteral(Instruction::OPCode::LD_VLIT, value, gprD);
       memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
           gprD, gprD, 0, 0});
