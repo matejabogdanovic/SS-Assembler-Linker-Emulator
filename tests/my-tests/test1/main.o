@@ -1,15 +1,12 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 36       1       d         my_code 
- 0       NOTYP    GLOB     0x00000000 0        UND      e        data1   
- 1       NOTYP    GLOB     0x00000000 0        UND      e        lhandler
- 2       NOTYP    GLOB     0x00000000 0        UND      e        bibl    
+ 1       SCTN     LOC      0x00000000 16       1       d         my_code 
+ 2       SCTN     LOC      0x00000000 8        2       d         handler 
+ 0       NOTYP    LOC      0x00000000 0        2       d         symbol1 
 | Offset | Type | Symbol | Section | Addend |
- 0000001C T_GLOB data1    my_code   0 
- 00000020 T_GLOB bibl     my_code   0 
+ 0000000C T_LOC  handler  my_code   0 
 =================Section my_code=================
-0000: 14 00 EF 92 14 00 1F 92
-0008: 00 00 11 92 10 00 F0 21
-0010: 00 00 00 00 0C 00 F0 30
-0018: 00 00 00 F0 D0 FF FF FF
-0020: F0 FF FF FF
+0000: 08 00 F0 38 00 00 00 00
+0008: 04 00 F0 30 00 00 00 00
+=================Section handler=================
+0010: 00 10 11 50 00 00 00 00

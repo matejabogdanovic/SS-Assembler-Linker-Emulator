@@ -82,6 +82,31 @@ uint32_t  Sections::getFreeAddress(uint32_t section_sz){
   
 }
 
+uint32_t Sections::getSubsectionLocalOffset(std::string* section, FileState* file){
+  uint32_t offs_inside_union = 0;
+  for(const Sections::SectionsUnion& sec_union: map){
+
+    if(sec_union.name != *section)continue;
+
+    for(const Sections::Section& sec: sec_union.sections){
+      if(sec.file == file)break;
+      offs_inside_union += sec.section->size;
+    }
+  }
+  return offs_inside_union;
+}
+
+const Sections::SectionsUnion* Sections::getSectionsUnion(std::string* section) const{
+  for(const SectionsUnion& sec_union: map){
+    if(sec_union.name == *section){
+      return &sec_union;
+    }
+
+  }
+  return nullptr;
+  
+}
+
 
 void Sections::reorderSections(){
    for (auto curr = map.begin(); curr != map.end() ;curr++){

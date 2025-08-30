@@ -34,6 +34,8 @@ public:
   bool put(FileState* file,std::string* section_name, SymbolTable::Entry* section,  uint32_t* start_address=nullptr);
   void printHex(std::ostream& os);
   void printBinary(std::ostream& os);
+  uint32_t getSubsectionLocalOffset(std::string* section, FileState* file);
+  const SectionsUnion* getSectionsUnion(std::string* section) const;
   
 private:
 void reorderSections();

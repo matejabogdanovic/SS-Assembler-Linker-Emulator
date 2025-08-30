@@ -1,5 +1,5 @@
 #include "../../inc/linker/Linker.hpp"
-std::map<std::string, uint32_t> Linker::defined_syms;
+
 std::unordered_map<std::string, uint32_t> Linker::fixed_sections_address;
 std::list<FileState> Linker::files;
 std::vector<std::string> Linker::file_names;
@@ -140,11 +140,11 @@ LOG(sections.printHex(std::cout);)
 void Linker::findDefinedSymbols(){
   std::vector<std::string> extern_syms;
 
+  
+
   for (const Sections::SectionsUnion& sec_union: sections.map){ 
-    uint64_t curr_sz = 0;
-    // add section union to defined symbols
+    uint64_t subsection_local_offset = 0;
     std::string sec_union_name = sec_union.name;
-    defined_syms[sec_union_name] = sec_union.start_address;
 
     global_symtab.addSection(&sec_union_name, 
       SymbolTable::Entry(sec_union.start_address, 
@@ -157,7 +157,7 @@ void Linker::findDefinedSymbols(){
 
     for (const Sections::Section& section: sec_union.sections){
       SymbolTable* symtab = &section.file->symtab;
-      // *section.start_address =  sec_union.start_address + curr_sz;
+
 
       for (size_t i = 0; i < symtab->getNumOfSymbols(); i++){
         std::string sym_name = symtab->getSymbolName(i);
@@ -171,15 +171,17 @@ void Linker::findDefinedSymbols(){
 
 
         if(SymbolTable::isDefined(symbol->flags)){
-          if(defined_syms.count(sym_name)>0){
+          
+          if(global_symtab.doesSymbolExist(&sym_name) && 
+          SymbolTable::isDefined(global_symtab.getSymbol(&sym_name)->flags)){
+            
             throw LinkerException("multiple symbol definition -> " + sym_name);
           }
 LOG(std::cout << "(+)d\n";)
           // calculate final address
-          defined_syms[sym_name] = symbol->offset + sec_union.start_address + curr_sz;
-
+   
           global_symtab.addSymbol(&sym_name, 
-          SymbolTable::Entry(defined_syms[sym_name], 
+          SymbolTable::Entry(symbol->offset + sec_union.start_address + subsection_local_offset, 
           SymbolTable::Bind::GLOB,
           global_symtab.getCurrentSection()->ndx, 
           symbol->flags, 
@@ -189,33 +191,65 @@ LOG(std::cout << "(+)d\n";)
            ));
         }else if(SymbolTable::isExtern(symbol->flags)){
 LOG(std::cout << "(+)e\n";)
-          // todo when relocatable => if not added as extern, add
+
           extern_syms.push_back(sym_name);
+
+           global_symtab.addSymbol(&sym_name, 
+            SymbolTable::Entry(symbol->offset, 
+            SymbolTable::Bind::GLOB,
+            global_symtab.getCurrentSection()->ndx, 
+            symbol->flags, 
+            symbol->type, 
+            symbol->size, 
+            0
+           ));
+
         } // if absolute todo
           
       }
     
-      curr_sz += section.section->size;
+      subsection_local_offset += section.section->size;
     }
       
   }
-
+  // todo maybe check sections?
   for(std::string extern_sym_name: extern_syms){
-    if(defined_syms.count(extern_sym_name) == 0){
+
+    if(!global_symtab.doesSymbolExist(&extern_sym_name) || 
+    global_symtab.doesSymbolExist(&extern_sym_name) &&  !SymbolTable::isDefined(global_symtab.getSymbol(&extern_sym_name)->flags
+    )){
+      // if relocatable it's okay
       throw LinkerException("unresolved symbol -> " + extern_sym_name);
     }
   }
 
+  // creating global relocation table
+  // todo if relocatable offset needs to be record.offset + union offset + local section offset
+  for(FileState& file: files){
+    for(RelTable::Entry& record: file.rel.table){
+        std::string sym_name = record.type == RelTable::RelType::T_LOC?
+        file.symtab.getSectionName(record.symbol):
+        file.symtab.getSymbolName(record.symbol);
+        std::string sec_name = file.symtab.getSectionName(record.section);
+
+        global_rel.put({
+          record.offset, 
+          record.type == RelTable::RelType::T_LOC ?
+           global_symtab.getSection(&sym_name) : 
+          global_symtab.getSymbol(&sym_name),
+
+          global_symtab.getSection(&sec_name),
+          record.type,
+          record.addend
+        });
+    }
+  }
 }
 
 void Linker::createSectionOrder(){
 
   for(FileState& file: files){
     // go through sections and make section union
-  
-    // for(RelTable::Entry& record: file.rel.table){
-    //   global_rel.put(record);
-    // }
     for (size_t i = 0; i < file.symtab.getNumOfSections(); i++){
       std::string section_name = file.symtab.getSectionName(i);
       bool section_fixed = fixed_sections_address.count(section_name)>0;
@@ -226,6 +260,8 @@ void Linker::createSectionOrder(){
       sections.put(&file, &section_name, section, section_fixed?&start_address:nullptr);
         
     }
+
+    
    
   }
 
@@ -243,48 +279,43 @@ LOG(std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void Linker::linking(){
 LOG(std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";)
 LOG(std::cout << "LINKING\n";)
-  uint32_t addr = 0;
+  // go in every section union
   for(const Sections::SectionsUnion& sec_union: sections.map){
-
-    uint32_t offset = 0;
-LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
+    uint32_t fixing_subsection_local_offset = 0;
+    LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
+    // go in every section/subsection in section union
     for(const Sections::Section& section: sec_union.sections){
-      uint32_t offs_inside_union = 0;
+      uint32_t fixer_subsection_local_offset = 0;
       RelTable* rel =  &section.file->rel; // rel table for this section in section union
-      uint32_t section_start_in_file = section.file->symtab.getSectionStart(section.section->ndx);
-      
+      uint32_t section_start_in_obj_file = section.file->symtab.getSectionStart(section.section->ndx);
+      // go through all relocations in the file and find sections to fix
       for(RelTable::Entry& record: rel->table){
-        // case for different rel types
         if(record.section->ndx != section.section->ndx)continue;
-
-        uint32_t addr_to_fix = sec_union.start_address + offset + record.offset;
+        // case for different rel types
+        std::string sym_name;
         uint32_t addr_to_put;
         switch (record.type)
         {
         case RelTable::T_GLOB:
-           addr_to_put = defined_syms[section.file->symtab.getSymbolName(record.symbol->num)];
+          sym_name = section.file->symtab.getSymbolName(record.symbol->num);
+          addr_to_put = global_symtab.getSymbol(&sym_name)->offset;
         break;
+        // symbol which address we need to put is local and section is given as symbol in reltable
+        // that section is in union and we know union start but we don't know offset of that
+        // section inside the union, so calculate that
         case RelTable::T_LOC:
-        // NEED TO CHANGE IN SPECIFIC SUBSECTION, NOT JUST IN SECTION UNION BECAUSE ADDEND IS LOCAL
-        // todo, fix this 
-        for(const Sections::SectionsUnion& sec_union2: sections.map){
-          if(sec_union2.name != section.file->symtab.getSectionName(record.symbol->num))continue;
-          for(const Sections::Section& section2: sec_union2.sections){
-            if(section2.file == section.file)break;
-            offs_inside_union += section2.section->size;
-          }
-        }
-        // LOG(std::cout <<" offs_inside_union " << offs_inside_union << " from *section.start_address " << *section.start_address << std::endl;)
+        sym_name = section.file->symtab.getSectionName(record.symbol->num);
+        fixer_subsection_local_offset = sections.getSubsectionLocalOffset(&sym_name, section.file);
 
-         addr_to_put = defined_syms[section.file->symtab.getSectionName(record.symbol->num)]
-          + record.addend + offs_inside_union;
+         addr_to_put = global_symtab.getSection(&sym_name)->offset
+          + record.addend + fixer_subsection_local_offset;
         break;
         default:
           throw LinkerException("invalid relocation type");
 
         }
   
-        LOG(std::cout << "addr abs to fix is: 0x" << std::hex << addr_to_fix 
+        LOG(std::cout << "addr abs to fix is: 0x" << std::hex << (sec_union.start_address + fixing_subsection_local_offset + record.offset) 
         << " addr relative to fix: 0x" << record.offset ;)
         LOG(std::cout<< " using address: 0x" << 
         addr_to_put
@@ -292,21 +323,23 @@ LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
         
         section.file->memory.changeWord(
           addr_to_put, 
-          record.offset + section_start_in_file);
+          record.offset + section_start_in_obj_file);
 
+
+        
       }
       LOG(if(sec_union.name != "")
-        section.file->memory.print(std::cout, section_start_in_file, section.section->size,
-      offset+sec_union.start_address-section_start_in_file);)
+        section.file->memory.print(std::cout, section_start_in_obj_file, section.section->size,
+      fixing_subsection_local_offset+sec_union.start_address-section_start_in_obj_file);)
 
 
-      offset += section.section->size;
+      fixing_subsection_local_offset += section.section->size;
     }   
   } 
-  
+
 
   LOG(global_symtab.print(std::cout);)
-  // global_rel.print(std::cout, &global_symtab);
+  LOG(global_rel.print(std::cout, &global_symtab));
 }
 
 

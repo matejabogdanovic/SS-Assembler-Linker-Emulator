@@ -1,4 +1,4 @@
-#define ENABLE_LOG 0
+#define ENABLE_LOG 1
 
 #if ENABLE_LOG
   #define LOG(x) x;

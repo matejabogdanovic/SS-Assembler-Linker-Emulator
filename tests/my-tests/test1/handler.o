@@ -1,15 +1,7 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 24       1       d         handler 
- 2       SCTN     LOC      0x00000000 8        2       d         my_data 
- 0       NOTYP    GLOB     0x00000000 0        1       d         lhandler
- 1       NOTYP    LOC      0x00000000 0        2       d         data1   
- 2       NOTYP    LOC      0x00000004 0        2       d         data2   
+ 1       SCTN     LOC      0x00000000 8        1       d         handler 
+ 0       NOTYP    LOC      0x00000000 0        1       d         symbol2 
 | Offset | Type | Symbol | Section | Addend |
- 00000014 T_LOC  my_data  handler   0 
 =================Section handler=================
-0000: 10 00 BF 92 00 00 BB 92
-0008: 04 00 1E 96 08 00 FE 93
-0010: 04 00 F0 30 00 00 00 00
-=================Section my_data=================
-0018: F1 0F 00 00 F2 0F 00 00
+0000: 00 20 22 50 00 00 00 00
