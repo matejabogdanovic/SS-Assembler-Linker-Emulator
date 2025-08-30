@@ -2,6 +2,6 @@
 
 .section my_code
 
-ld [%r0 + 0x7f0], %r1
-
+ld $0x000005f1, %r1
+halt
 .end

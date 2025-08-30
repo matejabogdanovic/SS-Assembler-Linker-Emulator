@@ -531,6 +531,11 @@ void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint
   {
     case Instruction::OPCode::LD_VLIT:
      // gprD <= mem32[PC+disp_to_pool]
+     if(in12bSigned(value)){ 
+        memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_DIR_DISP, 
+        gprD, 0, 0, (uint16_t)value});
+      break;
+    }
       memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
         gprD, PC, 0, 0});
       literalPool.put(value, LC);
