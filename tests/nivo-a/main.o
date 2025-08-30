@@ -2,19 +2,19 @@
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 272      1       d         my_code 
  2       SCTN     LOC      0x00000000 28       2       d         my_data 
- 0       NOTYP    GLOB     0x00000000 0        UND      e        handler 
- 1       NOTYP    GLOB     0x00000000 0        UND      e        mathAdd 
- 2       NOTYP    GLOB     0x00000000 0        UND      e        mathSub 
- 3       NOTYP    GLOB     0x00000000 0        UND      e        mathMul 
- 4       NOTYP    GLOB     0x00000000 0        UND      e        mathDiv 
- 5       NOTYP    GLOB     0x00000000 0        1       d         my_start
- 6       NOTYP    GLOB     0x00000000 0        2       d         value1  
- 7       NOTYP    GLOB     0x00000004 0        2       d         value2  
- 8       NOTYP    GLOB     0x00000008 0        2       d         value3  
- 9       NOTYP    GLOB     0x0000000c 0        2       d         value4  
- 10      NOTYP    GLOB     0x00000010 0        2       d         value5  
- 11      NOTYP    GLOB     0x00000014 0        2       d         value6  
- 12      NOTYP    GLOB     0x00000018 0        2       d         value7  
+ 3       NOTYP    GLOB     0x00000000 0        UND      e        handler 
+ 4       NOTYP    GLOB     0x00000000 0        UND      e        mathAdd 
+ 5       NOTYP    GLOB     0x00000000 0        UND      e        mathSub 
+ 6       NOTYP    GLOB     0x00000000 0        UND      e        mathMul 
+ 7       NOTYP    GLOB     0x00000000 0        UND      e        mathDiv 
+ 8       NOTYP    GLOB     0x00000000 0        1       d         my_start
+ 9       NOTYP    GLOB     0x00000000 0        2       d         value1  
+ 10      NOTYP    GLOB     0x00000004 0        2       d         value2  
+ 11      NOTYP    GLOB     0x00000008 0        2       d         value3  
+ 12      NOTYP    GLOB     0x0000000c 0        2       d         value4  
+ 13      NOTYP    GLOB     0x00000010 0        2       d         value5  
+ 14      NOTYP    GLOB     0x00000014 0        2       d         value6  
+ 15      NOTYP    GLOB     0x00000018 0        2       d         value7  
 | Offset | Type | Symbol | Section | Addend |
  000000C8 T_GLOB handler  my_code   0 
  000000D0 T_GLOB value2   my_code   0 

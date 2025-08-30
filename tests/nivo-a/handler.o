@@ -1,14 +1,14 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 92       1       d         my_handler
- 0       NOTYP    GLOB     0x00000000 0        UND      e        isr_timer
- 1       NOTYP    GLOB     0x00000000 0        UND      e        isr_terminal
- 2       NOTYP    GLOB     0x00000000 0        UND      e        isr_software
- 3       NOTYP    GLOB     0x00000000 0        1       d         handler 
- 4       NOTYP    LOC      0x00000034 0        1       d         handle_timer
- 5       NOTYP    LOC      0x0000003c 0        1       d         handle_terminal
- 6       NOTYP    LOC      0x00000044 0        1       d         handle_software
- 7       NOTYP    LOC      0x00000024 0        1       d         finish  
+ 2       NOTYP    GLOB     0x00000000 0        UND      e        isr_timer
+ 3       NOTYP    GLOB     0x00000000 0        UND      e        isr_terminal
+ 4       NOTYP    GLOB     0x00000000 0        UND      e        isr_software
+ 5       NOTYP    GLOB     0x00000000 0        1       d         handler 
+ 6       NOTYP    LOC      0x00000034 0        1       d         handle_timer
+ 7       NOTYP    LOC      0x0000003c 0        1       d         handle_terminal
+ 8       NOTYP    LOC      0x00000044 0        1       d         handle_software
+ 9       NOTYP    LOC      0x00000024 0        1       d         finish  
 | Offset | Type | Symbol | Section | Addend |
  00000050 T_GLOB isr_timer my_handler 0 
  00000054 T_GLOB isr_terminal my_handler 0 

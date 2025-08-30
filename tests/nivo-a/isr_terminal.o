@@ -1,7 +1,7 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 4        1       d         isr     
- 0       NOTYP    GLOB     0x00000000 0        1       d         isr_terminal
+ 2       NOTYP    GLOB     0x00000000 0        1       d         isr_terminal
 | Offset | Type | Symbol | Section | Addend |
 =================Section isr=================
 0000: 04 00 FE 93

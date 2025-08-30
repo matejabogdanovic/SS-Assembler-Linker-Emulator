@@ -1,10 +1,10 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 96       1       d         math    
- 0       NOTYP    GLOB     0x00000000 0        1       d         mathAdd 
- 1       NOTYP    GLOB     0x00000018 0        1       d         mathSub 
- 2       NOTYP    GLOB     0x00000030 0        1       d         mathMul 
- 3       NOTYP    GLOB     0x00000048 0        1       d         mathDiv 
+ 2       NOTYP    GLOB     0x00000000 0        1       d         mathAdd 
+ 3       NOTYP    GLOB     0x00000018 0        1       d         mathSub 
+ 4       NOTYP    GLOB     0x00000030 0        1       d         mathMul 
+ 5       NOTYP    GLOB     0x00000048 0        1       d         mathDiv 
 | Offset | Type | Symbol | Section | Addend |
 =================Section math=================
 0000: FC 2F E0 81 08 00 1E 92

@@ -230,9 +230,9 @@ void SymbolTable::print(std::ostream& os){
   }
 
   for(int i = 0; i < symbol_names.size(); i++){
-    Entry* e =  &symbols[symbol_names[i]];
-    //e->num = section_names.size() + i; // correct index (from sections)
-    printEntry(&symbol_names[i], e, os);
+    Entry e =  symbols[symbol_names[i]];
+    e.num = section_names.size() + i; // correct index (from sections)
+    printEntry(&symbol_names[i], &e, os);
   }
 
 }

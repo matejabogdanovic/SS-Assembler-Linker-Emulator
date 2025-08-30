@@ -1,8 +1,8 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 44       1       d         isr     
- 0       NOTYP    GLOB     0x00000000 0        UND      e        value1  
- 1       NOTYP    GLOB     0x00000000 0        1       d         isr_software
+ 2       NOTYP    GLOB     0x00000000 0        UND      e        value1  
+ 3       NOTYP    GLOB     0x00000000 0        1       d         isr_software
 | Offset | Type | Symbol | Section | Addend |
  00000028 T_GLOB value1   isr       0 
 =================Section isr=================
