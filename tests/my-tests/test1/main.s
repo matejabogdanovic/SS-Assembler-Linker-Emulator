@@ -2,6 +2,7 @@
 .extern lhandler, bibl
 .section my_code
 ld $0xf0000000, %sp
+
 # ld $data1, %r10
 # ld $lhandler, %r1
 # st %r1, [%r10+0x4]

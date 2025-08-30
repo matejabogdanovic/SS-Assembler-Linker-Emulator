@@ -236,8 +236,7 @@ void Assembler::handleWordLiteral(uint32_t value){
   if(!symtab.sectionOpened()){
     throw AssemblerException("section not opened");
   }
-  LOG(std::cout << std::hex << value << std::dec;) // [] [] [] [] <= value
-
+  
   memory.writeWord(value);
   
   LC+=4;
@@ -262,6 +261,9 @@ void Assembler::handleWordSymbol(std::string* name){
 
   LC+=4;
 }
+
+#define in12bSigned(value) ((value <= 0x7ff) || ((value & 0xfffff800)  == 0xfffff800))
+
 // Instructions ----------
 // iret ret halt int
 void Assembler::handleZeroArgsInstructions(Instruction::OPCode op){
@@ -300,17 +302,29 @@ LOG(std::cout << "Invalid handleZeroArgsInstructions call." << std::endl;)
 }
 // call and jmp
 void Assembler::handleJustLiteralInstructions(Instruction::OPCode op, uint32_t value){
-  
+  std::cout << std::hex << (value & 0xfffff800 ) ;
   if(!symtab.sectionOpened()){
     throw AssemblerException("section not opened");
   }
    switch (op)
   {
     case Instruction::OPCode::CALL_IND:
+      if(in12bSigned(value)){
+        memory.writeInstruction(
+          {Instruction::OPCode::CALL_REG, 0, 0, 0, (uint16_t)value});
+          break;
+      }
+      memory.writeInstruction({op, PC});
+      literalPool.put(value, LC);
+      break;
     case Instruction::OPCode::JMP_REG_IND_DISP:
-
-        memory.writeInstruction({op, PC});
-        literalPool.put(value, LC);
+      if(in12bSigned(value)){
+        memory.writeInstruction(
+          {Instruction::OPCode::JMP_REG_DIR_DISP, 0, 0, 0, (uint16_t)value});
+          break;
+      }
+      memory.writeInstruction({op, PC});
+      literalPool.put(value, LC);
     break;
 
 
@@ -426,14 +440,32 @@ void Assembler::handleBranchLiteralInstructions(Instruction::OPCode op, uint8_t 
    switch (op)
   {
     case Instruction::OPCode::BEQ_REG_IND_DISP:
-    case Instruction::OPCode::BNE_REG_IND_DISP:
-    case Instruction::OPCode::BGT_REG_IND_DISP:
-  
+      if(in12bSigned(value)){
+        memory.writeInstruction({Instruction::OPCode::BEQ_REG_DIR_DISP,
+           0, gpr1, gpr2, (uint16_t)value});
+        break;
+      }
       memory.writeInstruction({op, PC, gpr1, gpr2});
       literalPool.put(value, LC);
-      
-
-    break;
+      break;
+    case Instruction::OPCode::BNE_REG_IND_DISP:
+      if(in12bSigned(value)){
+        memory.writeInstruction({Instruction::OPCode::BNE_REG_DIR_DISP,
+           0, gpr1, gpr2, (uint16_t)value});
+        break;
+      }
+      memory.writeInstruction({op, PC, gpr1, gpr2});
+      literalPool.put(value, LC);
+      break;
+    case Instruction::OPCode::BGT_REG_IND_DISP:
+      if(in12bSigned(value)){
+        memory.writeInstruction({Instruction::OPCode::BGT_REG_DIR_DISP,
+           0, gpr1, gpr2, (uint16_t)value});
+        break;
+      }
+      memory.writeInstruction({op, PC, gpr1, gpr2});
+      literalPool.put(value, LC);
+      break;
 
 
   default:
@@ -516,7 +548,7 @@ void Assembler::handleLoadLiteral(Instruction::OPCode op,  uint32_t value , uint
     break;
     
     case Instruction::OPCode::LD_IND_REG_LIT: // gprD <= mem32[gprS+disp]
-      if(value > 0xfff){ // std::abs((int)value) >= (1 << 13)
+      if(!in12bSigned(value)){ // std::abs((int)value) >= (1 << 13)
         throw AssemblerException("invalid displacement -> LC=" + std::to_string(LC));
       }
       memory.writeInstruction({Instruction::OPCode::LD_TO_GPR_REG_IND_DISP, 
@@ -626,7 +658,7 @@ void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8
     break;
     case Instruction::OPCode::ST_IND_REG_LIT:
     // mem32[gprS+0+Disp] <= gprData
-      if(value > 0xfff){ // std::abs((int)value) >= (1 << 13)
+      if(!in12bSigned(value)){ // std::abs((int)value) >= (1 << 13) or value > 0xfff
         throw AssemblerException("invalid displacement -> LC=" + std::to_string(LC));
       }
 
@@ -727,13 +759,12 @@ void Assembler::literalBackpatch(){
       SymbolTable::Entry* s =  symtab.getSymbol(&p.symbol_name);
       if(SymbolTable::isDefined(s->flags)&&
          s->ndx == symtab.current_section){ // defined in this section
-        // check if symbol is reachable todo fix
-        
+
         if(std::abs((int)s->offset - ((int)p.instr_location+4)) > 0xfff){
           // LOG(std::cout << "Symbol too far." << s->num << std::endl;)
           throw AssemblerException("symbol too far");
-          literalPool.put(s->offset, p.instr_location); // CHECK DISPLACEMENT FOR
-          continue;
+          // literalPool.put(s->offset, p.instr_location); // CHECK DISPLACEMENT FOR
+          
         }
         // write displacement in instruction
 LOG(std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;)

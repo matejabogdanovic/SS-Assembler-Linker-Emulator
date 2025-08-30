@@ -1,11 +1,13 @@
 #include "../../inc/linker/Linker.hpp"
 std::map<std::string, uint32_t> Linker::defined_syms;
-std::unordered_map<std::string, uint32_t> Linker::section_starts;
+std::unordered_map<std::string, uint32_t> Linker::fixed_sections_address;
 std::list<FileState> Linker::files;
 std::vector<std::string> Linker::file_names;
 std::string Linker::output = "out.hex";
 Sections Linker::sections;
 
+SymbolTable Linker::global_symtab(false);
+RelTable Linker::global_rel;
 
 #include <regex>
 int Linker::parseArguments(int argc, char* argv[]){
@@ -30,7 +32,7 @@ LOG(std::cout << " output " << output << std::endl;)
       hex_defined = true;
 
     }else if(!options_end && std::regex_match(command, match ,place_regex)){
-      section_starts[match[1]] = std::stoul(match[2], nullptr, 16);
+      fixed_sections_address[match[1]] = std::stoul(match[2], nullptr, 16);
     }else {
       options_end = true;
       file_names.push_back(std::string(argv[i])+std::string(".bin"));
@@ -133,23 +135,40 @@ LOG(sections.printHex(std::cout);)
   return 0;
 }
 
+
+// when relocatable sections are starting from 0 and offsets are in sections
 void Linker::findDefinedSymbols(){
   std::vector<std::string> extern_syms;
 
   for (const Sections::SectionsUnion& sec_union: sections.map){ 
     uint64_t curr_sz = 0;
     // add section union to defined symbols
-    defined_syms[sec_union.name] = sec_union.start_address;
+    std::string sec_union_name = sec_union.name;
+    defined_syms[sec_union_name] = sec_union.start_address;
+
+    global_symtab.addSection(&sec_union_name, 
+      SymbolTable::Entry(sec_union.start_address, 
+        SymbolTable::Bind::LOC,
+        0, SymbolTable::DEFINED, 
+        SymbolTable::Type::SCTN, 
+        sec_union.size, 
+        0
+    ));
 
     for (const Sections::Section& section: sec_union.sections){
       SymbolTable* symtab = &section.file->symtab;
-      
+      // *section.start_address =  sec_union.start_address + curr_sz;
+
       for (size_t i = 0; i < symtab->getNumOfSymbols(); i++){
         std::string sym_name = symtab->getSymbolName(i);
         SymbolTable::Entry* symbol = symtab->getSymbol(&sym_name);
         
-        if(symbol->bind == SymbolTable::Bind::LOC ||
-          symtab->getSectionName(symbol->ndx) != sec_union.name)continue;
+        if(symtab->getSectionName(symbol->ndx) != sec_union_name)continue;
+        if(symbol->bind == SymbolTable::Bind::LOC){
+          // todo when relocatable => check if defined and then add local symbol, if already extern, then error... assembler checks.
+          continue;
+        }
+
 
         if(SymbolTable::isDefined(symbol->flags)){
           if(defined_syms.count(sym_name)>0){
@@ -158,9 +177,19 @@ void Linker::findDefinedSymbols(){
 LOG(std::cout << "(+)d\n";)
           // calculate final address
           defined_syms[sym_name] = symbol->offset + sec_union.start_address + curr_sz;
+
+          global_symtab.addSymbol(&sym_name, 
+          SymbolTable::Entry(defined_syms[sym_name], 
+          SymbolTable::Bind::GLOB,
+          global_symtab.getCurrentSection()->ndx, 
+          symbol->flags, 
+          symbol->type, 
+          symbol->size, 
+          0
+           ));
         }else if(SymbolTable::isExtern(symbol->flags)){
 LOG(std::cout << "(+)e\n";)
-          
+          // todo when relocatable => if not added as extern, add
           extern_syms.push_back(sym_name);
         } // if absolute todo
           
@@ -183,11 +212,15 @@ void Linker::createSectionOrder(){
 
   for(FileState& file: files){
     // go through sections and make section union
+  
+    // for(RelTable::Entry& record: file.rel.table){
+    //   global_rel.put(record);
+    // }
     for (size_t i = 0; i < file.symtab.getNumOfSections(); i++){
       std::string section_name = file.symtab.getSectionName(i);
-      bool section_fixed = section_starts.count(section_name)>0;
+      bool section_fixed = fixed_sections_address.count(section_name)>0;
       uint32_t start_address = 
-      (section_fixed?section_starts[section_name]:0); 
+      (section_fixed?fixed_sections_address[section_name]:0); 
       SymbolTable::Entry* section = file.symtab.getSection(&section_name);
 
       sections.put(&file, &section_name, section, section_fixed?&start_address:nullptr);
@@ -241,6 +274,8 @@ LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
             offs_inside_union += section2.section->size;
           }
         }
+        // LOG(std::cout <<" offs_inside_union " << offs_inside_union << " from *section.start_address " << *section.start_address << std::endl;)
+
          addr_to_put = defined_syms[section.file->symtab.getSectionName(record.symbol->num)]
           + record.addend + offs_inside_union;
         break;
@@ -270,7 +305,8 @@ LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
   } 
   
 
-  
+  global_symtab.print(std::cout);
+  // global_rel.print(std::cout, &global_symtab);
 }
 
 

@@ -8,6 +8,7 @@ public:
   struct Section{
     FileState* file;
     SymbolTable::Entry* section;
+    
   };
   int globalOrder = 0;
   struct SectionsUnion{
