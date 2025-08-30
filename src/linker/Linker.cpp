@@ -305,7 +305,7 @@ LOG(std::cout <<"Section union: " << sec_union.name << std::endl;)
   } 
   
 
-  global_symtab.print(std::cout);
+  LOG(global_symtab.print(std::cout);)
   // global_rel.print(std::cout, &global_symtab);
 }
 

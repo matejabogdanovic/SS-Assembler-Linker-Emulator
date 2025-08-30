@@ -302,7 +302,7 @@ LOG(std::cout << "Invalid handleZeroArgsInstructions call." << std::endl;)
 }
 // call and jmp
 void Assembler::handleJustLiteralInstructions(Instruction::OPCode op, uint32_t value){
-  std::cout << std::hex << (value & 0xfffff800 ) ;
+  
   if(!symtab.sectionOpened()){
     throw AssemblerException("section not opened");
   }
