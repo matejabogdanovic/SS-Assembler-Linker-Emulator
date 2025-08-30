@@ -1,8 +1,8 @@
 
 
 .section my_code
-
-ld 0xfffff8ff, %r1
+ld $0x1, %r1
+st  %r1, 0xfffff9ff
 halt
 
 .section data

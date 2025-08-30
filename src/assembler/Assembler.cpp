@@ -661,6 +661,13 @@ void Assembler::handleStoreLiteral(Instruction::OPCode op, uint32_t value, uint8
   {
     case Instruction::OPCode::ST_LIT:
      // mem32[mem32[PC+0+Disp]] <= gprData
+
+      if(in12bSigned(value)){ 
+        memory.writeInstruction({Instruction::OPCode::ST_MEM_DIR, 
+        0, 0, gprData, (uint16_t)value});
+        break;
+      }
+
       memory.writeInstruction({Instruction::OPCode::ST_MEM_IND, 
         PC, 0, gprData, 0});
       literalPool.put(value, LC);
