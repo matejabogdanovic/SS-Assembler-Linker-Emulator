@@ -1,7 +1,7 @@
-
+.extern symbol2
 .section my_code
 
-jmp symbol1
+jmp symbol2
 
 
 halt

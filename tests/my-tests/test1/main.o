@@ -2,11 +2,12 @@
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 16       1       d         my_code 
  2       SCTN     LOC      0x00000000 8        2       d         handler 
- 0       NOTYP    LOC      0x00000000 0        2       d         symbol1 
+ 3       NOTYP    GLOB     0x00000000 0        UND      e        symbol2 
+ 4       NOTYP    LOC      0x00000000 0        2       d         symbol1 
 | Offset | Type | Symbol | Section | Addend |
- 0000000C T_LOC  handler  my_code   0 
+ 0000000C T_GLOB symbol2  my_code   0 
 =================Section my_code=================
 0000: 08 00 F0 38 00 00 00 00
-0008: 04 00 F0 30 00 00 00 00
+0008: 04 00 F0 30 F1 FF FF FF
 =================Section handler=================
 0010: 00 10 11 50 00 00 00 00

@@ -232,6 +232,12 @@ LOG(std::cout << "(+)e\n";)
         file.symtab.getSymbolName(record.symbol);
         std::string sec_name = file.symtab.getSectionName(record.section);
 
+        LOG(std::cout << sym_name << " " << std::hex << 
+          record.offset << 
+          " " << record.offset + sections.getSectionsUnion(&sec_name) ->start_address +
+           sections.getSubsectionLocalOffset(&sec_name, &file)
+          << std::dec << std::endl;)
+
         global_rel.put({
           record.offset, 
           record.type == RelTable::RelType::T_LOC ?

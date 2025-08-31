@@ -1,3 +1,5 @@
+.global symbol2
+.section my_code
 
 .section handler
 symbol2:

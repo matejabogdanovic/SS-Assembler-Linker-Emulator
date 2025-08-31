@@ -22,6 +22,8 @@ public:
   static void handleWordSymbol(std::string* name);
   static void handleEnd();
 
+  static void handleAscii(std::string* name);
+
 
   static void handleZeroArgsInstructions(Instruction::OPCode op);
   static void handleJustLiteralInstructions(Instruction::OPCode op, uint32_t value);

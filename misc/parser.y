@@ -26,9 +26,9 @@ void yyerror(const char *s);
 %token ENDL COLON COMMA DOLLAR LBRACKET RBRACKET PLUS
 %token <num> LITERAL 
 %token <str> SYMBOL 
-
+%token <str> ASCII_STRING
 /* directives */
-%token GLOBAL EXTERN SECTION WORD SKIP END
+%token GLOBAL EXTERN SECTION WORD SKIP END ASCII
 %token <str> SECTION_NAME 
 
 %type <str> section_name_t
@@ -104,7 +104,10 @@ directive:
     SKIP LITERAL { LOG(std::cout << ".skip 0x" << std::hex << $2 << std::dec  << std::endl;); 
         Assembler::handleSkip((int32_t)$2);
     } |
-    END { LOG(std::cout << ".end" << std::endl;);  Assembler::handleEnd(); YYACCEPT;}
+    END { LOG(std::cout << ".end" << std::endl;);  Assembler::handleEnd(); YYACCEPT;} |
+    ASCII ASCII_STRING { LOG(std::cout << ".ascii " << *$2 << std::endl); 
+        Assembler::handleAscii($2);
+        delete $2;}
 ;
 sym_list_global:
     SYMBOL {LOG(std::cout << ".global "<< *$1;);

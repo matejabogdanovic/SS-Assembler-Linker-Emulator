@@ -262,6 +262,19 @@ void Assembler::handleWordSymbol(std::string* name){
   LC+=4;
 }
 
+
+void Assembler::handleAscii(std::string* name){
+  if(!symtab.sectionOpened()){
+    throw AssemblerException("section not opened");
+  }
+  for (uint8_t c : *name) {
+    memory.writeByte(c);
+
+    LC += 1;
+  }
+
+}
+
 #define in12bSigned(value) ((value <= 0x7ff) || ((value & 0xfffff800)  == 0xfffff800))
 
 // Instructions ----------

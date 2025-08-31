@@ -1,11 +1,11 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 20       1       d         my_code 
- 2       SCTN     LOC      0x00000000 4        2       d         data    
+ 1       SCTN     LOC      0x00000000 4        1       d         my_code 
+ 2       SCTN     LOC      0x00000000 13       2       d         data    
 | Offset | Type | Symbol | Section | Addend |
 =================Section my_code=================
-0000: 01 00 10 91 08 10 F0 82
-0008: 00 00 00 00 04 00 F0 30
-0010: FF 19 FF FF
+0000: 00 00 00 00
 =================Section data=================
-0014: 69 69 00 00
+0004: 69 69 00 00
+0008: 73 6F 6D 65 20 74 65 78
+0010: 74

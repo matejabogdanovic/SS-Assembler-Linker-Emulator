@@ -26,6 +26,8 @@ plus "+"
 literal (([0-9]+|(0[Xx])[0-9A-Fa-f]+))
 symbol [a-zA-Z_][a-zA-Z0-9_]*
 section_name [\.a-zA-Z0-9_]+
+ascii_string \"([^"^#]*)\"
+
 
 gprx ("%sp"|"%pc"|("%r"[0|1|2|3|4|5|6|7|8|9])|("%r1"[0|1|2|3|4|5]))
 csr ("%status"|"%handler"|"%cause")
@@ -38,6 +40,7 @@ csr ("%status"|"%handler"|"%cause")
 ".skip" {return SKIP;}
 ".end" { return END;}
 
+".ascii" {return ASCII;}
 
 "halt" {return HALT;}
 "int" {return INT;}
@@ -111,6 +114,12 @@ csr ("%status"|"%handler"|"%cause")
 {symbol} { yylval.str = new std::string(yytext); return SYMBOL;}
 
 {section_name} {yylval.str = new std::string(yytext); return SECTION_NAME;}
+
+{ascii_string} {
+  yylval.str = new std::string(yytext + 1, yyleng - 2); 
+  
+  return ASCII_STRING;
+  }
 
 . {yyerror("Unknown symbol.");} 
 %%
