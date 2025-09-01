@@ -13,9 +13,8 @@ public:
     LOC, GLOB
   } Bind;
   typedef enum : uint8_t  {
-    DEFINED = 0b00000001,
-    EXTERN = 0b00000010,
-    ABSOLUTE = 0b00000100
+
+    ABSOLUTE = 0b00000001
   } Flags;
   
   SymbolTable(bool init = true);
@@ -56,8 +55,8 @@ public:
   } Entry;
 
   // checks
-  static bool isDefined(uint8_t flags) ;
-  static bool isExtern(uint8_t flags) ;
+  static bool isDefined(Entry* e) ;
+  static bool isExtern(Entry* e) ;
   static bool isAbsolute(uint8_t flags) ;
   bool doesSymbolExist(std::string* name) const;
   bool sectionOpened() const; 

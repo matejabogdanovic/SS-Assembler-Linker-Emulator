@@ -1,10 +1,5 @@
-.global addRegs, handler
+.extern a
 .section math
-addRegs:
-    add %r1, %r2 # r2<=3
+a: ld $0x1, %r2
 ret
-handler:
-    ld $0x2, %r1
-    and %r1, %r2
-iret
 .end

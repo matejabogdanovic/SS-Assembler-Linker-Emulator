@@ -2,9 +2,9 @@
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 52       1       d         my_code 
  2       SCTN     LOC      0x00000000 4        2       d         my_data 
- 3       NOTYP    GLOB     0x00000000 0        1       d         my_start
- 4       NOTYP    GLOB     0x00000000 0        2       d         my_counter
- 5       NOTYP    GLOB     0x00000000 0        UND      e        handler 
+ 3       NOTYP    GLOB     0x00000000 0        UND      e        handler 
+ 4       NOTYP    GLOB     0x00000000 0        1       d         my_start
+ 5       NOTYP    GLOB     0x00000000 0        2       d         my_counter
  6       NOTYP    LOC      0x00000014 0        1       d         wait    
 | Offset | Type | Symbol | Section | Addend |
  0000002C T_GLOB handler  my_code   0 

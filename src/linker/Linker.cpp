@@ -149,7 +149,7 @@ void Linker::findDefinedSymbols(){
     global_symtab.addSection(&sec_union_name, 
       SymbolTable::Entry(sec_union.start_address, 
         SymbolTable::Bind::LOC,
-        0, SymbolTable::DEFINED, 
+        0, 0, 
         SymbolTable::Type::SCTN, 
         sec_union.size, 
         0
@@ -170,10 +170,10 @@ void Linker::findDefinedSymbols(){
         }
 
 
-        if(SymbolTable::isDefined(symbol->flags)){
+        if(SymbolTable::isDefined(symbol)){
           
           if(global_symtab.doesSymbolExist(&sym_name) && 
-          SymbolTable::isDefined(global_symtab.getSymbol(&sym_name)->flags)){
+          SymbolTable::isDefined(global_symtab.getSymbol(&sym_name))){
             
             throw LinkerException("multiple symbol definition -> " + sym_name);
           }
@@ -189,7 +189,7 @@ LOG(std::cout << "(+)d\n";)
           symbol->size, 
           0
            ));
-        }else if(SymbolTable::isExtern(symbol->flags)){
+        }else if(SymbolTable::isExtern(symbol)){
 LOG(std::cout << "(+)e\n";)
 
           extern_syms.push_back(sym_name);
@@ -216,7 +216,7 @@ LOG(std::cout << "(+)e\n";)
   for(std::string extern_sym_name: extern_syms){
 
     if(!global_symtab.doesSymbolExist(&extern_sym_name) || 
-    global_symtab.doesSymbolExist(&extern_sym_name) &&  !SymbolTable::isDefined(global_symtab.getSymbol(&extern_sym_name)->flags
+    global_symtab.doesSymbolExist(&extern_sym_name) &&  !SymbolTable::isDefined(global_symtab.getSymbol(&extern_sym_name)
     )){
       // if relocatable it's okay
       throw LinkerException("unresolved symbol -> " + extern_sym_name);

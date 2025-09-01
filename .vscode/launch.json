@@ -65,7 +65,7 @@
       "program": "${workspaceFolder}/emulator",
       "args": [ "program.hex"],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/tests/nivo-b/",
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",

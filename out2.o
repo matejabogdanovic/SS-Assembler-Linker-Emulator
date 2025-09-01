@@ -1,11 +1,7 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 32       1       d         math    
- 0       NOTYP    GLOB     0x00000000 0        1       d         addRegs 
- 1       NOTYP    GLOB     0x00000008 0        1       d         handler 
+ 1       SCTN     LOC      0x00000000 8        1       d         math    
+ 2       NOTYP    GLOB     0x00000000 0        1       d         a       
 | Offset | Type | Symbol | Section | Addend |
 =================Section math=================
-0000: 00 10 22 50 04 00 FE 93
-0008: 10 00 1F 92 00 10 22 61
-0010: 04 00 1E 96 08 00 FE 93
-0018: 04 00 F0 30 02 00 00 00
+0000: 01 00 20 91 04 00 FE 93

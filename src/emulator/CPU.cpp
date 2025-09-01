@@ -2,7 +2,7 @@
 
 
 void CPU::printGpr(){
-  std::cout << "-----------------------------------------------------------------\n"<<
+  std::cout << "\n-----------------------------------------------------------------\n"<<
     "Emulated processor executed halt instruction\n"<<
     "Emulated processor state:\n";
   for (size_t i = 0; i < 16; i++)
@@ -17,7 +17,7 @@ void CPU::printGpr(){
 void CPU::printCsr(){
 
 
-  std::cout << " " << "STATUS" << "=0x" <<
+  std::cout << "\n"<< " " << "STATUS" << "=0x" <<
       std::right << std::uppercase << std::setw(8) << std::setfill('0') << std::hex <<
       csrfile[STATUS] << std::dec;
   std::cout << " " << "HANDLER"<< "=0x" <<

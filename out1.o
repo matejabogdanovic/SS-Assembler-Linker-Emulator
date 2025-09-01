@@ -1,16 +1,9 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 32       1       d         my_code 
- 2       SCTN     LOC      0x00000000 4        2       d         my_data 
- 3       NOTYP    LOC      0x00000000 0        1       d         my_start
- 4       NOTYP    LOC      0x00000004 0        1       d         wait    
- 5       NOTYP    LOC      0x00000000 0        2       d         my_counter
+ 1       SCTN     LOC      0x00000000 16       1       d         my_code 
+ 2       NOTYP    GLOB     0x00000000 0        UND      e        a       
 | Offset | Type | Symbol | Section | Addend |
- 0000001C T_LOC  my_data  my_code   0 
+ 0000000C T_GLOB a        my_code   0 
 =================Section my_code=================
-0000: FE 0E E0 91 14 00 1F 92
-0008: 00 00 11 92 14 00 20 91
-0010: F0 2F F1 32 00 00 00 00
-0018: 04 00 F0 30 00 00 00 00
-=================Section my_data=================
-0020: 00 00 00 00
+0000: 08 00 F0 21 00 00 00 00
+0008: 04 00 F0 30 F0 FF FF FF

@@ -25,11 +25,11 @@ SymbolTable::SymbolTable(bool init){
   }
 
 }
-bool SymbolTable::isDefined(uint8_t flags) {
-  return flags & (Flags::DEFINED);
+bool SymbolTable::isDefined(Entry* e) {
+  return e->ndx != UNDEFINED_SECTION;
 }
-bool SymbolTable::isExtern(uint8_t flags){
-  return flags & (Flags::EXTERN);
+bool SymbolTable::isExtern(Entry* e){
+  return (e->ndx == UNDEFINED_SECTION) && (e->bind == SymbolTable::Bind::GLOB );
 }
 bool SymbolTable::isAbsolute(uint8_t flags){
   return flags & (Flags::ABSOLUTE);
@@ -253,8 +253,8 @@ void SymbolTable::printEntry(std::string* name, Entry* e, std::ostream& os) cons
 
      os << 
    
-    " " << std::left << std::setw(1) << std::setfill(' ') << (isDefined(e->flags) ? "d":" ") << 
-    std::left << std::setw(1) << std::setfill(' ') << (isExtern(e->flags) ? "e":" ") <<  
+    " " << std::left << std::setw(1) << std::setfill(' ') << (isDefined(e) ? "d":" ") << 
+    std::left << std::setw(1) << std::setfill(' ') << (isExtern(e) ? "e":" ") <<  
     std::left << std::setw(7) << std::setfill(' ') << (isAbsolute(e->flags) ? "a":" ")<< 
     " " << std::left << std::setw(8) << std::setfill(' ') << *name << 
     std::endl;

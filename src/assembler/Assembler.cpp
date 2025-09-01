@@ -139,7 +139,7 @@ void Assembler::handleSection(std::string* name){
     0, 
     SymbolTable::Bind::LOC,
     symtab.current_section+1,
-    SymbolTable::Flags::DEFINED,
+    0,
     SymbolTable::Type::SCTN
     )
   );
@@ -155,21 +155,21 @@ void Assembler::handleLabel(std::string* name){
 
   if(symtab.doesSymbolExist(name)){
     SymbolTable::Entry* s = symtab.getSymbol(name);
-    if(SymbolTable::isDefined(s->flags) || SymbolTable::isExtern(s->flags)){
+    if(SymbolTable::isDefined(s)){
       throw AssemblerException("symbol redeclaration -> " + *name);
     } 
 
     s->offset = LC;
     s->ndx = symtab.getCurrentSection()->ndx;
-    s->flags |= SymbolTable::Flags::DEFINED ;
+  
     return;
   }
 
   symtab.addSymbol(name, SymbolTable::Entry{ 
     LC,  
     SymbolTable::Bind::LOC, 
-    symtab.current_section, 
-    SymbolTable::Flags::DEFINED  
+    symtab.current_section
+    
   });
 };
 
@@ -177,9 +177,6 @@ void Assembler::handleGlobal(std::string* name){
   if(symtab.doesSymbolExist(name)){
     SymbolTable::Entry* s = symtab.getSymbol(name);
 
-    if(SymbolTable::isExtern(s->flags)){
-      throw AssemblerException("symbol flagged as extern, now global -> " + *name);
-    }
 
     s->bind = SymbolTable::Bind::GLOB;
     return;
@@ -194,26 +191,7 @@ void Assembler::handleGlobal(std::string* name){
 };
 
 void Assembler::handleExtern(std::string* name){
-
-  if(symtab.doesSymbolExist(name)){
-    SymbolTable::Entry* s = symtab.getSymbol(name);
-
-    if(SymbolTable::isDefined(s->flags)){
-      throw AssemblerException("symbol can't be defined and extern -> " + *name);
-    }
-
-    s->flags |= SymbolTable::Flags::EXTERN;
-    s->bind = SymbolTable::Bind::GLOB;
-    return;
-  }
-  
-
-  symtab.addSymbol(name, SymbolTable::Entry{ 
-    0, 
-    SymbolTable::Bind::GLOB,
-    symtab.current_section,
-    SymbolTable::Flags::EXTERN
-  });
+  handleGlobal(name);
 };
 
 void Assembler::handleSkip(uint32_t size){
@@ -796,7 +774,7 @@ void Assembler::literalBackpatch(){
     if(literalPool.isUsingSymbol(&p)){
 
       SymbolTable::Entry* s =  symtab.getSymbol(&p.symbol_name);
-      if(SymbolTable::isDefined(s->flags)&&
+      if(SymbolTable::isDefined(s)&&
          s->ndx == symtab.current_section){ // defined in this section
 
         if(std::abs((int)s->offset - ((int)p.instr_location+4)) > 0xfff){
@@ -890,13 +868,15 @@ void Assembler::symbolBackpatch(){
     " in section " << p.section->ndx <<
      " location 0x" << std::hex << p.location << std::dec << 
     std::endl;)
-
-    if(SymbolTable::isExtern(p.symbol->flags)){
+    
+    // global and undefined
+    if(SymbolTable::isExtern(p.symbol)){
 LOG(std::cout << "Extern symbol -> reallocation (section, location) " << std::endl;)
       rel.put({p.location, p.symbol, p.section});
       continue;
     }
-    if(!SymbolTable::isDefined(p.symbol->flags)){
+    // it's local but undefined => error
+    if(!SymbolTable::isDefined(p.symbol)){
       throw AssemblerException("undefined symbol -> " + symtab.getSymbolName(p.symbol->num));
     }
 
