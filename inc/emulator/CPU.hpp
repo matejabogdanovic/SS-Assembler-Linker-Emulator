@@ -1,12 +1,11 @@
 #pragma once
 #include "../common/Instruction.hpp"
-#include "../emulator/EmulatorException.hpp"
+#include "./EmulatorException.hpp"
 #include <cstdint>
 #include <map>
 #include <iomanip>
 #include <iostream>
-
-
+#include <atomic>
 
 class CPU {
 
@@ -37,6 +36,15 @@ public:
     GLOBAL_MASK = 0x4
   };
   // 1 => masked
+  inline void interruptTerminal(){
+    
+    terminal_interrupted = true;
+   
+  }
+
+  inline void unmaskInterrupt(InterruptMask mask){
+    this->writeCsr(STATUS, this->readCsr(STATUS) & (~mask));
+  }
   inline void maskInterrupt(InterruptMask mask){
     this->writeCsr(STATUS, this->readCsr(STATUS) | mask);
   }
@@ -44,9 +52,18 @@ public:
     return this->readCsr(STATUS) & mask;
   }
   inline Interrupt_T isInterrupted(){
+    
     if(this->isMaskedInterrupt(GLOBAL_MASK))return NOT_INTERRUPTED;
+  
+    if(terminal_interrupted && !this->isMaskedInterrupt(TERMINAL_MASK)){
+      
+      terminal_interrupted = false;
+     
+      return TERMINAL;
+    }
+  
     // check for timer, terminal
-    // check prioritys, change them dinamically
+    // check prioritis, change them dinamically
     return NOT_INTERRUPTED; // when timer and terminal are implemented
   }
 
@@ -108,8 +125,8 @@ public:
   void printCsr();
 
 private:
-
-
+ 
+  std::atomic<bool> terminal_interrupted{false};
   uint32_t csrfile [3] = {0, 0, 0};
   uint32_t regfile[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x40000000};
 };

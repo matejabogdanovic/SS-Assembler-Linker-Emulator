@@ -1,6 +1,6 @@
-ASSEMBLER=asembler
-LINKER=linker
-EMULATOR=emulator
+ASSEMBLER=../../asembler
+LINKER=../../linker
+EMULATOR=../../emulator
 
 ${ASSEMBLER} -o main.o main.s
 ${ASSEMBLER} -o handler.o handler.s

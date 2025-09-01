@@ -1,9 +1,11 @@
 #pragma once
 #include "../common/Memory.hpp"
 #include "../common/Macros.hpp"
-
+#include "./EmulatorException.hpp"
 #include <unordered_map>
 #include <cstdint>
+
+
 class EmulatedMemory{
 public:
   struct MemoryRegion{
@@ -18,55 +20,23 @@ public:
   void loadFromFile(std::istream& is);
   
   inline uint8_t readByte(uint32_t address ){
-    // auto region = findRegion(address);
-    // if(!region){
-    //   std::cerr << "Segmentation fault :)"<< std::endl;
-    //   exit(-1);
-    // }
-    // return region->memory.readByte(address-region->saddr);
-    return map[address];
-  }
-  // read byte x 4??, ako poslednja adresa a mi hocemo da citamo jos 3 sledece, problem.
-  inline uint32_t readWord(uint32_t address ){
-    // auto region = findRegion(address);
-    // if(!region){
-    //   std::cerr << "Segmentation fault :)"<< std::endl;
-    //   exit(-1);
-    // }
-    // return region->memory.readWord(address-region->saddr);
-    LOG(std::cout <<  "\tReading word from: "<<std::hex << address <<std::dec ;)
-    uint32_t data = 0;
-    uint8_t byte;
-    for (size_t i = 0; i < 4; i++)
-    {
-      byte = map[address+i];
-      data = data | ((uint32_t)byte << (8 * i)); 
-    }
-    LOG(std::cout <<  "\tData is: "<<std::hex << data <<std::dec << std::endl;)
+
+    uint8_t data = map[address];
+
     return data;
   }
-  inline void changeWord(uint32_t data , uint32_t address ){
-    // auto region = findRegion(address);
-    // if(!region){
-    //   std::cerr << "Segmentation fault :)"<< std::endl;
-    //   exit(-1);
-    // }
-    // region->memory.changeWord(data, address-region->saddr);
-    LOG(std::cout <<  "\tWriting word to: "<<std::hex << address <<std::dec;)
-    LOG(std::cout <<  "\tData is: "<<std::hex << data <<std::dec << std::endl;)
-    for (int i = 0; i < 4; i++){
-      map[address+i] = (uint8_t)data;
+  
+  uint32_t readWord(uint32_t address);
+  void changeWord(uint32_t data , uint32_t address );
 
-      data >>= 8;
-
-    }
-
-  }
+  static const uint32_t TERM_OUT = 0xffffff00;
+  static const uint32_t TERM_IN = 0xffffff04;
+  
 private:
-  // MemoryRegion* findRegion(uint32_t address);
-  // std::list<MemoryRegion> regions;
+
   uint64_t size = 0;
 
   std::unordered_map<uint32_t, uint32_t> map;
 
+ 
 };

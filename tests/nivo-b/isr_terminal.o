@@ -1,0 +1,26 @@
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 113      1       d         isr     
+ 2       NOTYP    GLOB     0x00000000 0        UND      e        my_counter
+ 3       NOTYP    GLOB     0x00000000 0        1       d         isr_terminal
+ 4       NOTYP    LOC      0x00000054 0        1       d         skip    
+ 5       NOTYP    LOC      0x00000060 0        1       d         message_start
+| Offset | Type | Symbol | Section | Addend |
+ 00000069 T_GLOB my_counter isr       0 
+ 0000006D T_GLOB my_counter isr       0 
+=================Section isr=================
+0000: FC 1F E0 81 FC 2F E0 81
+0008: 04 0F 10 92 79 00 20 91
+0010: 40 20 F1 32 48 00 1F 91
+0018: 00 00 21 92 00 2F 00 80
+0020: 01 00 21 92 00 2F 00 80
+0028: 02 00 21 92 00 2F 00 80
+0030: 03 00 21 92 00 2F 00 80
+0038: 04 00 21 92 00 2F 00 80
+0040: 25 00 1F 92 00 00 11 92
+0048: 01 00 20 91 00 20 11 50
+0050: 19 10 F0 82 04 00 2E 93
+0058: 04 00 1E 93 04 00 FE 93
+0060: 70 72 65 73 73 08 00 F0
+0068: 30 D0 FF FF FF E0 FF FF
+0070: FF

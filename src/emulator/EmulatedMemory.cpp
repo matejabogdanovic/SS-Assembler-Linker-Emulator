@@ -1,20 +1,8 @@
 #include "../../inc/emulator/EmulatedMemory.hpp"
-#include "../../inc/emulator/EmulatorException.hpp"
-// EmulatedMemory::MemoryRegion* EmulatedMemory::findRegion(uint32_t address){
-//   for(MemoryRegion& region: regions){
-//     //0[]1[]2[]
-//     // 2
-//     if(region.saddr <= address && (region.saddr + region.size) > address ){
-//       return &region;
-//     }
-//   }
-//   return nullptr;
-// }
+
 
 void EmulatedMemory::loadFromFile(std::istream& is){
   uint32_t start_address = 0;
-
-  // MemoryRegion* curr_region,*prev_region = nullptr;
 
   uint8_t byte;
   uint32_t sz = 0;
@@ -29,28 +17,46 @@ void EmulatedMemory::loadFromFile(std::istream& is){
     }
     this->size += sz;
 
-    // if(prev_region && prev_region->saddr+prev_region->size == start_address){
-      
-    //   curr_region = prev_region;
-    // }else{ // making new region
-    //   regions.push_back({});
-    //   curr_region = &regions.back();
-
-    //   curr_region->saddr = start_address;
-    // }
-  
     
     for(int i = 0; i < sz; i++){
       is.read(reinterpret_cast<char*>(& byte), sizeof(byte));
-      //curr_region->memory.writeByte(byte);
+
       map[start_address+i] = byte;
     }
-
-// LOG(curr_region->memory.print(std::cout, curr_region->size, sz, curr_region->saddr);)
-//     curr_region->size += sz;
-//     prev_region = curr_region;
-    
+ 
   }
+
+}
+
+void EmulatedMemory::changeWord(uint32_t data , uint32_t address ){
   
-// LOG(std::cout << "Region count: " << regions.size() << std::endl;)
+  LOG(std::cout <<  "\tWriting word to: "<<std::hex << address <<std::dec;)
+  LOG(std::cout <<  "\tData is: "<<std::hex << data <<std::dec << std::endl;)
+
+  for (int i = 0; i < 4; i++){
+    map[address+i] = (uint8_t)data;
+    data >>= 8;
+  }
+  // terminal out, needed to do like this so we get correct output every time
+  if(address >= TERM_OUT && address<= (TERM_OUT+3)){
+
+    std::cout <<  (char)(readWord(TERM_OUT)) << std::flush;
+  
+  }
+
+}
+
+uint32_t EmulatedMemory::readWord(uint32_t address ){
+
+  LOG(std::cout <<  "\tReading word from: "<<std::hex << address <<std::dec ;)
+  uint32_t data = 0;
+  uint8_t byte;
+  for (size_t i = 0; i < 4; i++)
+  {
+    byte = map[address+i];
+    data = data | ((uint32_t)byte << (8 * i)); 
+  }
+  LOG(std::cout <<  "\tData is: "<<std::hex << data <<std::dec << std::endl;)
+
+  return data;
 }

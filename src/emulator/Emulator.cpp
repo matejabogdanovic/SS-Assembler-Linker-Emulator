@@ -270,10 +270,11 @@ void Emulator::handleInterrupt(CPU::Interrupt_T interrupt_t){
   memory.changeWord(cpu.readCsr(CPU::STATUS), cpu.readGpr(CPU::SP));
   // push pc
   handleLoadStoreInstructions(Instruction::OPCode::PUSH,0, CPU::SP, CPU::R0, CPU::PC, -4 );
-  // cause <= 4
+  // cause <= 4 if software
   cpu.writeCsr(CPU::CSR::CAUSE, interrupt_t);
   // status <= status & (~0x1)
-  cpu.writeCsr(CPU::STATUS, cpu.readCsr(CPU::STATUS) & (~0x1)); // 0b000 & 0b110 timer enable?
+  if(interrupt_t == CPU::Interrupt_T::SOFTWARE)
+    cpu.writeCsr(CPU::STATUS, cpu.readCsr(CPU::STATUS) & (~0x1)); // 0b000 & 0b110 timer enable?
   // pc <= handle
   cpu.writeGpr(CPU::PC, cpu.readCsr(CPU::HANDLER));
 
@@ -291,6 +292,8 @@ int Emulator::emulation()
   uint8_t cd = 3;
   uint8_t dd = 4;
   CPU::Interrupt_T interrupt_t = CPU::Interrupt_T::NOT_INTERRUPTED;
+  Terminal terminal(&cpu, &memory);
+  
   while (ocm != Instruction::HALT)
   {
     ocm = memory.readByte(cpu.getPC()+3);
@@ -299,6 +302,7 @@ int Emulator::emulation()
     cd = memory.readByte(cpu.getPC() + 1);
     dd = memory.readByte(cpu.getPC());
     cpu.nextPC();
+    
     // cpu.print();
     CPU::GPR gprA = CPU::A(ab), gprB = CPU::B(ab), gprC = CPU::C(cd);
     int32_t disp = CPU::disp(cd, dd);

@@ -267,12 +267,21 @@ void Assembler::handleAscii(std::string* name){
   if(!symtab.sectionOpened()){
     throw AssemblerException("section not opened");
   }
+ 
   for (uint8_t c : *name) {
     memory.writeByte(c);
 
     LC += 1;
   }
-
+   
+  // std::string data = "";
+  // for (size_t i = 0; i < name->length(); i++)
+  // {
+  //   char c = memory.readByte(LC-name->length()+symtab.getSectionStart(symtab.getCurrentSection()->ndx) +i);
+  //   std::cout << c;
+  // }
+  
+  
 }
 
 #define in12bSigned(value) ((value <= 0x7ff) || ((value & 0xfffff800)  == 0xfffff800))
