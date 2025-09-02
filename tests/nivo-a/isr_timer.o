@@ -2,6 +2,7 @@
  0       SCTN     LOC      0x00000000 0        UND                       
  1       SCTN     LOC      0x00000000 4        1       d         isr     
  2       NOTYP    GLOB     0x00000000 0        1       d         isr_timer
+ 3       NOTYP    LOC      0x00000000 0        1       d         local   
 | Offset | Type | Symbol | Section | Addend |
 =================Section isr=================
 0000: 04 00 FE 93

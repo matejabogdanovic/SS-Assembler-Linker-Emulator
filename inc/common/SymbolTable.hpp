@@ -74,21 +74,25 @@ public:
     return symbol_names.size();
   }
 
+  // gets first symbol/section not all duplicates
   Entry* getSection(std::string* name);
   Entry* getSymbol(std::string* name);
   Entry* getSection(uint32_t num_or_ndx);
+  // gets specific symbol with that number even if there are duplicates
   Entry* getSymbol(uint32_t num);
+  
 
   std::string getSymbolName(Entry* e) const;
   std::string getSectionName(Entry* e) const;
   std::string getSymbolName(uint32_t num) const;
   std::string getSectionName(uint32_t num_or_ndx) const;
   
+  void addSymbolNoDuplicates(std::string* name, Entry e);
   void addSymbol(std::string* name, Entry e);
   void addSection(std::string* name, Entry e);
 
   
-  typedef std::map <std::string, Entry> Map;
+  typedef std::multimap <std::string, Entry> Map;
   Map symbols;
   Map sections;
 

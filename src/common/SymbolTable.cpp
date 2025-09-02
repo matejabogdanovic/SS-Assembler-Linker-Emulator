@@ -20,7 +20,8 @@ const char* SymbolTable::bind_str[] = {"LOC", "GLOB"};
 
 SymbolTable::SymbolTable(bool init){
   if(init){
-    this->sections[""] = Entry (0, Bind::LOC, 0, 0, Type::SCTN);
+    this->sections.emplace("", Entry (0, Bind::LOC, 0, 0, Type::SCTN));
+   // this->sections[""] = Entry (0, Bind::LOC, 0, 0, Type::SCTN);
     this->section_names.push_back("");
   }
 
@@ -43,8 +44,23 @@ bool SymbolTable::doesSectionExist(std::string* name) const{
   return sections.count(*name) > 0;
 };
 
-
+// no duplicates
 void SymbolTable::addSymbol(std::string* name, Entry e){
+  // if(doesSymbolExist(name)){
+  //   auto sym = this->getSymbol(name);
+  //   auto num = sym->num;
+  //   *sym = e;
+  //   sym->num = num;
+  //   return; 
+  // }
+  e.num = symbol_names.size(); // to get my name
+  
+  this->symbols.emplace(*name, e);
+  //symbols[*name] = e;
+  symbol_names.push_back(*name);
+}
+
+void SymbolTable::addSymbolNoDuplicates(std::string* name, Entry e){
   if(doesSymbolExist(name)){
     auto sym = this->getSymbol(name);
     auto num = sym->num;
@@ -52,34 +68,50 @@ void SymbolTable::addSymbol(std::string* name, Entry e){
     sym->num = num;
     return; 
   }
-  e.num = symbol_names.size(); // to get my name
-  symbols[*name] = e;
-  symbol_names.push_back(*name);
+  addSymbol(name, e);
 }
 
+// won't be duplicates since sections are aggregated
 void SymbolTable::addSection(std::string* name, Entry e){
   current_section = section_names.size();
   e.num = current_section; 
   e.ndx = current_section;
-  sections[*name] = e;
+  this->sections.emplace(*name, e);
+  //sections[*name] = e;
   section_names.push_back(*name);
 }
 
-
+// gets first
 SymbolTable::Entry* SymbolTable::getSymbol(std::string* name){
-  return &symbols[*name];
+  // return &symbols[*name];
+  auto it = symbols.find(*name);
+  return (it != symbols.end())?&it->second:nullptr;
+ 
 }
-
+// gets first
 SymbolTable::Entry* SymbolTable::getSection(std::string* name){
-  return &sections[*name];
+  // return &sections[*name];
+  auto it = sections.find(*name);
+  return (it != sections.end())?&it->second:nullptr;
 }
-
+// gets first, won't be duplicates
 SymbolTable::Entry* SymbolTable::getSection(uint32_t num_or_ndx){
-  return &sections[section_names[num_or_ndx]];
+  // return &sections[section_names[num_or_ndx]];
+  auto it = sections.find(section_names[num_or_ndx]);
+  return (it != sections.end())?&it->second:nullptr;
 }
 
 SymbolTable::Entry* SymbolTable::getSymbol(uint32_t num){
-  return &symbols[symbol_names[num]];
+  // return &symbols[symbol_names[num]];
+  auto range = symbols.equal_range(symbol_names[num]);
+  for (auto it = range.first; it != range.second; ++it) {
+    if (it->second.num == num) {  
+     
+        return &it->second;
+ 
+    }
+  }
+  return nullptr;
 }
 
 
@@ -101,13 +133,13 @@ std::string SymbolTable::getSectionName(uint32_t num_or_ndx) const{
   return section_names[num_or_ndx];
 }
 
-
+// one section
 uint32_t SymbolTable::getSectionStart(uint32_t ndx){
   
   uint32_t sz = 0;
   SymbolTable::Entry* curr;
   for(int i = 0; i < section_names.size() ; i++){
-    curr =  &sections[section_names[i]];
+    curr =  getSection(i);
     if(curr->ndx == ndx){
       
         return sz;
@@ -133,7 +165,8 @@ std::string SymbolTable::getUndefinedSectionName() const{
 }
 
 SymbolTable::Entry* SymbolTable::getCurrentSection(){
-  return &sections[getCurrentSectionName()];
+  auto name = getCurrentSectionName();
+  return getSection(&name);
 }
 // --------------------------------------
 
@@ -152,10 +185,10 @@ void SymbolTable::printPartBinary(std::string* name, Entry* e, std::ostream& os)
 
 void SymbolTable::printBinary(std::ostream& os){
   auto num_of_sections = section_names.size();
- 
+  
   os.write(reinterpret_cast<const char*>(& num_of_sections), sizeof(num_of_sections));
   for(int i = 0; i < num_of_sections; i++){
-    Entry* e =  &sections[section_names[i]];
+    Entry* e =  getSection(i);
     printPartBinary(&section_names[i],  e, os) ;
   }
 
@@ -163,7 +196,7 @@ void SymbolTable::printBinary(std::ostream& os){
  
   os.write(reinterpret_cast<const char*>(& num_of_symbols), sizeof(num_of_symbols));
   for(int i = 0; i < num_of_symbols; i++){
-    Entry* e =  &symbols[symbol_names[i]];
+    Entry* e =  getSymbol(i);
     printPartBinary(&symbol_names[i],  e, os) ;
   }
 }
@@ -224,13 +257,13 @@ void SymbolTable::print(std::ostream& os){
 
     
   for(int i = 0; i < section_names.size(); i++){
-    Entry* e =  &sections[section_names[i]];
+    Entry* e =  getSection(i);
 
     printEntry(&section_names[i], e, os);
   }
 
   for(int i = 0; i < symbol_names.size(); i++){
-    Entry e =  symbols[symbol_names[i]];
+    Entry e =  *getSymbol(i);
     e.num = section_names.size() + i; // correct index (from sections)
     printEntry(&symbol_names[i], &e, os);
   }

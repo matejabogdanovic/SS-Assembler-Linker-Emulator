@@ -15,6 +15,7 @@
  13      NOTYP    GLOB     0x00000010 0        2       d         value5  
  14      NOTYP    GLOB     0x00000014 0        2       d         value6  
  15      NOTYP    GLOB     0x00000018 0        2       d         value7  
+ 16      NOTYP    LOC      0x000000c0 0        1       d         local   
 | Offset | Type | Symbol | Section | Addend |
  000000C8 T_GLOB handler  my_code   0 
  000000D0 T_GLOB value2   my_code   0 
@@ -69,7 +70,7 @@
 0100: 0C 00 00 00 10 00 00 00
 0108: 14 00 00 00 18 00 00 00
 =================Section my_data=================
-0110: 00 00 00 00 00 00 00 00
-0118: 00 00 00 00 00 00 00 00
-0120: 00 00 00 00 00 00 00 00
-0128: 00 00 00 00
+0000: FE 0E E0 91 C0 00 1F 92
+0008: 00 00 21 94 00 00 00 10
+0010: 01 00 10 91 FC 1F E0 81
+0018: 01 00 10 91

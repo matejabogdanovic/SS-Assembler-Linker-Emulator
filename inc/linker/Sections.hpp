@@ -31,9 +31,12 @@ public:
   std::multiset <SectionsUnion, SortedByStartAddress> map;
 
   // returns true if new section union is made
-  bool put(FileState* file,std::string* section_name, SymbolTable::Entry* section,  uint32_t* start_address=nullptr);
+  bool put(FileState* file,std::string* section_name, SymbolTable::Entry* section, 
+     uint32_t* start_address=nullptr, bool can_overlap = false);
   void printHex(std::ostream& os);
   void printBinary(std::ostream& os);
+  void printBinaryRelocatable(std::ostream& os) ;
+
   uint32_t getSubsectionLocalOffset(std::string* section, FileState* file);
   const SectionsUnion* getSectionsUnion(std::string* section) const;
   

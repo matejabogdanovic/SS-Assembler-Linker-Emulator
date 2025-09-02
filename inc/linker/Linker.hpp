@@ -19,14 +19,22 @@ public:
   static int start(int argc, char* argv[]);
 
   static SymbolTable global_symtab;
+  static SymbolTable global_symtab_local_symbols; 
   static RelTable global_rel;
 private:
+  enum Mode{
+    HEX, REL
+  };
+  static Mode mode;
+
   static int parseArguments(int argc, char* argv[]);
   static int processing();
   static int loadData();
 
   static void createSectionOrder();
-  static void findDefinedSymbols();
+  static void createGlobalSymTable();
+
+  static void createGlobalRelTable();
 
   static void linking();
   static std::string output;

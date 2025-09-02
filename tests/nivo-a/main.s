@@ -11,7 +11,7 @@ my_start:
     ld $0xFFFFFEFE, %sp
     ld $handler, %r1
     csrwr %r1, %handler
-
+    
     int # software interrupt
 
     ld $1, %r1
@@ -56,7 +56,7 @@ my_start:
     ld value5, %r5
     ld value6, %r6
     ld value7, %r7
-
+    local:
     halt
 
 .section my_data

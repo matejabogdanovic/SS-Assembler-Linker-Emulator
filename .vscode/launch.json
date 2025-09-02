@@ -36,8 +36,10 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/linker",
-      "args": [ "-hex" ,"-place=my_code@0x40000000" ,"-place=my_data@0xf0000000" ,"-o" ,"program.hex" 
-      ,"out1.o"],
+      "args": [ "-hex" ,
+   "-place=my_code@0x40000000","-place=math@0xF0000000", 
+   "-o" ,"program.hex" ,
+    "program.o"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}/tests/nivo-a/",
       "environment": [],

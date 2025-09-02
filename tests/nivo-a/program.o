@@ -1,0 +1,127 @@
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 92       1       d         my_handler
+ 2       SCTN     LOC      0x00000000 96       2       d         math    
+ 3       SCTN     LOC      0x00000000 272      3       d         my_code 
+ 4       SCTN     LOC      0x00000000 28       4       d         my_data 
+ 5       SCTN     LOC      0x00000000 52       5       d         isr     
+ 6       NOTYP    GLOB     0x00000004 0        5       d         isr_timer
+ 7       NOTYP    GLOB     0x00000000 0        5       d         isr_terminal
+ 8       NOTYP    GLOB     0x00000008 0        5       d         isr_software
+ 9       NOTYP    GLOB     0x00000000 0        1       d         handler 
+ 10      NOTYP    GLOB     0x00000000 0        2       d         mathAdd 
+ 11      NOTYP    GLOB     0x00000018 0        2       d         mathSub 
+ 12      NOTYP    GLOB     0x00000030 0        2       d         mathMul 
+ 13      NOTYP    GLOB     0x00000048 0        2       d         mathDiv 
+ 14      NOTYP    GLOB     0x00000000 0        4       d         value1  
+ 15      NOTYP    GLOB     0x00000000 0        3       d         my_start
+ 16      NOTYP    GLOB     0x00000004 0        4       d         value2  
+ 17      NOTYP    GLOB     0x00000008 0        4       d         value3  
+ 18      NOTYP    GLOB     0x0000000c 0        4       d         value4  
+ 19      NOTYP    GLOB     0x00000010 0        4       d         value5  
+ 20      NOTYP    GLOB     0x00000014 0        4       d         value6  
+ 21      NOTYP    GLOB     0x00000018 0        4       d         value7  
+ 22      NOTYP    LOC      0x00000024 0        1       d         finish  
+ 23      NOTYP    LOC      0x00000044 0        1       d         handle_software
+ 24      NOTYP    LOC      0x0000003c 0        1       d         handle_terminal
+ 25      NOTYP    LOC      0x00000034 0        1       d         handle_timer
+ 26      NOTYP    LOC      0x000000c0 0        3       d         local   
+ 27      NOTYP    LOC      0x00000004 0        5       d         local   
+| Offset | Type | Symbol | Section | Addend |
+ 00000050 T_GLOB isr_timer my_handler 0 
+ 00000054 T_GLOB isr_terminal my_handler 0 
+ 00000058 T_GLOB isr_software my_handler 0 
+ 000000C8 T_GLOB handler  my_code   0 
+ 000000D0 T_GLOB value2   my_code   0 
+ 000000D4 T_GLOB mathAdd  my_code   0 
+ 000000D8 T_GLOB value3   my_code   0 
+ 000000DC T_GLOB mathSub  my_code   0 
+ 000000E0 T_GLOB value4   my_code   0 
+ 000000E4 T_GLOB mathDiv  my_code   0 
+ 000000E8 T_GLOB value5   my_code   0 
+ 000000EC T_GLOB mathDiv  my_code   0 
+ 000000F0 T_GLOB value6   my_code   0 
+ 000000F4 T_GLOB value1   my_code   0 
+ 000000F8 T_GLOB value2   my_code   0 
+ 000000FC T_GLOB value3   my_code   0 
+ 00000100 T_GLOB value4   my_code   0 
+ 00000104 T_GLOB value5   my_code   0 
+ 00000108 T_GLOB value6   my_code   0 
+ 0000010C T_GLOB value7   my_code   0 
+ 00000030 T_GLOB value1   isr       0 
+=================Section  (6)=================
+=================Section my_handler (1)=================
+0000: FC 1F E0 81 FC 2F E0 81
+0008: 00 00 13 90 02 00 20 91
+0010: 20 20 F1 31 03 00 20 91
+0018: 20 20 F1 31 04 00 20 91
+0020: 20 20 F1 31 04 00 2E 93
+0028: 04 00 1E 93 04 00 1E 96
+0030: 08 00 FE 93 18 00 F0 21
+0038: E8 0F F0 30 14 00 F0 21
+0040: E0 0F F0 30 10 00 F0 21
+0048: D8 0F F0 30 0C 00 F0 30
+0050: F0 FF FF FF F0 FF FF FF
+0058: F0 FF FF FF
+=================Section math (1)=================
+0000: FC 2F E0 81 08 00 1E 92
+0008: 0C 00 2E 92 00 20 11 50
+0010: 04 00 2E 93 04 00 FE 93
+0018: FC 2F E0 81 08 00 1E 92
+0020: 0C 00 2E 92 00 20 11 51
+0028: 04 00 2E 93 04 00 FE 93
+0030: FC 2F E0 81 08 00 1E 92
+0038: 0C 00 2E 92 00 20 11 52
+0040: 04 00 2E 93 04 00 FE 93
+0048: FC 2F E0 81 08 00 1E 92
+0050: 0C 00 2E 92 00 20 11 53
+0058: 04 00 2E 93 04 00 FE 93
+=================Section my_code (1)=================
+0000: FE 0E E0 91 C0 00 1F 92
+0008: 00 00 21 94 00 00 00 10
+0010: 01 00 10 91 FC 1F E0 81
+0018: 01 00 10 91 FC 1F E0 81
+0020: A8 00 F0 21 A8 10 F0 82
+0028: 02 00 10 91 FC 1F E0 81
+0030: 01 00 10 91 FC 1F E0 81
+0038: 98 00 F0 21 98 10 F0 82
+0040: 07 00 10 91 FC 1F E0 81
+0048: 0B 00 10 91 FC 1F E0 81
+0050: 88 00 F0 21 88 10 F0 82
+0058: 05 00 10 91 FC 1F E0 81
+0060: 19 00 10 91 FC 1F E0 81
+0068: 78 00 F0 21 78 10 F0 82
+0070: 04 00 10 91 FC 1F E0 81
+0078: 18 00 10 91 FC 1F E0 81
+0080: 68 00 F0 21 68 10 F0 82
+0088: 68 00 1F 92 00 00 11 92
+0090: 64 00 2F 92 00 00 22 92
+0098: 60 00 3F 92 00 00 33 92
+00A0: 5C 00 4F 92 00 00 44 92
+00A8: 58 00 5F 92 00 00 55 92
+00B0: 54 00 6F 92 00 00 66 92
+00B8: 50 00 7F 92 00 00 77 92
+00C0: 00 00 00 00 48 00 F0 30
+00C8: D0 FF FF FF 00 00 00 F0
+00D0: 04 00 00 00 F0 FF FF FF
+00D8: 08 00 00 00 F0 FF FF FF
+00E0: 0C 00 00 00 F0 FF FF FF
+00E8: 10 00 00 00 F0 FF FF FF
+00F0: 14 00 00 00 00 00 00 00
+00F8: 04 00 00 00 08 00 00 00
+0100: 0C 00 00 00 10 00 00 00
+0108: 14 00 00 00 18 00 00 00
+=================Section my_data (1)=================
+0000: 00 00 00 00 00 00 00 00
+0008: 00 00 00 00 00 00 00 00
+0010: 00 00 00 00 00 00 00 00
+0018: 00 00 00 00
+=================Section isr (3)=================
+0000: 04 00 FE 93
+0004: 04 00 FE 93
+0008: FC 1F E0 81 FC 2F E0 81
+0010: 18 00 1F 92 18 00 2F 92
+0018: 00 10 20 80 04 00 2E 93
+0020: 04 00 1E 93 04 00 FE 93
+0028: 08 00 F0 30 CD AB 00 00
+0030: D0 FF FF FF

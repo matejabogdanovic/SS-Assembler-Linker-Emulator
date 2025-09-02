@@ -1,7 +1,7 @@
 #include "../../inc/linker/Sections.hpp"
 
 
-bool Sections::put(FileState* file,std::string* section_name, SymbolTable::Entry* section, uint32_t* start_address){
+bool Sections::put(FileState* file,std::string* section_name, SymbolTable::Entry* section, uint32_t* start_address, bool can_overlap){
   Memory* memory = &file->memory;
   RelTable* rel = &file->rel;
   SymbolTable* symtab = &file->symtab;
@@ -28,7 +28,7 @@ LOG(symtab->printEntry(section_name, section, std::cout);)
 
   if(!found){
     sec_union.order = globalOrder++;
-    if(!start_address)
+    if(!start_address && !can_overlap)
       free_address = getFreeAddress(section->size);
     sec_union.start_address = (start_address?*start_address:free_address);
     sec_union.name = *section_name;
@@ -48,8 +48,8 @@ LOG(symtab->printEntry(section_name, section, std::cout);)
 LOG(symtab->printEntry(section_name, section, std::cout);)
   }
     
-
-  reorderSections();
+  if(!can_overlap)
+    reorderSections();
 
   return !found;
 
@@ -176,4 +176,27 @@ void Sections::printBinary(std::ostream& os){
     }
   }
 }
+
+
+void Sections::printBinaryRelocatable(std::ostream& os){
+  uint32_t size = 0;
+  for(const Sections::SectionsUnion& sec_union: map){
+    size += sec_union.size;
+  }
+  os.write(reinterpret_cast<const char*>(&size), sizeof(size));
+  for(const Sections::SectionsUnion& sec_union: map){
+    if(sec_union.size == 0)continue;
+     
+      
+      for(const Sections::Section& section: sec_union.sections){
+        uint32_t section_start_in_file = 
+        section.file->symtab.getSectionStart(section.section->ndx);
+
+        section.file->memory.printBinary(os, 
+          section_start_in_file, 
+          section.section->size, false);
+    } 
+  }
+}
+
 
