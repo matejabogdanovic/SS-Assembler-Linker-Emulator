@@ -21,7 +21,7 @@ _start:
     ld $4, %r2
     bne %r1, %r2, wait
    
-  # arguments in %r1 for example
+  # argument in %r1 for example
   ld counter, %r1
   call print   
 
@@ -38,17 +38,13 @@ _start:
 #  r12=0x00000000 r13=0x00000000 r14=0xFFFFFEFE r15=0x40000034
 
 
-  
-
-
-# print '=2'
 print: # in %r1 is argument that is number to print
   
   push %r1
   push %r10
   push %r2
   
-  ld term_out, %r10 # r1 <= 0xffffff00
+  ld term_out, %r10 # r10 <= 0xffffff00
 
   ld text, %r2  # r2 <= ascii(=)
   st  %r2, [%r10] # print

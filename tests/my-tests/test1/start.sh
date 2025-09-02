@@ -7,6 +7,7 @@ ${ASSEMBLER} -o bibl1.o bibl1.s
 ${ASSEMBLER} -o bibl2.o bibl2.s
 ${ASSEMBLER} -o handler.o handler.s
 
+# INDIRECT LINKING
 # make bibl.relocatable
 ${LINKER} -relocatable \
    -place=biblioteka@0x40000000 \
@@ -22,6 +23,12 @@ ${LINKER} -hex \
    -place=my_code@0x40000000  -place=handler@0x10000000  \
    -o program.hex \
     main.relocatable bibl.relocatable
+# DIRECT LINKING
+# ${LINKER} -hex \
+#    -place=my_code@0x40000000  -place=handler@0x10000000  \
+#    -o program.hex \
+#     main.o handler.o bibl1.o bibl2.o
 
-# execute program
+
+
 ${EMULATOR} program.hex
