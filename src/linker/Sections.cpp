@@ -139,26 +139,18 @@ void Sections::printHex(std::ostream& os){
   for(const Sections::SectionsUnion& sec_union: map){
     uint32_t offset = 0;
     os <<"=================Section " << sec_union.name <<" ("<<sec_union.sections.size()<<")=================\n";
-    if(sec_union.size == 0)continue;
-    // Memory section_union_memory;
-    // auto section_union_memory_vector = section_union_memory.getMemoryVector();
+    if(sec_union.size == 0)continue; 
+
     for(const Sections::Section& section: sec_union.sections){
       uint32_t section_start_in_file = section.file->symtab.getSectionStart(section.section->ndx);
-      // auto memory = section.file->memory.getMemoryVector();
-       
-      //section_union_memory_vector.reserve(memory.size()); 
-      // section_union_memory_vector->insert(section_union_memory_vector->end(), 
-      // memory->begin()+section_start_in_file, 
-      // memory->begin()+section_start_in_file+section.section->size);
- 
 
-      section.file->memory.print(os, section_start_in_file, section.section->size,
+      if(section.section->size>0)
+        section.file->memory.print(os, section_start_in_file, section.section->size,
       offset+sec_union.start_address-section_start_in_file);
       
       offset+=section.section->size;
     }
-    // section_union_memory.print(std::cout, 0, 0, sec_union.start_address);
-    // section_union_memory_vector->empty();
+
   }
 }
 

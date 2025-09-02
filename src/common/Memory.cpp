@@ -111,9 +111,10 @@ void Memory::printCode(std::ostream& os, SymbolTable* symtab){
     SymbolTable::Entry* section = symtab->getSection(i);
     
     os << "=================Section " << symtab->getSectionName(i) << "=================\n";
-    if(section->size>0)print(os, start, section->size);
+    if(section->size>0)print(os, start, section->size, 
+      -start);
     
-    // start += section->size;
+     start += section->size;
     
   }
   

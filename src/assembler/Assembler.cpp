@@ -752,8 +752,8 @@ void Assembler::literalBackpatch(){
    if(literalPool.patches.empty())return;
   std::vector<std::pair<uint32_t, uint32_t> > known_literals; // location in pool, value
   // literal patch, writing PC relative displacement in instruction to literal pool
-
-  bool can_use_relative_jump = literalPool.patches.size()*4 <= 0xfff;
+  auto current_section_start_abs = symtab.getSectionStart(symtab.current_section);
+  bool can_use_relative_jump = (literalPool.patches.size()*4 <= 0xfff);
   
   handleWordLiteral(0); // make space for jump instruction
   if(!can_use_relative_jump)handleWordLiteral(0); // space to read where to jump
@@ -785,7 +785,7 @@ void Assembler::literalBackpatch(){
         }
         // write displacement in instruction
 LOG(std::cout << "SYMBOL DEFINED, LITERAL POOL CAN PATCH" << std::endl;)
-        memory.changeInstruction(p.alternative, p.instr_location); // reg dir disp 
+        memory.changeInstruction(p.alternative, p.instr_location+current_section_start_abs); // reg dir disp 
         symbol_defined_in_this_section = true;  
         displacement = s->offset - (p.instr_location+4); // offset to symbol in section
        
@@ -819,17 +819,23 @@ LOG(std::cout << "Needs relocation." << std::endl;)
     }
 
     memory.changeInstructionDisplacement(
-      p.instr_location+symtab.getSectionStart(symtab.current_section),
+      p.instr_location+current_section_start_abs,
       displacement
     );
   }
 
   
   if(can_use_relative_jump){
-    memory.changeInstruction({Instruction::OPCode::JMP_REG_DIR_DISP, PC, 0, 0, (uint16_t)(LC-literal_pool_start)}, literal_pool_start-4);
+    memory.changeInstruction(
+      {Instruction::OPCode::JMP_REG_DIR_DISP, PC, 0, 0, (uint16_t)(LC-literal_pool_start)}, 
+    literal_pool_start-4 +current_section_start_abs);
   }else{
-    memory.changeInstruction({Instruction::OPCode::JMP_REG_IND_DISP, PC, 0, 0, 0}, literal_pool_start-8);
-    memory.changeWord(LC, literal_pool_start-4);
+    memory.changeInstruction(
+      {Instruction::OPCode::JMP_REG_IND_DISP, PC, 0, 0, 0}, literal_pool_start-8
+      +current_section_start_abs
+    );
+
+    memory.changeWord(LC, literal_pool_start-4+current_section_start_abs);
     rel.put({literal_pool_start-4, 
       symtab.getCurrentSection(),
       symtab.getCurrentSection(),

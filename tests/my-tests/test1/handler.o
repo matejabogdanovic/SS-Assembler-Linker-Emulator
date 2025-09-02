@@ -1,0 +1,19 @@
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 64       1       d         my_handler
+ 2       NOTYP    GLOB     0x00000000 0        UND      e        increment
+ 3       NOTYP    GLOB     0x00000000 0        1       d         handler 
+ 4       NOTYP    LOC      0x0000002c 0        1       d         handle_timer
+ 5       NOTYP    LOC      0x00000030 0        1       d         handle_terminal
+ 6       NOTYP    LOC      0x0000001c 0        1       d         finish  
+| Offset | Type | Symbol | Section | Addend |
+ 0000003C T_GLOB increment my_handler 0 
+=================Section my_handler=================
+0000: FC 1F E0 81 FC 2F E0 81
+0008: 00 00 13 90 02 00 20 91
+0010: 18 20 F1 31 03 00 20 91
+0018: 14 20 F1 31 04 00 2E 93
+0020: 04 00 1E 93 04 00 1E 96
+0028: 08 00 FE 93 EC 0F F0 30
+0030: 08 00 F0 21 E4 0F F0 30
+0038: 04 00 F0 30 F0 FF FF FF

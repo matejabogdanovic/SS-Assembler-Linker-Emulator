@@ -10,7 +10,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/asembler",
-      "args": [ "-o", "out1.o", "input1.s"],
+      "args": [ "-o", "out.o", "input.s"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],

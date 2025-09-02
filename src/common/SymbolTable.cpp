@@ -205,7 +205,7 @@ void SymbolTable::loadFromFile(std::istream& is){
   // SymbolTable symtab(false);
   size_t num_of_sections;
   is.read(reinterpret_cast<char*>(& num_of_sections), sizeof(num_of_sections));
-
+  
   for(int i = 0; i < num_of_sections; i++){
     Entry e = {};
     is.read(reinterpret_cast <char*> (&e), sizeof(Entry));

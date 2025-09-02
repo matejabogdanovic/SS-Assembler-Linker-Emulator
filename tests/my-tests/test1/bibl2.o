@@ -1,7 +1,16 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 8        1       d         biblioteka
- 2       NOTYP    GLOB     0x00000000 0        1       d         biblfunc2
+ 1       SCTN     LOC      0x00000000 52       1       d         biblioteka
+ 2       NOTYP    GLOB     0x00000000 0        1       d         increment
+ 3       NOTYP    GLOB     0x00000000 0        UND      e        counter 
 | Offset | Type | Symbol | Section | Addend |
+ 0000002C T_GLOB counter  biblioteka 0 
+ 00000030 T_GLOB counter  biblioteka 0 
 =================Section biblioteka=================
-0000: 02 00 20 91 04 00 FE 93
+0000: FC AF E0 81 FC 1F E0 81
+0008: 20 00 AF 92 00 00 AA 92
+0010: 01 00 10 91 00 A0 11 50
+0018: 14 10 F0 82 04 00 1E 93
+0020: 04 00 AE 93 04 00 FE 93
+0028: 08 00 F0 30 D0 FF FF FF
+0030: E0 FF FF FF

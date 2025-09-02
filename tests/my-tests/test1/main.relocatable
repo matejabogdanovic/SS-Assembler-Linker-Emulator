@@ -1,0 +1,60 @@
+|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
+ 0       SCTN     LOC      0x00000000 0        UND                       
+ 1       SCTN     LOC      0x00000000 1        1       d         data2   
+ 2       SCTN     LOC      0x00000000 144      2       d         my_code 
+ 3       SCTN     LOC      0x00000000 8        3       d         data    
+ 4       SCTN     LOC      0x00000000 64       4       d         my_handler
+ 5       NOTYP    GLOB     0x00000000 0        UND      e        indirectIncrement
+ 6       NOTYP    GLOB     0x00000000 0        UND      e        increment
+ 7       NOTYP    GLOB     0x00000000 0        4       d         handler 
+ 8       NOTYP    GLOB     0x00000000 0        3       d         counter 
+ 9       NOTYP    LOC      0x00000000 0        2       d         _start  
+ 10      NOTYP    LOC      0x0000001c 0        4       d         finish  
+ 11      NOTYP    LOC      0x00000030 0        4       d         handle_terminal
+ 12      NOTYP    LOC      0x0000002c 0        4       d         handle_timer
+ 13      NOTYP    LOC      0x00000034 0        2       d         print   
+ 14      NOTYP    LOC      0x00000004 0        3       d         term_out
+ 15      NOTYP    LOC      0x00000000 0        1       d         text    
+ 16      NOTYP    LOC      0x00000014 0        2       d         wait    
+| Offset | Type | Symbol | Section | Addend |
+ 00000074 T_GLOB handler  my_code   0 
+ 00000078 T_GLOB indirectIncrement my_code   0 
+ 0000007C T_GLOB increment my_code   0 
+ 00000080 T_GLOB counter  my_code   0 
+ 00000084 T_GLOB counter  my_code   0 
+ 00000088 T_LOC  data     my_code   4 
+ 0000008C T_LOC  data2    my_code   0 
+ 0000003C T_GLOB increment my_handler 0 
+=================Section  (2)=================
+=================Section data2 (1)=================
+0000: 3D
+=================Section my_code (1)=================
+0000: FE 0E E0 91 6C 00 1F 92
+0008: 00 00 21 94 68 00 F0 21
+0010: 68 00 F0 21 68 00 1F 92
+0018: 00 00 11 92 04 00 20 91
+0020: F0 2F F1 32 5C 00 1F 92
+0028: 00 00 11 92 04 00 F0 20
+0030: 00 00 00 00 FC 1F E0 81
+0038: FC AF E0 81 FC 2F E0 81
+0040: 44 00 AF 92 00 00 AA 92
+0048: 40 00 2F 92 00 00 22 92
+0050: 00 20 A0 80 30 00 20 91
+0058: 00 20 11 50 00 10 A0 80
+0060: 04 00 2E 93 04 00 AE 93
+0068: 04 00 1E 93 04 00 FE 93
+0070: 1C 00 F0 30 D0 FF FF FF
+0078: F0 FF FF FF F0 FF FF FF
+0080: 00 00 00 00 00 00 00 00
+0088: 04 00 00 00 00 00 00 00
+=================Section data (1)=================
+0000: 00 00 00 00 00 FF FF FF
+=================Section my_handler (1)=================
+0000: FC 1F E0 81 FC 2F E0 81
+0008: 00 00 13 90 02 00 20 91
+0010: 18 20 F1 31 03 00 20 91
+0018: 14 20 F1 31 04 00 2E 93
+0020: 04 00 1E 93 04 00 1E 96
+0028: 08 00 FE 93 EC 0F F0 30
+0030: 08 00 F0 21 E4 0F F0 30
+0038: 04 00 F0 30 F0 FF FF FF

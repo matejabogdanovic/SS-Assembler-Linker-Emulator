@@ -9,14 +9,20 @@ EMULATOR=../../emulator
   ${ASSEMBLER} -o isr_terminal.o isr_terminal.s
  ${ASSEMBLER} -o isr_software.o isr_software.s
 
-   ${LINKER} -relocatable \
+  ${LINKER} -relocatable \
      -place=my_code@0x40000000 -place=math@0xF0000000 \
-    -o program.o \
+    -o programlib.o \
  handler.o math.o main.o isr_terminal.o isr_timer.o isr_software.o
 
  ${LINKER} -hex \
    -place=my_code@0x40000000 -place=math@0xF0000000 \
    -o program.hex \
-      program.o
+      programlib.o
+
+
+#  ${LINKER} -hex \
+#    -place=my_code@0x40000000 -place=math@0xF0000000 \
+#    -o program.hex \
+#       handler.o math.o main.o isr_terminal.o isr_timer.o isr_software.o
 
   ${EMULATOR} program.hex

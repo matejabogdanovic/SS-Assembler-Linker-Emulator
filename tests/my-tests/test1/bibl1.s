@@ -1,8 +1,13 @@
-.extern biblfunc1
+.extern  increment
+.global indirectIncrement
 
 .section biblioteka
-biblfunc1:
-  ld $1, %r1
+indirectIncrement:
+
+  call increment
   ret
+
+
+
 
 .end
