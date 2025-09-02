@@ -1,9 +1,0 @@
-|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
- 0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 16       1       d         my_code 
- 2       NOTYP    GLOB     0x00000000 0        UND      e        a       
-| Offset | Type | Symbol | Section | Addend |
- 0000000C T_GLOB a        my_code   0 
-=================Section my_code=================
-0000: 08 00 F0 21 00 00 00 00
-0008: 04 00 F0 30 F0 FF FF FF

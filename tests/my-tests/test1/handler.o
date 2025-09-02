@@ -1,9 +1,0 @@
-|  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
- 0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 0        1       d         my_code 
- 2       SCTN     LOC      0x00000000 8        2       d         handler 
- 3       NOTYP    GLOB     0x00000000 0        2       d         symbol2 
-| Offset | Type | Symbol | Section | Addend |
-=================Section my_code=================
-=================Section handler=================
-0000: 00 20 22 50 00 00 00 00

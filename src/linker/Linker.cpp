@@ -166,7 +166,10 @@ LOG(std::cout << "Start processing.\n";)
 void Linker::createGlobalRelTable(){
   for(FileState& file: files){
     for(RelTable::Entry& record: file.rel.table){
-        std::string sym_name = record.type == RelTable::RelType::T_LOC?
+      // go in every rel table in every file and append it 
+
+      // if rel type is local then symbol will be section
+        std::string sym_name = (record.type == RelTable::RelType::T_LOC)?
         file.symtab.getSectionName(record.symbol):
         file.symtab.getSymbolName(record.symbol);
         std::string sec_name = file.symtab.getSectionName(record.section);
@@ -177,7 +180,9 @@ void Linker::createGlobalRelTable(){
            sections.getSubsectionLocalOffset(&sec_name, &file)
           << std::dec << std::endl;)
 
+        // CHANGE RECORD OFFSET TO POINT TO CORRECT PLACE BECAUSE SECTIONS ARE AGGREGATE
         record.offset = record.offset + sections.getSubsectionLocalOffset(&sec_name, &file);
+        
         global_rel.put({
           record.offset, 
           (record.type == RelTable::RelType::T_LOC) ?
@@ -194,6 +199,7 @@ void Linker::createGlobalRelTable(){
 
 void Linker::createGlobalSymTable(){
   std::vector<std::string> extern_syms;
+  // go through every section union
   for (const Sections::SectionsUnion& sec_union: sections.map){ 
     uint64_t subsection_local_offset = 0;
     std::string sec_union_name = sec_union.name;
@@ -206,18 +212,19 @@ void Linker::createGlobalSymTable(){
         sec_union.size, 
         0
     ));
-
+    // go through every section
     for (const Sections::Section& section: sec_union.sections){
       SymbolTable* symtab = &section.file->symtab;
 
-
+      // go through every symbol in symtab
       for (size_t i = 0; i < symtab->getNumOfSymbols(); i++){
         std::string sym_name = symtab->getSymbolName(i);
         SymbolTable::Entry* symbol = symtab->getSymbol(i);
         
         if(symtab->getSectionName(symbol->ndx) != sec_union_name)continue;
         if(symbol->bind == SymbolTable::Bind::LOC){
-          if (mode == Mode::REL){
+          if (mode == Mode::REL){ 
+            // add local symbols because we will need them when making .o 
             global_symtab_local_symbols.addSymbol(&sym_name, 
               SymbolTable::Entry(symbol->offset + sec_union.start_address + subsection_local_offset, 
               symbol->bind,
@@ -273,18 +280,16 @@ void Linker::createGlobalSymTable(){
       
   }
   
-  // validate that every symbol is defined
+  
   if(mode == Mode::REL)return;
-    // check if symbol is defined, if not then it's error
+  // check if symbol is defined, if not then it's error
   for(std::string extern_sym_name: extern_syms){
     if(!SymbolTable::isDefined(global_symtab.getSymbol(&extern_sym_name))){
       // if relocatable it's okay, add relocation entry
       throw LinkerException("unresolved symbol -> " + extern_sym_name);  
     }
   }
-  
 
-  
 }
 
 void Linker::createSectionOrder(){
@@ -373,13 +378,13 @@ LOG(std::cout << "LINKING\n";)
         addr_to_put
         <<std::dec << std::endl; ) 
         
+        // LINKING
         section.file->memory.changeWord(
           addr_to_put, 
           record.offset + section_start_in_obj_file);
 
-
-        
       }
+
       LOG(if(sec_union.name != "")
         section.file->memory.print(std::cout, section_start_in_obj_file, section.section->size,
       fixing_subsection_local_offset+sec_union.start_address-section_start_in_obj_file);)

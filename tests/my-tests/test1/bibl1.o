@@ -1,10 +1,7 @@
 |  Num  |  Type  |  Bind  |  Offset  |  Size  |  Ndx  |  Flags  |  Name  |
  0       SCTN     LOC      0x00000000 0        UND                       
- 1       SCTN     LOC      0x00000000 16       1       d         biblioteka
+ 1       SCTN     LOC      0x00000000 8        1       d         biblioteka
  2       NOTYP    GLOB     0x00000000 0        1       d         biblfunc1
- 3       NOTYP    GLOB     0x00000008 0        1       d         biblfunc2
 | Offset | Type | Symbol | Section | Addend |
-=================Section  (2)=================
-=================Section biblioteka (2)=================
+=================Section biblioteka=================
 0000: 01 00 10 91 04 00 FE 93
-0008: 02 00 20 91 04 00 FE 93

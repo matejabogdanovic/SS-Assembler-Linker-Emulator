@@ -1,16 +1,7 @@
-.extern symbol2
+.extern biblfunc1, biblfunc2
+
 .section my_code
-
-jmp symbol2
-
-
-halt
-
-
-.section handler
-symbol1:
-add %r1, %r1
-halt
-
-
+  call biblfunc1
+  call biblfunc2
+  halt
 .end
