@@ -776,8 +776,8 @@ void Assembler::literalBackpatch(){
       SymbolTable::Entry* s =  symtab.getSymbol(&p.symbol_name);
       if(SymbolTable::isDefined(s)&&
          s->ndx == symtab.current_section){ // defined in this section
-
-        if(std::abs((int)s->offset - ((int)p.instr_location+4)) > 0xfff){
+          
+        if(!in12bSigned((int64_t)s->offset - ((int64_t)p.instr_location+4))){
           // LOG(std::cout << "Symbol too far." << s->num << std::endl;)
           throw AssemblerException("symbol too far");
           // literalPool.put(s->offset, p.instr_location); // CHECK DISPLACEMENT FOR
