@@ -41,7 +41,6 @@ Operands can be:
 - Memory: `<literal>`, `<symbol>`, `[%<reg>]`, `[%<reg> + <literal>]`, `[%<reg> + <symbol>]`  
 - Register: `%<reg>`  
 
----
 
 ## Running the Assembler
 
