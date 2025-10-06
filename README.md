@@ -7,7 +7,6 @@ The goal of this task was to implement a **single-pass assembler** for the proce
 
 The program format is based on a simplified educational variant of the **ELF format**. Modifications to sections, relocation record types, or other fields were allowed if necessary to match the target architecture. Undefined details were handled following **GNU assembler principles**.
 
----
 
 ## Features & Directives
 
