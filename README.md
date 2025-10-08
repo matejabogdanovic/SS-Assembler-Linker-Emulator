@@ -78,7 +78,7 @@ The linker supports the following command line options, which can be provided in
   Multiple `-place` options can be used for different section names. Sections without a `-place` option are placed sequentially after the last section at the highest address by default.
 
 - `-hex`  
-  Instructs the linker to generate an output as a set of address-content pairs for memory initialization. Only addresses with defined initial content are included. Example format:
+  Instructs the linker to generate an output as a set of address-content pairs for memory initialization. Only addresses with defined initial content are included.
 
 - `-relocatable`  
 Generates a relocatable output in the same format as the assembler output, ignoring any `-place` options. The resulting program can later be used as input for the linker.
